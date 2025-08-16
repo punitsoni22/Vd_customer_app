@@ -9,6 +9,7 @@ class CommonButton extends StatelessWidget {
   final TextStyle? textStyle;
   final IconData? icon;
   final bool? isFullWidth;
+  final Color? color;
 
   const CommonButton({
     super.key,
@@ -19,6 +20,7 @@ class CommonButton extends StatelessWidget {
     this.textStyle,
     this.icon,
     this.isFullWidth,
+    this.color,
   });
 
   @override
@@ -27,25 +29,29 @@ class CommonButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(10),
       onTap: onTap,
       child: Container(
-        width: double.infinity,
-        padding: padding ?? EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        width: isFullWidth == true ? double.infinity : null,
+
+        constraints: const BoxConstraints(minHeight: 48),
         decoration: BoxDecoration(
+          border: BoxBorder.all(color: color ?? AllColors.buttonColor),
           color: backgroundColor ?? AllColors.buttonColor,
           borderRadius: BorderRadius.circular(10),
         ),
+        alignment: Alignment.center,
+        padding: padding ?? const EdgeInsets.symmetric(horizontal: 16),
         child: Row(
-          mainAxisSize: MainAxisSize.max,
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (icon != null) ...[
               Icon(icon, size: 15, color: Colors.white),
-              SizedBox(width: 6),
+              const SizedBox(width: 6),
             ],
             Text(
               buttonValue,
               style:
                   textStyle ??
-                  TextStyle(
+                  const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
                     color: Colors.white,

@@ -16,6 +16,8 @@ class MyTextField extends StatelessWidget {
   final void Function(String)? onChanged;
   final bool? useFloatingLabel;
   final List<TextInputFormatter>? inputFormatters;
+  final TextStyle? textStyle;
+  final double? width;
 
   const MyTextField({
     super.key,
@@ -32,58 +34,66 @@ class MyTextField extends StatelessWidget {
     this.useFloatingLabel,
     this.validator,
     this.inputFormatters,
+    this.textStyle,
+    this.width,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(height: 5),
-        TextFormField(
-          controller: controller,
-          obscureText: obscureText ?? false,
-          enabled: enabled,
-          validator: validator,
-          onChanged: onChanged,
-          textInputAction: textInputAction,
-          keyboardType: keyboardType,
-          inputFormatters: inputFormatters,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-            color: AllColors.textfieldinputColor,
-          ),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: AllColors.backgroundColor,
-
-            prefixIcon: preFixIcon,
-            suffixIcon: suFFixIcon,
-            errorText: errorText,
-            hintText: label,
-            hintStyle: TextStyle(
+    return SizedBox(
+      width: width ?? double.infinity,
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscureText ?? false,
+        enabled: enabled,
+        validator: validator,
+        onChanged: onChanged,
+        textInputAction: textInputAction,
+        keyboardType: keyboardType,
+        inputFormatters: inputFormatters,
+        style:
+            textStyle ??
+            TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
-              color: AllColors.textfieldhintColor,
+              color: AllColors.textfieldinputColor,
             ),
+        decoration: InputDecoration(
+          isDense: true,
+          contentPadding: const EdgeInsets.symmetric(
+            vertical: 12,
+            horizontal: 12,
+          ),
+          filled: true,
+          fillColor: AllColors.backgroundColor,
 
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(11)),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: AllColors.textfieldborderColor),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: AllColors.textfieldborderColor),
-            ),
-            errorBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: Colors.red),
-            ),
+          prefixIcon: preFixIcon,
+          suffixIcon: suFFixIcon,
+          errorText: errorText,
+          hintText: label,
+          hintStyle:
+              textStyle ??
+              TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: AllColors.textfieldhintColor,
+              ),
+
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(11)),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AllColors.textfieldborderColor),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: AllColors.textfieldborderColor),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.red),
           ),
         ),
-      ],
+      ),
     );
   }
 }
