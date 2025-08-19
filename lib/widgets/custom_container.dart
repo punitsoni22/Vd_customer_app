@@ -188,3 +188,89 @@ class OrderSummaryCard extends StatelessWidget {
     return Container();
   }
 }
+
+class BuildmenuCont extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final Color? textcolor;
+  final Color? iconColor;
+
+  const BuildmenuCont({
+    super.key,
+    required this.icon,
+    required this.title,
+    this.textcolor,
+    this.iconColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.green.shade50,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 20, color: iconColor ?? Colors.green),
+          ),
+          const SizedBox(width: 12),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: textcolor ?? AllColors.buttonColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CustomInfoContainer extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final Color? iconColor;
+  final Color? backgroundColor;
+  final Color? borderColor;
+  final CrossAxisAlignment? crossAxisAlignment;
+  final double? iconSize;
+  final double? borderRadius;
+
+  const CustomInfoContainer({
+    super.key,
+    required this.icon,
+    required this.text,
+    this.iconColor,
+    this.backgroundColor = Colors.white,
+    this.borderColor,
+    this.crossAxisAlignment,
+    this.iconSize,
+    this.borderRadius,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        border: Border.all(color: borderColor ?? Colors.grey),
+        borderRadius: BorderRadius.circular(borderRadius ?? 12),
+      ),
+      child: Row(
+        crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.center,
+        children: [
+          Icon(icon, size: iconSize ?? 20, color: iconColor ?? Colors.black),
+          const SizedBox(width: 8),
+          Expanded(child: Text(text, style: const TextStyle(fontSize: 15))),
+        ],
+      ),
+    );
+  }
+}

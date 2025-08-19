@@ -15,13 +15,13 @@ class SubscriptionTabBar extends StatelessWidget {
           backgroundColor: Colors.white,
           elevation: 0,
           titleSpacing: 0,
-          bottom: const TabBar(
+          bottom: TabBar(
             labelColor: Colors.black,
             unselectedLabelColor: Colors.grey,
-            indicatorColor: Colors.teal,
+            indicatorColor: AllColors.tabBarline,
             tabs: [
-              Tab(text: "Active Subscription"),
-              Tab(text: "Inactive Subscription"),
+              const Tab(text: "Active Subscription"),
+              const Tab(text: "Inactive Subscription"),
             ],
           ),
         ),

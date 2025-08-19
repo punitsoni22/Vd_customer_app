@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vd_customer_app/screens/auth/view/xd.dart';
 import 'package:vd_customer_app/theme/colors.dart';
 import 'package:vd_customer_app/widgets/app_bar.dart';
+import 'package:vd_customer_app/widgets/cart_items_container.dart';
 import 'package:vd_customer_app/widgets/custom_button.dart';
 import 'package:vd_customer_app/widgets/custom_container.dart';
 import 'package:vd_customer_app/widgets/gridview_container.dart';
@@ -121,7 +122,7 @@ class CheckoutScreen extends StatelessWidget {
             ),
 
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
               child: SizedBox(
                 height: 40,
                 child: Row(
@@ -142,6 +143,48 @@ class CheckoutScreen extends StatelessWidget {
                 ),
               ),
             ),
+            SizedBox(height: 5),
+            Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10.0,
+                vertical: 5,
+              ),
+              child: Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: AllColors.textfieldborderColor),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Order Summary',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    RowText(label: "Subtotal", value: "\$750"),
+                    RowText(label: "Discount", value: "-\$50.00"),
+                    RowText(
+                      label: "Delivery Charge",
+                      value: "Free",
+                      color: const Color.fromARGB(255, 237, 98, 98),
+                    ),
+                    RowText(label: "Estimated Tax", value: "-\$45"),
+                    Divider(),
+                    RowText(
+                      label: "Total  Amount",
+                      value: "\$755.00",
+                      isBold: true,
+                      color: Colors.blue[600],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Divider(indent: 20, endIndent: 20),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: CommonButton(

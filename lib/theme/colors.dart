@@ -11,4 +11,9 @@ class AllColors {
   static Color greenIconBackColor = Colors.teal.shade50;
   static Color badgeSelectedColor = Colors.white;
   static Color badgeUnselectedColor = Colors.grey.shade200;
+  static Color tabBarline = Color(0xFF4BC7A4);
+  static Color olivegreenColor = Color(0xFF6B9080);
+  static Color cartinfocontainercolor = Colors.green.withOpacity(0.05);
+  static Color lightgreenColor = Color(0xFF4BC7A4);
+  static Color imagetealbackColor = Colors.teal.withOpacity(0.05);
 }

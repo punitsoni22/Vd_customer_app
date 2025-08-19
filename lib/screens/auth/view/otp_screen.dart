@@ -42,7 +42,12 @@ class OtpScreen extends StatelessWidget {
                 SizedBox(height: 30),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: CommonButton(buttonValue: 'Continue'),
+                  child: CommonButton(
+                    buttonValue: 'Continue',
+                    onTap: () {
+                      Navigator.pushNamed(context, '/login');
+                    },
+                  ),
                 ),
                 Spacer(flex: 3),
                 Text(

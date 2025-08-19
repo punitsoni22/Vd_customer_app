@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vd_customer_app/navigation_bar.dart';
 
 import 'package:vd_customer_app/theme/colors.dart';
 import 'package:vd_customer_app/widgets/app_bar.dart';
@@ -17,6 +18,7 @@ class SubscriptionScreen extends StatelessWidget {
         actions: [Icon(Icons.search_rounded)],
         islineNeeded: true,
       ),
+      bottomNavigationBar: CommonBottomAppbar(),
       body: SubscriptionTabBar(),
     );
   }

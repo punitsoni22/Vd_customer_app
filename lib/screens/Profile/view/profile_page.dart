@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vd_customer_app/navigation_bar.dart';
 import 'package:vd_customer_app/theme/colors.dart';
 import 'package:vd_customer_app/widgets/app_bar.dart';
 import 'package:vd_customer_app/widgets/custom_button.dart';
@@ -13,6 +14,7 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
       appBar: CustomAppBar(title: 'Profile', islineNeeded: true),
       backgroundColor: AllColors.backgroundColor,
+      bottomNavigationBar: CommonBottomAppbar(),
       body: Column(
         children: [
           ProfileHeader(

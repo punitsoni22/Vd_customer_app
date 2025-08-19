@@ -49,6 +49,7 @@ class _RegionScreenState extends State<RegionScreen> {
                   final isSelected = selectedFeaturedIndex == index;
                   return GestureDetector(
                     onTap: () {
+                      Navigator.pushNamed(context, '/home');
                       setState(() {
                         selectedFeaturedIndex = index;
                       });

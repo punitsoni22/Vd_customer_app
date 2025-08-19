@@ -30,6 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  table_calendar: ^3.2.0
+  go_router: ^16.2.0
   
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -63,6 +65,7 @@ flutter:
     - assets/Jaipurr.svg
     - assets/tilted.svg
     - assets/Bigbottle.png
+    - assets/bottlerect.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

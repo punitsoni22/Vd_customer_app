@@ -1,9 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:vd_customer_app/theme/colors.dart';
 
-class BigBottleContainer extends StatelessWidget {
+class BigGridContainer extends StatelessWidget {
   final Map<String, String> product;
-  const BigBottleContainer({super.key, required this.product});
+  final bool showPrice;
+  final bool showActions;
+
+  const BigGridContainer({
+    super.key,
+    required this.product,
+    this.showPrice = true,
+    this.showActions = true,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,14 +26,14 @@ class BigBottleContainer extends StatelessWidget {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                image: DecorationImage(
+                image: const DecorationImage(
                   image: AssetImage('assets/Bigbottle.png'),
                   fit: BoxFit.cover,
                 ),
                 borderRadius: const BorderRadius.vertical(
                   top: Radius.circular(12),
                 ),
-                color: Colors.teal.withOpacity(0.05),
+                color: AllColors.imagetealbackColor,
               ),
             ),
           ),
@@ -35,69 +43,76 @@ class BigBottleContainer extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Text(
-                      product['name']!,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
                 Text(
-                  product['price']!,
+                  product['name'] ?? '',
                   style: const TextStyle(
                     fontSize: 12,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.bold,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
 
-                const SizedBox(height: 8),
+                if (showPrice && product['price'] != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    product['price']!,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
 
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AllColors.backgroundColor,
-                          borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: AllColors.iconColor),
-                        ),
+                if (product['size'] != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    "Size: ${product['size']!}",
+                    style: const TextStyle(fontSize: 11, color: Colors.grey),
+                  ),
+                ],
 
-                        child: Text(
-                          'Subscribe',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: AllColors.iconColor,
+                if (showActions) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AllColors.backgroundColor,
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(color: AllColors.iconColor),
+                          ),
+                          child: Text(
+                            'Subscribe',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AllColors.iconColor,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        decoration: BoxDecoration(
-                          color: AllColors.buttonColor,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: const Text(
-                          'Add to Cart',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(fontSize: 12, color: Colors.white),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AllColors.buttonColor,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: const Text(
+                            'Add to Cart',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 12, color: Colors.white),
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),

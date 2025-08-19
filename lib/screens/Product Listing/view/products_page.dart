@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vd_customer_app/constants/products_tiltedbottlelist.dart';
 import 'package:vd_customer_app/theme/colors.dart';
 import 'package:vd_customer_app/widgets/app_bar.dart';
-import 'package:vd_customer_app/widgets/bottom_appbar.dart';
+import 'package:vd_customer_app/navigation_bar.dart';
 import 'package:vd_customer_app/widgets/gridview_container.dart';
 import 'package:vd_customer_app/widgets/listview_container.dart';
 
@@ -20,7 +20,7 @@ class ProductsPage extends StatelessWidget {
         ],
         islineNeeded: false,
       ),
-
+      bottomNavigationBar: CommonBottomAppbar(),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -52,14 +52,13 @@ class ProductsPage extends StatelessWidget {
                 ),
                 itemBuilder: (context, index) {
                   final product = products[index];
-                  return BigBottleContainer(product: product);
+                  return BigGridContainer(product: product);
                 },
               ),
             ),
           ],
         ),
       ),
-      bottomNavigationBar: CommonBottomAppbar(),
     );
   }
 }

@@ -43,7 +43,12 @@ class LoginScreen extends StatelessWidget {
                 SizedBox(height: 30),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: CommonButton(buttonValue: 'Login'),
+                  child: CommonButton(
+                    buttonValue: 'Login',
+                    onTap: () {
+                      Navigator.pushNamed(context, '/region');
+                    },
+                  ),
                 ),
                 Spacer(flex: 3),
                 Text(

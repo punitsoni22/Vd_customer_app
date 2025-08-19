@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:vd_customer_app/theme/colors.dart';
 
 class CommonButton extends StatelessWidget {
@@ -10,6 +11,7 @@ class CommonButton extends StatelessWidget {
   final IconData? icon;
   final bool? isFullWidth;
   final Color? color;
+  final BoxConstraints? selfconstraints;
 
   const CommonButton({
     super.key,
@@ -21,6 +23,7 @@ class CommonButton extends StatelessWidget {
     this.icon,
     this.isFullWidth,
     this.color,
+    this.selfconstraints,
   });
 
   @override
@@ -31,7 +34,7 @@ class CommonButton extends StatelessWidget {
       child: Container(
         width: isFullWidth == true ? double.infinity : null,
 
-        constraints: const BoxConstraints(minHeight: 48),
+        constraints: selfconstraints ?? const BoxConstraints(minHeight: 48),
         decoration: BoxDecoration(
           border: BoxBorder.all(color: color ?? AllColors.buttonColor),
           color: backgroundColor ?? AllColors.buttonColor,

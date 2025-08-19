@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vd_customer_app/theme/colors.dart';
+import 'package:vd_customer_app/widgets/custom_container.dart';
 
 class OrdersCard extends StatelessWidget {
   const OrdersCard({super.key});
@@ -26,36 +27,18 @@ class OrdersCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          _buildMenuItem(Icons.inventory_2_outlined, "All Order’s"),
-          _buildMenuItem(Icons.calendar_today_outlined, "Order Calendar"),
-          _buildMenuItem(Icons.location_on_outlined, "Address Book"),
-          _buildMenuItem(Icons.local_drink_outlined, "Return Empty Bottle"),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMenuItem(IconData icon, String title) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Colors.green.shade50,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, size: 20, color: Colors.green),
+          BuildmenuCont(icon: Icons.inventory_2_outlined, title: 'All Order’s'),
+          BuildmenuCont(
+            icon: Icons.calendar_today_outlined,
+            title: 'Order Calendar',
           ),
-          const SizedBox(width: 12),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              color: AllColors.buttonColor,
-            ),
+          BuildmenuCont(
+            icon: Icons.location_on_outlined,
+            title: 'Address Book',
+          ),
+          BuildmenuCont(
+            icon: Icons.local_drink_outlined,
+            title: 'Return Empty Bottle',
           ),
         ],
       ),
