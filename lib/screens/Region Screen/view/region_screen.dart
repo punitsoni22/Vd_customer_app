@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vd_customer_app/constants/pick_region_list.dart';
+import 'package:vd_customer_app/routes/routes.dart';
 import 'package:vd_customer_app/theme/colors.dart';
 import 'package:vd_customer_app/widgets/app_bar.dart';
 import 'package:vd_customer_app/widgets/region_container.dart';
@@ -49,7 +51,7 @@ class _RegionScreenState extends State<RegionScreen> {
                   final isSelected = selectedFeaturedIndex == index;
                   return GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, '/home');
+                      context.goNamed(AppRoutes.homeScreen);
                       setState(() {
                         selectedFeaturedIndex = index;
                       });

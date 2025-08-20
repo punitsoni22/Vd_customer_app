@@ -20,7 +20,7 @@ class ProductsPage extends StatelessWidget {
         ],
         islineNeeded: false,
       ),
-      bottomNavigationBar: CommonBottomAppbar(),
+
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

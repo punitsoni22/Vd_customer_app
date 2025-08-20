@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vd_customer_app/constants/cart_items.dart';
 import 'package:vd_customer_app/navigation_bar.dart';
-import 'package:vd_customer_app/screens/auth/view/xd.dart';
 import 'package:vd_customer_app/theme/colors.dart';
 import 'package:vd_customer_app/widgets/app_bar.dart';
 import 'package:vd_customer_app/widgets/cart_items_container.dart';
@@ -16,7 +15,7 @@ class CartScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AllColors.backgroundColor,
       appBar: CustomAppBar(title: 'Cart', islineNeeded: true),
-      bottomNavigationBar: CommonBottomAppbar(),
+
       body: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(

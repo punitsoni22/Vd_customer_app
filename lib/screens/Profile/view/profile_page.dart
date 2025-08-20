@@ -14,7 +14,7 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
       appBar: CustomAppBar(title: 'Profile', islineNeeded: true),
       backgroundColor: AllColors.backgroundColor,
-      bottomNavigationBar: CommonBottomAppbar(),
+
       body: Column(
         children: [
           ProfileHeader(

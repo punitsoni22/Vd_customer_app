@@ -12,7 +12,6 @@ import 'package:vd_customer_app/screens/Product%20Listing/view/products_page.dar
 import 'package:vd_customer_app/screens/Profile/view/profile_page.dart';
 import 'package:vd_customer_app/screens/Region%20Screen/view/region_screen.dart';
 import 'package:vd_customer_app/screens/Subscription/view/subscription_screen.dart';
-import 'package:vd_customer_app/screens/auth/view/xd.dart';
 import 'package:vd_customer_app/widgets/app_bar.dart';
 import 'package:vd_customer_app/widgets/image_container.dart';
 import 'package:vd_customer_app/widgets/tab_bar.dart';
@@ -27,12 +26,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Vd Customer App',
       debugShowCheckedModeBanner: false,
-      // initialRoute: '/otp',
-      // onGenerateRoute: RouteGenerator.generateRoute,
-      home: CartScreen(),
+      routerConfig: MyAppRouter().router,
+      // home: CheckoutScreen(),
     );
   }
 }

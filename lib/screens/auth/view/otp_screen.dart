@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:vd_customer_app/routes/routes.dart';
 import 'package:vd_customer_app/theme/colors.dart';
 import 'package:vd_customer_app/widgets/custom_button.dart';
 import 'package:vd_customer_app/widgets/custom_container.dart';
@@ -45,7 +47,7 @@ class OtpScreen extends StatelessWidget {
                   child: CommonButton(
                     buttonValue: 'Continue',
                     onTap: () {
-                      Navigator.pushNamed(context, '/login');
+                      GoRouter.of(context).pushNamed(AppRoutes.loginscreen);
                     },
                   ),
                 ),

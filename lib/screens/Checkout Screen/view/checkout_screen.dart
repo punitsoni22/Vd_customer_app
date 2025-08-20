@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:vd_customer_app/screens/auth/view/xd.dart';
 import 'package:vd_customer_app/theme/colors.dart';
 import 'package:vd_customer_app/widgets/app_bar.dart';
 import 'package:vd_customer_app/widgets/cart_items_container.dart';

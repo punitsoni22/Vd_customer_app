@@ -18,7 +18,7 @@ class SubscriptionScreen extends StatelessWidget {
         actions: [Icon(Icons.search_rounded)],
         islineNeeded: true,
       ),
-      bottomNavigationBar: CommonBottomAppbar(),
+
       body: SubscriptionTabBar(),
     );
   }

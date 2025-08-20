@@ -7,9 +7,6 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CustomAppBar(title: "Home", islineNeeded: true),
-      bottomNavigationBar: CommonBottomAppbar(),
-    );
+    return Scaffold(appBar: CustomAppBar(title: "Home", islineNeeded: true));
   }
 }
