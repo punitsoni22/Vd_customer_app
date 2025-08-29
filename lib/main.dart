@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/constants/cart_items.dart';
-import 'package:vd_customer_app/feature/login_screen/login_otp_screen.dart';
+import 'package:vd_customer_app/feature/register_screen/login_otp_screen.dart';
+import 'package:vd_customer_app/feature/register_screen/provider/signup_provider.dart';
 import 'package:vd_customer_app/navigation_bar.dart';
 import 'package:vd_customer_app/core/routing/route_generation.dart';
 import 'package:vd_customer_app/feature/calendar_screen/calendar_screen.dart';
@@ -26,11 +28,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Vd Customer App',
-      debugShowCheckedModeBanner: false,
-      // routerConfig: MyAppRouter().router,
-      home: SubscriptionScreen(),
+    return MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => SignupProvider())],
+      child: MaterialApp(
+        title: 'Vd Customer App',
+        debugShowCheckedModeBanner: false,
+        // routerConfig: MyAppRouter().router,
+        home: LoginOtpScreen(),
+      ),
     );
   }
 }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vd_customer_app/feature/login_screen/login_otp_screen.dart';
+import 'package:vd_customer_app/feature/register_screen/login_otp_screen.dart';
 import 'package:vd_customer_app/navigation_bar.dart';
 import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/feature/cart_screen/cart_screen.dart';

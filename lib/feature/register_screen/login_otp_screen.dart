@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as Api;
+import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
 
 import 'package:vd_customer_app/core/utils/common_widgets/common_textfield.dart';
+import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
+import 'package:vd_customer_app/feature/register_screen/provider/signup_provider.dart';
 
 class LoginOtpScreen extends StatefulWidget {
   const LoginOtpScreen({super.key});
@@ -14,11 +18,11 @@ class LoginOtpScreen extends StatefulWidget {
 class _LoginOtpScreenState extends State<LoginOtpScreen> {
   bool isOtpStage = false;
 
-  // final TextEditingController emailController = TextEditingController();
-
-  // final TextEditingController passwordController = TextEditingController();
-
-  // final TextEditingController otpController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController otpController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController numberController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -112,25 +116,60 @@ class _LoginOtpScreenState extends State<LoginOtpScreen> {
             color: AllColors.buttonColor,
           ),
         ),
-        SizedBox(height: 20),
+        SizedBox(height: 10),
+        MyTextField(
+          label: 'Name',
+          controller: nameController,
+          keyboardType: TextInputType.name,
+        ),
+        const SizedBox(height: 10),
         MyTextField(
           label: 'Email',
-          // controller: emailController,
+          controller: emailController,
           keyboardType: TextInputType.emailAddress,
+        ),
+        SizedBox(height: 10),
+        MyTextField(
+          label: 'Phone Number',
+          controller: numberController,
+          keyboardType: TextInputType.number,
         ),
         const SizedBox(height: 20),
         MyTextField(
           label: 'Password',
-          // controller: passwordController,
+          controller: passwordController,
           obscureText: true,
         ),
         const SizedBox(height: 30),
-        CommonButton(
-          buttonValue: 'Login',
-          onTap: () {
-            setState(() {
-              isOtpStage = true;
-            });
+        Consumer<SignupProvider>(
+          builder: (context, provider, child) {
+            return CommonButton(
+              buttonValue: 'Sign Up',
+              isFullWidth: true,
+              onTap: provider.isLoading
+                  ? null
+                  : () async {
+                      final data = {
+                        "data": {
+                          "emailId": emailController.text.trim(),
+                          "password": passwordController.text.trim(),
+                          "fullName": nameController.text.trim(),
+                          "mobileNumber": numberController.text.trim(),
+                        },
+                      };
+                      await provider.signup(data);
+                    },
+              child: provider.isLoading
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : null,
+            );
           },
         ),
       ],
@@ -149,7 +188,11 @@ class _LoginOtpScreenState extends State<LoginOtpScreen> {
           ),
         ),
         const SizedBox(height: 20),
-        MyTextField(label: 'Enter OTP', keyboardType: TextInputType.number),
+        MyTextField(
+          label: 'Enter OTP',
+          controller: otpController,
+          keyboardType: TextInputType.number,
+        ),
         const SizedBox(height: 30),
         CommonButton(buttonValue: 'Continue'),
       ],
