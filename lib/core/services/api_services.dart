@@ -15,7 +15,7 @@ class Api {
   }) async {
     final token = await Prefs.getToken();
     final uri = Uri.parse('$baseUrl/$endpoint');
-
+    log("this is url: $uri");
     final headers = {
       'Content-Type': 'application/json; charset=UTF-8',
       if (token != null) 'Authorization': 'Bearer $token',
