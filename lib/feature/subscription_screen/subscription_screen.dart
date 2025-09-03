@@ -24,7 +24,7 @@ class SubscriptionScreen extends StatelessWidget {
         ],
         islineNeeded: true,
       ),
-      bottomNavigationBar: CommonBottomAppbar(),
+      // bottomNavigationBar: CommonBottomAppbar(),
       body: Column(children: [Expanded(child: SubscriptionTabBar())]),
     );
   }

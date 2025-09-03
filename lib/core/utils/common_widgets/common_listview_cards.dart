@@ -26,17 +26,34 @@ class SmallBottleCards extends StatelessWidget {
           child: SizedBox(
             height: 78,
             width: 78,
-            child: Image.asset(smallBottle.bottleimage, fit: BoxFit.cover),
+            child: smallBottle.bottleimage.startsWith('http')
+                ? Image.network(
+                    smallBottle.bottleimage,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Image.asset(
+                        'assets/SmallBottlePlaceholder.png',
+                        fit: BoxFit.cover,
+                      );
+                    },
+                  )
+                : Image.asset(
+                    'assets/SmallBottlePlaceholder.png',
+                    fit: BoxFit.cover,
+                  ),
           ),
         ),
-        SizedBox(height: 1),
+        const SizedBox(height: 4),
         Text(
-          smallBottle.bottlename,
-          style: TextStyle(
-            color: AllColors.buttonColor,
+          smallBottle.bottleimage,
+          style: const TextStyle(
+            color: Colors.black,
             fontWeight: FontWeight.bold,
             fontSize: 12,
           ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
         ),
       ],
     );

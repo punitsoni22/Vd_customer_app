@@ -9,4 +9,5 @@ class AppRoutes {
   static const String productScreen = 'products';
   static const String cartScreen = 'cart';
   static const String profileScreen = 'profile';
+  static const String productdetailscreen = 'productdetail';
 }

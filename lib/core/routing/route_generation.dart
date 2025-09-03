@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:vd_customer_app/feature/auth_screen/auth_screen.dart';
 import 'package:vd_customer_app/feature/login_screen/login_screen.dart';
 import 'package:vd_customer_app/feature/login_screen/verify_otp_screen.dart';
+import 'package:vd_customer_app/feature/product_detail_screen/product_detail_screen.dart';
 import 'package:vd_customer_app/feature/signup_screen/signup_screen.dart';
 import 'package:vd_customer_app/navigation_bar.dart';
 import 'package:vd_customer_app/core/routing/routes.dart';
@@ -15,7 +16,7 @@ import 'package:vd_customer_app/feature/subscription_screen/subscription_screen.
 
 class MyAppRouter {
   GoRouter router = GoRouter(
-    initialLocation: '/home',
+    initialLocation: '/products',
     routes: [
       GoRoute(
         path: '/auth',
@@ -47,26 +48,32 @@ class MyAppRouter {
         path: '/home',
         builder: (context, state) => HomeScreen(),
       ),
-
-      ShellRoute(
-        builder: (context, state, child) => CommonBottomAppbar(),
-        routes: [
-          // GoRoute(path: "/home", builder: (context, state) => HomeScreen()),
-          GoRoute(
-            path: "/products",
-            builder: (context, state) => ProductScreen(),
-          ),
-          GoRoute(
-            path: "/subscription",
-            builder: (context, state) => SubscriptionScreen(),
-          ),
-          GoRoute(path: "/cart", builder: (context, state) => CartScreen()),
-          GoRoute(
-            path: "/profile",
-            builder: (context, state) => ProfileScreen(),
-          ),
-        ],
+      GoRoute(path: "/products", builder: (context, state) => ProductScreen()),
+      GoRoute(
+        path: '/productdetail',
+        name: AppRoutes.productdetailscreen,
+        builder: (context, state) => const ProductDetailScreen(),
       ),
+
+      // ShellRoute(
+      //   builder: (context, state, child) => CommonBottomAppbar(),
+      //   routes: [
+      //     // GoRoute(path: "/home", builder: (context, state) => HomeScreen()),
+      //     GoRoute(
+      //       path: "/products",
+      //       builder: (context, state) => ProductScreen(),
+      //     ),
+      //     GoRoute(
+      //       path: "/subscription",
+      //       builder: (context, state) => SubscriptionScreen(),
+      //     ),
+      //     GoRoute(path: "/cart", builder: (context, state) => CartScreen()),
+      //     GoRoute(
+      //       path: "/profile",
+      //       builder: (context, state) => ProfileScreen(),
+      //     ),
+      //   ],
+      // ),
     ],
   );
 }

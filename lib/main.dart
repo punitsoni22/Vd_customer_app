@@ -6,6 +6,7 @@ import 'package:vd_customer_app/core/services/xd.dart';
 import 'package:vd_customer_app/feature/auth_screen/provider/auth_provider.dart';
 import 'package:vd_customer_app/feature/login_screen/login_screen.dart';
 import 'package:vd_customer_app/feature/login_screen/provider/login_provider.dart';
+import 'package:vd_customer_app/feature/product_list_screen/provider/product_screen_provider.dart';
 import 'package:vd_customer_app/feature/signup_screen/signup_screen.dart';
 import 'package:vd_customer_app/feature/signup_screen/provider/signup_provider.dart';
 import 'package:vd_customer_app/navigation_bar.dart';
@@ -53,6 +54,7 @@ class MyApp extends StatelessWidget {
             ChangeNotifierProvider(create: (_) => SignupProvider()),
             ChangeNotifierProvider(create: (_) => LoginProvider()),
             ChangeNotifierProvider(create: (_) => AuthProvider()),
+            ChangeNotifierProvider(create: (_) => ProductProvider()),
           ],
           child: MaterialApp.router(
             title: 'Vd Customer App',
