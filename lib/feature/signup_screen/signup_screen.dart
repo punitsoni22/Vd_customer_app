@@ -1,128 +1,118 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as Api;
 import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
-
 import 'package:vd_customer_app/core/utils/common_widgets/common_textfield.dart';
-import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
-import 'package:vd_customer_app/feature/register_screen/provider/signup_provider.dart';
+import 'package:vd_customer_app/feature/signup_screen/provider/signup_provider.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
 
   @override
-  State<SignupScreen> createState() => _LoginOtpScreenState();
+  State<SignupScreen> createState() => _SignUpScreenState();
 }
 
-class _LoginOtpScreenState extends State<SignupScreen> {
-  bool showErrors =
-      false; // whether to show validation errors after button clicked
+class _SignUpScreenState extends State<SignupScreen> {
+  bool showErrors = false;
   String? nameError;
   String? emailError;
   String? phoneError;
   String? passwordError;
 
-  final _formKey = GlobalKey<FormState>();
-
-  bool _showLogin = false;
+  final _fKey = GlobalKey<FormState>();
 
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController otpController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController numberController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: AllColors.backgroundColor,
-      body: Stack(
-        children: [
-          Column(
-            children: [
-              Container(
-                padding: EdgeInsets.only(left: 12, bottom: 8),
-                height: MediaQuery.of(context).size.height * 0.4,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(25),
-                    bottomRight: Radius.circular(25),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Container(
+                  padding: EdgeInsets.only(left: 12, bottom: 8),
+                  height: MediaQuery.of(context).size.height * 0.4,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(25),
+                      bottomRight: Radius.circular(25),
+                    ),
+                    color: AllColors.buttonColor,
+                    boxShadow: [BoxShadow(spreadRadius: 0.5, blurRadius: 9)],
                   ),
-                  color: AllColors.buttonColor,
-
-                  boxShadow: [BoxShadow(spreadRadius: 0.5, blurRadius: 9)],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    const Spacer(flex: 2),
-
-                    _signupstate(),
-
-                    const Spacer(flex: 3),
-                    Text(
-                      'Hello!',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 25,
-                      ),
-                    ),
-                    Text(
-                      'Welcome to Vedasip',
-                      style: TextStyle(fontSize: 20, color: Colors.white),
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      const Spacer(flex: 2),
-                      _signupstate(), // show signup
-
-                      const Spacer(flex: 3),
-
                       Text(
-                        'By continuing you agree to our',
-                        style: TextStyle(fontSize: 12, color: Colors.grey),
-                      ),
-                      Text(
-                        'Terms & Condition and Privacy Policy',
+                        'Hello!',
                         style: TextStyle(
-                          fontSize: 14,
-                          color: AllColors.buttonColor,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 25,
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      Text(
+                        'Welcome to Vedasip',
+                        style: TextStyle(fontSize: 20, color: Colors.white),
+                      ),
                     ],
                   ),
                 ),
+                Positioned(
+                  top: -19,
+                  right: 0,
+                  child: Image.asset(
+                    'assets/Bottlee.png',
+                    width: 238,
+                    height: 400,
+                  ),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Column(
+                children: [
+                  const SizedBox(height: 20),
+                  _signupstate(),
+                  const SizedBox(height: 40),
+                  Text(
+                    'By continuing you agree to our',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                  Text(
+                    'Terms & Condition and Privacy Policy',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: AllColors.buttonColor,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
               ),
-            ],
-          ),
-
-          Positioned(
-            top: -19,
-            right: 0,
-            child: Image.asset('assets/Bottlee.png', width: 238, height: 400),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _signupstate() {
     return Form(
-      key: _formKey,
+      key: _fKey,
       child: Column(
         children: [
           Text(
@@ -133,21 +123,15 @@ class _LoginOtpScreenState extends State<SignupScreen> {
               color: AllColors.buttonColor,
             ),
           ),
-          SizedBox(height: 10),
-
+          const SizedBox(height: 10),
           MyTextField(
             label: 'Name',
             controller: nameController,
             errorText: showErrors ? nameError : null,
             onChanged: (value) {
-              if (nameError != null) {
-                setState(() {
-                  nameError = null;
-                });
-              }
+              if (nameError != null) setState(() => nameError = null);
             },
           ),
-
           const SizedBox(height: 10),
           MyTextField(
             label: 'Email',
@@ -155,14 +139,9 @@ class _LoginOtpScreenState extends State<SignupScreen> {
             keyboardType: TextInputType.emailAddress,
             errorText: showErrors ? emailError : null,
             onChanged: (value) {
-              if (emailError != null) {
-                setState(() {
-                  emailError = null;
-                });
-              }
+              if (emailError != null) setState(() => emailError = null);
             },
           ),
-
           const SizedBox(height: 10),
           MyTextField(
             label: 'Phone Number',
@@ -170,14 +149,9 @@ class _LoginOtpScreenState extends State<SignupScreen> {
             keyboardType: TextInputType.number,
             errorText: showErrors ? phoneError : null,
             onChanged: (value) {
-              if (phoneError != null) {
-                setState(() {
-                  phoneError = null;
-                });
-              }
+              if (phoneError != null) setState(() => phoneError = null);
             },
           ),
-
           const SizedBox(height: 20),
           MyTextField(
             label: 'Password',
@@ -185,14 +159,9 @@ class _LoginOtpScreenState extends State<SignupScreen> {
             obscureText: true,
             errorText: showErrors ? passwordError : null,
             onChanged: (value) {
-              if (passwordError != null) {
-                setState(() {
-                  passwordError = null;
-                });
-              }
+              if (passwordError != null) setState(() => passwordError = null);
             },
           ),
-
           const SizedBox(height: 30),
           Consumer<SignupProvider>(
             builder: (context, provider, child) {
@@ -254,12 +223,8 @@ class _LoginOtpScreenState extends State<SignupScreen> {
                           };
                           log("data: $data");
                           await provider.signup(data, context);
-                          setState(() {
-                            _showLogin = true;
-                          });
                         }
                       },
-
                 child: provider.isLoading
                     ? const SizedBox(
                         height: 20,

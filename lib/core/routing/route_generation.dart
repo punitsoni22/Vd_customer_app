@@ -1,22 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vd_customer_app/feature/auth_screen/auth_screen.dart';
 import 'package:vd_customer_app/feature/login_screen/login_screen.dart';
-import 'package:vd_customer_app/feature/register_screen/signup_screen.dart';
+import 'package:vd_customer_app/feature/login_screen/verify_otp_screen.dart';
+import 'package:vd_customer_app/feature/signup_screen/signup_screen.dart';
 import 'package:vd_customer_app/navigation_bar.dart';
 import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/feature/cart_screen/cart_screen.dart';
 import 'package:vd_customer_app/feature/home_screen/home_page.dart';
-import 'package:vd_customer_app/feature/product_list_screen/products_page.dart';
+import 'package:vd_customer_app/feature/product_list_screen/products_screen.dart';
 import 'package:vd_customer_app/feature/profile_screen/profile_screen.dart';
 import 'package:vd_customer_app/feature/region_screen/region_screen.dart';
 import 'package:vd_customer_app/feature/subscription_screen/subscription_screen.dart';
 
-import 'package:vd_customer_app/feature/subscription_screen/widgets/subscription_tab_bar.dart';
-
 class MyAppRouter {
   GoRouter router = GoRouter(
-    initialLocation: '/register',
+    initialLocation: '/home',
     routes: [
+      GoRoute(
+        path: '/auth',
+        name: 'authScreen',
+        builder: (context, state) => const AuthScreen(),
+      ),
+      GoRoute(
+        path: '/otp',
+        name: AppRoutes.otpscreen,
+        builder: (context, state) => VerifyOtpScreen(),
+      ),
       GoRoute(
         name: AppRoutes.loginsscreen,
         path: '/login',

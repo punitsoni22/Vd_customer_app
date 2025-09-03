@@ -45,7 +45,7 @@ class BigGridContainer extends StatelessWidget {
                     Text(
                       product['name'] ?? '',
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 10,
                         fontWeight: FontWeight.bold,
                       ),
                       maxLines: 2,

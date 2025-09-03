@@ -22,6 +22,7 @@ class SignupProvider extends ChangeNotifier {
       log("this is response: $response");
 
       if (response['success'] == true) {
+        log("justtest");
         message = response['message'];
         context.goNamed(AppRoutes.loginsscreen);
       } else {

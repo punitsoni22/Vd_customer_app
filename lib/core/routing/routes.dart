@@ -1,5 +1,7 @@
 class AppRoutes {
   static const String loginsscreen = '/login';
+  static const String authScreen = '/auth';
+  static const String otpscreen = '/otp';
   static const String registerscreen = '/register';
   static const String regionscreen = '/region';
   static const String homeScreen = '/home';
