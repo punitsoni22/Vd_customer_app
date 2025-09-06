@@ -1,32 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:vd_customer_app/core/constants/cart_items.dart';
-import 'package:vd_customer_app/core/services/xd.dart';
-import 'package:vd_customer_app/feature/auth_screen/provider/auth_provider.dart';
-import 'package:vd_customer_app/feature/login_screen/login_screen.dart';
-import 'package:vd_customer_app/feature/login_screen/provider/login_provider.dart';
-import 'package:vd_customer_app/feature/product_list_screen/provider/product_screen_provider.dart';
-import 'package:vd_customer_app/feature/signup_screen/signup_screen.dart';
-import 'package:vd_customer_app/feature/signup_screen/provider/signup_provider.dart';
-import 'package:vd_customer_app/navigation_bar.dart';
-import 'package:vd_customer_app/core/routing/route_generation.dart';
-import 'package:vd_customer_app/feature/calendar_screen/calendar_screen.dart';
-import 'package:vd_customer_app/feature/cart_screen/cart_screen.dart';
-import 'package:vd_customer_app/feature/checkout_screen/checkout_screen.dart';
-import 'package:vd_customer_app/feature/home_screen/home_page.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:vd_customer_app/feature/product_detail_screen/product_detail_screen.dart';
-import 'package:vd_customer_app/feature/product_list_screen/products_screen.dart';
-import 'package:vd_customer_app/feature/profile_screen/profile_screen.dart';
-import 'package:vd_customer_app/feature/region_screen/region_screen.dart';
-import 'package:vd_customer_app/feature/subscription_screen/subscription_screen.dart';
-import 'package:vd_customer_app/core/utils/common_widgets/common_appbar.dart';
-import 'package:vd_customer_app/core/utils/common_widgets/common_imgae_container.dart';
-import 'package:vd_customer_app/feature/subscription_screen/widgets/subscription_tab_bar.dart';
-import 'package:vd_customer_app/core/utils/common_widgets/common_textfield.dart';
+import 'package:vd_customer_app/feature/product_detail_screen/provider/product_detail_provider.dart';
+
+import 'feature/product_list_screen/products_screen.dart';
+import 'feature/product_list_screen/provider/product_screen_provider.dart';
+import 'feature/login_screen/provider/login_provider.dart';
+import 'feature/signup_screen/provider/signup_provider.dart';
+import 'feature/auth_screen/provider/auth_provider.dart';
+import 'feature/home_screen/provider/home_screen_provider.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
+
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(const MyApp());
 }
@@ -55,11 +43,13 @@ class MyApp extends StatelessWidget {
             ChangeNotifierProvider(create: (_) => LoginProvider()),
             ChangeNotifierProvider(create: (_) => AuthProvider()),
             ChangeNotifierProvider(create: (_) => ProductProvider()),
+            ChangeNotifierProvider(create: (_) => HomeScreenProvider()),
+            ChangeNotifierProvider(create: (_) => ProductDetailProvider()),
           ],
-          child: MaterialApp.router(
+          child: MaterialApp(
             title: 'Vd Customer App',
             debugShowCheckedModeBanner: false,
-            routerConfig: MyAppRouter().router,
+            home: const ProductDetailScreen(),
           ),
         );
       },

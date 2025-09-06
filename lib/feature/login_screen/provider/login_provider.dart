@@ -36,7 +36,11 @@ class LoginProvider extends ChangeNotifier {
 
   Future<void> loginViaEmail(BuildContext context) async {
     final data = {
-      "data": {"userName": email, "password": password},
+      "data": {
+        "userName": email,
+        "password": password,
+        "roleUniqueIds": ["CUSTOMER"],
+      },
     };
     print("Login data → $data");
     isLoading = true;

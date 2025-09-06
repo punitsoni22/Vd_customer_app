@@ -24,7 +24,6 @@ class Api {
     http.Response response;
     try {
       if (method == 'POST') {
-        print("this insiode post: $data");
         response = await http.post(
           uri,
           headers: headers,

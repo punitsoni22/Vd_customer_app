@@ -8,7 +8,7 @@ import 'package:vd_customer_app/feature/signup_screen/signup_screen.dart';
 import 'package:vd_customer_app/navigation_bar.dart';
 import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/feature/cart_screen/cart_screen.dart';
-import 'package:vd_customer_app/feature/home_screen/home_page.dart';
+import 'package:vd_customer_app/feature/home_screen/home_screen.dart';
 import 'package:vd_customer_app/feature/product_list_screen/products_screen.dart';
 import 'package:vd_customer_app/feature/profile_screen/profile_screen.dart';
 import 'package:vd_customer_app/feature/region_screen/region_screen.dart';
@@ -43,17 +43,17 @@ class MyAppRouter {
         path: '/region',
         builder: (context, state) => RegionScreen(),
       ),
-      GoRoute(
-        name: AppRoutes.homeScreen,
-        path: '/home',
-        builder: (context, state) => HomeScreen(),
-      ),
+      // GoRoute(
+      //   name: AppRoutes.homeScreen,
+      //   path: '/home',
+      //   builder: (context, state) => HomeScreen(),
+      // ),
       GoRoute(path: "/products", builder: (context, state) => ProductScreen()),
-      GoRoute(
-        path: '/productdetail',
-        name: AppRoutes.productdetailscreen,
-        builder: (context, state) => const ProductDetailScreen(),
-      ),
+      // GoRoute(
+      //   path: '/productdetail',
+      //   name: AppRoutes.productdetailscreen,
+      //   builder: (context, state) => const ProductDetailScreen(),
+      // ),
 
       // ShellRoute(
       //   builder: (context, state, child) => CommonBottomAppbar(),

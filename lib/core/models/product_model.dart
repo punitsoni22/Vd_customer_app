@@ -1,3 +1,5 @@
+import 'package:vd_customer_app/core/services/xd.dart';
+
 class Product {
   final int id;
   final String skuCode;
@@ -15,6 +17,7 @@ class Product {
   final List<ProductImage> images;
   final List<Variant> variants;
   final List<String> availaibleCitiesName;
+  String? signedImageUrl; // New field for signed URL
 
   Product({
     required this.id,
@@ -33,9 +36,10 @@ class Product {
     required this.images,
     required this.variants,
     required this.availaibleCitiesName,
+    this.signedImageUrl,
   });
 
-  factory Product.fromJson(Map<String, dynamic> json) {
+  factory Product.fromJson(Map<String, dynamic> json, {String? signedUrl}) {
     return Product(
       id: json['id'] ?? 0,
       skuCode: json['skuCode'] ?? '',
@@ -56,22 +60,28 @@ class Product {
       variants: (json['variants'] as List<dynamic>? ?? [])
           .map((e) => Variant.fromJson(e))
           .toList(),
+
       availaibleCitiesName:
           (json['availaibleCitiesName'] as List<dynamic>? ?? [])
               .map((e) => e.toString())
               .toList(),
+      signedImageUrl: signedUrl,
     );
   }
 }
 
 class ProductImage {
   final int id;
-  final String imageUrl;
+  final String rawImageUrl; // original S3 path from API
+  String? signedUrl; // generated presigned URL (set later in provider)
 
-  ProductImage({required this.id, required this.imageUrl});
+  ProductImage({required this.id, required this.rawImageUrl, this.signedUrl});
 
   factory ProductImage.fromJson(Map<String, dynamic> json) {
-    return ProductImage(id: json['id'] ?? 0, imageUrl: json['imageUrl'] ?? '');
+    return ProductImage(
+      id: json['id'] ?? 0,
+      rawImageUrl: json['imageUrl'] ?? '',
+    );
   }
 }
 

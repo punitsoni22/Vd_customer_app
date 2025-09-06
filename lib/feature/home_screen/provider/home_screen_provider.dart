@@ -4,41 +4,39 @@ import 'package:vd_customer_app/core/models/product_model.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/core/services/xd.dart';
 
-class ProductProvider extends ChangeNotifier {
+class HomeScreenProvider extends ChangeNotifier {
   bool isLoading = false;
   String? message;
-  List<Product> products = [];
+  List<Product> homeProducts = [];
 
-  Future<void> getProducts(Map<String, dynamic> requestData) async {
-    // log("Request Data → $requestData");
-    log("Products count: ${products.length}");
+  Future<void> fetchHomeProducts(Map<String, dynamic> requestData) async {
+    log("HomeScreen fetch started");
     isLoading = true;
     message = null;
     notifyListeners();
 
     try {
       final response = await Api.post('getAllProducts', requestData);
+      log("Home API Response → $response");
 
       if (response['success'] == true) {
         final List<dynamic> items = response['data']?['items'] ?? [];
-        products = items.map((e) => Product.fromJson(e)).toList();
+        homeProducts = items.map((e) => Product.fromJson(e)).toList();
 
-        // Generate signed URLs for each product image , forloop
-        for (var product in products) {
+        for (var product in homeProducts) {
           for (var image in product.images) {
             if (image.rawImageUrl.isNotEmpty) {
               image.signedUrl = await generateSignedUrl(image.rawImageUrl);
             }
           }
         }
-
         message = response['message'] ?? "Products fetched successfully";
       } else {
-        products = [];
+        homeProducts = [];
         message = response['message'] ?? "Failed to fetch products";
       }
     } catch (e) {
-      products = [];
+      homeProducts = [];
       message = "Exception: $e";
     }
 

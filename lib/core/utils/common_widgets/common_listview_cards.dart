@@ -23,33 +23,36 @@ class SmallBottleCards extends StatelessWidget {
             border: Border.all(color: AllColors.buttonColor),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: SizedBox(
-            height: 78,
-            width: 78,
-            child: smallBottle.bottleimage.startsWith('http')
-                ? Image.network(
-                    smallBottle.bottleimage,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Image.asset(
-                        'assets/SmallBottlePlaceholder.png',
-                        fit: BoxFit.cover,
-                      );
-                    },
-                  )
-                : Image.asset(
-                    'assets/SmallBottlePlaceholder.png',
-                    fit: BoxFit.cover,
-                  ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: SizedBox(
+              height: 78,
+              width: 78,
+              child: smallBottle.bottleimage.startsWith('http')
+                  ? Image.network(
+                      smallBottle.bottleimage,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Image.asset(
+                          'assets/SmallBottlePlaceholder.png',
+                          fit: BoxFit.cover,
+                        );
+                      },
+                    )
+                  : Image.asset(
+                      'assets/SmallBottlePlaceholder.png',
+                      fit: BoxFit.cover,
+                    ),
+            ),
           ),
         ),
         const SizedBox(height: 4),
         Text(
-          smallBottle.bottleimage,
-          style: const TextStyle(
-            color: Colors.black,
+          smallBottle.bottlename,
+          style: TextStyle(
+            color: AllColors.olivegreenColor,
             fontWeight: FontWeight.bold,
-            fontSize: 12,
+            fontSize: 15,
           ),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
