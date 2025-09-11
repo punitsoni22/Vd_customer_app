@@ -4,7 +4,7 @@ import 'package:vd_customer_app/core/utils/common_widgets/common_appbar.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/cart_items_container.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_summary_rowtext.dart';
-import 'package:vd_customer_app/core/utils/common_widgets/common_gridview_cards.dart';
+import 'package:vd_customer_app/feature/home_screen/widgets/home_product_card.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_listview_cards.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_textfield.dart';
 
@@ -19,7 +19,7 @@ class CheckoutScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AllColors.backgroundColor,
-      appBar: CustomAppBar(title: 'Checkout', islineNeeded: true),
+      appBar: CommonAppBar(title: 'Checkout'),
       body: SingleChildScrollView(
         padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
         child: Column(
@@ -132,7 +132,7 @@ class CheckoutScreen extends StatelessWidget {
                   children: [
                     Expanded(
                       flex: 3,
-                      child: MyTextField(label: 'Enter Coupon Code'),
+                      child: CommonTextField(label: 'Enter Coupon Code'),
                     ),
                     SizedBox(width: 8),
                     Expanded(

@@ -1,11 +1,12 @@
-import 'package:vd_customer_app/core/services/xd.dart';
-
 class Product {
   final int id;
   final String skuCode;
   final String productName;
   final String description;
-  final String availaibleCities;
+
+  // API gives a list of ints
+  final List<int> availaibleCities;
+
   final int isApproved;
   final String? createdOn;
   final String? createdBy;
@@ -14,10 +15,15 @@ class Product {
   final int isDeleted;
   final String? deletedOn;
   final String? deletedBy;
+
   final List<ProductImage> images;
+
+  // ✅ variants is a list
   final List<Variant> variants;
+
   final List<String> availaibleCitiesName;
-  String? signedImageUrl; // New field for signed URL
+
+  String? signedImageUrl; // optional extra
 
   Product({
     required this.id,
@@ -45,26 +51,34 @@ class Product {
       skuCode: json['skuCode'] ?? '',
       productName: json['productName'] ?? '',
       description: json['description'] ?? '',
-      availaibleCities: json['availaibleCities'] ?? '',
-      isApproved: json['isApproved'] ?? 0,
-      createdOn: json['createdon'] as String?,
-      createdBy: json['createdby'] as String?,
-      updatedOn: json['updatedon'] as String?,
-      updatedBy: json['updatedby'] as String?,
-      isDeleted: json['isdeleted'] ?? 0,
-      deletedOn: json['deletedon'] as String?,
-      deletedBy: json['deletedby'] as String?,
-      images: (json['images'] as List<dynamic>? ?? [])
-          .map((e) => ProductImage.fromJson(e))
+
+      availaibleCities: (json['availaibleCitiesName'] as List? ?? const [])
+          .map((e) => int.tryParse(e.toString()) ?? 0)
           .toList(),
-      variants: (json['variants'] as List<dynamic>? ?? [])
-          .map((e) => Variant.fromJson(e))
+
+      isApproved: json['isApproved'] ?? 0,
+      createdOn: json['createdon']?.toString(),
+      createdBy: json['createdby']?.toString(),
+      updatedOn: json['updatedon']?.toString(),
+      updatedBy: json['updatedby']?.toString(),
+      isDeleted: json['isdeleted'] ?? 0,
+      deletedOn: json['deletedon']?.toString(),
+      deletedBy: json['deletedby']?.toString(),
+
+      images: (json['images'] as List? ?? const [])
+          .map((e) => ProductImage.fromJson(Map<String, dynamic>.from(e as Map)))
+          .toList(),
+
+      // ✅ parse list of variants
+      variants: (json['variants'] as List? ?? const [])
+          .map((e) => Variant.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
 
       availaibleCitiesName:
-          (json['availaibleCitiesName'] as List<dynamic>? ?? [])
-              .map((e) => e.toString())
-              .toList(),
+      (json['availaibleCitiesName'] as List? ?? const [])
+          .map((e) => e.toString())
+          .toList(),
+
       signedImageUrl: signedUrl,
     );
   }
@@ -72,8 +86,8 @@ class Product {
 
 class ProductImage {
   final int id;
-  final String rawImageUrl; // original S3 path from API
-  String? signedUrl; // generated presigned URL (set later in provider)
+  final String rawImageUrl;
+  String? signedUrl;
 
   ProductImage({required this.id, required this.rawImageUrl, this.signedUrl});
 

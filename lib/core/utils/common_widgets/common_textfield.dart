@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 
-class MyTextField extends StatelessWidget {
+class CommonTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final String label;
   final bool? obscureText;
@@ -21,7 +21,7 @@ class MyTextField extends StatelessWidget {
   final Color? color;
   final double? radius;
 
-  const MyTextField({
+  const CommonTextField({
     super.key,
     this.keyboardType,
     required this.label,

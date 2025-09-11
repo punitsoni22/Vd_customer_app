@@ -1,13 +1,12 @@
 class AppRoutes {
-  static const String loginsscreen = '/login';
-  static const String authScreen = '/auth';
-  static const String otpscreen = '/otp';
-  static const String registerscreen = '/register';
-  static const String regionscreen = '/region';
-  static const String homeScreen = '/home';
-  static const String subscriptionScreen = '/subscription';
-  static const String productScreen = 'products';
-  static const String cartScreen = 'cart';
-  static const String profileScreen = 'profile';
-  static const String productdetailscreen = 'productdetail';
+  static const String authScreen = '/auth_screen';
+  static const String loginScreen = '/login_screen';
+  static const String signupScreen = '/signup_screen';
+  static const String homeScreen = '/home_screen';
+  static const String bottomBarScreen = '/bottom_bar_screen';
+  static const String subscriptionScreen = '/subscription_screen';
+  static const String productScreen = 'product_screen';
+  static const String cartScreen = 'cart_screen';
+  static const String profileScreen = 'profile_screen';
+  static const String productDetailScreen = 'product_detail_screen';
 }

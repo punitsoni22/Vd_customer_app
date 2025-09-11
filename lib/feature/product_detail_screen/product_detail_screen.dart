@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
-import 'package:vd_customer_app/core/utils/common_widgets/common_add_subt_button.dart';
-import 'package:vd_customer_app/core/utils/common_widgets/common_appbar.dart';
-import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
-import 'package:vd_customer_app/core/utils/common_widgets/common_gridview_cards.dart';
-import 'package:vd_customer_app/core/utils/common_widgets/common_imgae_container.dart';
-import 'package:vd_customer_app/feature/product_detail_screen/provider/product_detail_provider.dart';
+
+import '../../core/utils/common_widgets/common_add_subt_button.dart';
+import '../../core/utils/common_widgets/common_appbar.dart';
+import '../../core/utils/common_widgets/common_button.dart';
+import '../../core/utils/common_widgets/subscription_container.dart';
+import '../home_screen/widgets/home_product_card.dart';
+import 'provider/product_detail_provider.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   const ProductDetailScreen({super.key});
@@ -39,7 +40,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
     return Scaffold(
       backgroundColor: AllColors.backgroundColor,
-      appBar: CustomAppBar(title: 'Product Detail', islineNeeded: true),
+      appBar: CommonAppBar(title: 'Product Detail'),
       body: provider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
@@ -51,7 +52,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     // Main Image
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8.0),
-                      child: ImageContainer(),
+                      child: SubscriptionContainer(),
                     ),
 
                     // Product Name
@@ -152,7 +153,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 8.0),
-                      child: ImageContainer(),
+                      child: SubscriptionContainer(),
                     ),
 
                     // About Section
@@ -204,11 +205,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                 ),
                             itemBuilder: (context, index) {
                               final product = provider.detailProducts[index];
-                              return BigGridContainer(
-                                product: product,
-                                showPrice: false,
-                                showActions: false,
-                              );
+                              return HomeProductCard(product: product);
                             },
                           ),
 

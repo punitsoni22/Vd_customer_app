@@ -20,15 +20,8 @@ class _RegionScreenState extends State<RegionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
+      appBar: CommonAppBar(
         title: 'Pick a Region',
-        colors: AllColors.buttonColor,
-        textStyle: TextStyle(
-          color: Colors.white,
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-        ),
-        islineNeeded: false,
       ),
       backgroundColor: AllColors.backgroundColor,
       body: SingleChildScrollView(

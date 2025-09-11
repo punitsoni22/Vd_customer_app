@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:vd_customer_app/core/theme/colors.dart';
-import 'package:vd_customer_app/core/utils/common_widgets/common_gridview_cards.dart';
-import 'package:vd_customer_app/core/utils/common_widgets/common_imgae_container.dart';
-import 'package:vd_customer_app/core/utils/common_widgets/common_listview_cards.dart';
-import 'package:vd_customer_app/feature/home_screen/provider/home_screen_provider.dart';
+
+import '../../core/theme/colors.dart';
+import '../../core/utils/common_widgets/subscription_container.dart';
+import 'provider/home_provider.dart';
+import 'widgets/home_product_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,13 +15,18 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool _didFetchOnce = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<HomeScreenProvider>();
+      if (_didFetchOnce) return;
+      _didFetchOnce = true;
+
+      final provider = context.read<HomeProvider>();
       final requestData = {
-        "filterModel": {},
+        "filterModel": const {},
         "orderBy": "productName",
         "orderDir": "ASC",
         "searchText": "",
@@ -33,55 +39,44 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<HomeScreenProvider>();
+    final provider = context.watch<HomeProvider>();
 
     return Scaffold(
-      backgroundColor: AllColors.backgroundColor,
       body: provider.isLoading
           ? const Center(child: CircularProgressIndicator())
-          : CustomScrollView(
-              slivers: [
-                SliverAppBar(
-                  automaticallyImplyLeading: false,
-                  pinned: false,
-                  floating: false,
-                  expandedHeight: 190,
-                  flexibleSpace: ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(15),
-                      bottomRight: Radius.circular(15),
-                    ),
-                    child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: AllColors.olivegreenColor,
+          : SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 180.h,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: AllColors.olivegreenColor,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(12.w),
+                        bottomRight: Radius.circular(12.w),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                    ),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text.rich(
+                        TextSpan(
                           children: [
-                            Text.rich(
-                              TextSpan(
-                                children: [
-                                  const TextSpan(
-                                    text: 'Welcome To ',
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  TextSpan(
-                                    text: 'Vedasip',
-                                    style: TextStyle(
-                                      fontSize: 22,
-                                      color: AllColors.iconBackgColor,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
+                            TextSpan(
+                              text: 'Welcome To ',
+                              style: TextStyle(
+                                fontSize: 20.sp,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextSpan(
+                              text: 'Vedasip',
+                              style: TextStyle(
+                                fontSize: 20.sp,
+                                color: AllColors.iconBackgColor,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],
@@ -89,108 +84,42 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-                ),
-
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      top: 12.0,
-                      left: 15,
-                      right: 15,
-                    ),
-                    child: SizedBox(
-                      height: 180,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount: 5,
-                        itemBuilder: (context, index) {
-                          return const Padding(
-                            padding: EdgeInsets.only(right: 8.0),
-                            child: ImageContainer(width: 350),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      top: 20.0,
-                      left: 15,
-                      right: 15,
-                    ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 12.w),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Catalog',
-                          style: TextStyle(
-                            color: AllColors.olivegreenColor,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
                         SizedBox(
-                          height: 90,
-                          child: ListView.separated(
+                          height: 180.h,
+                          child: ListView.builder(
                             scrollDirection: Axis.horizontal,
-                            separatorBuilder: (context, index) =>
-                                const SizedBox(width: 10),
-                            itemCount: provider.homeProducts.length,
+                            itemCount: 2,
                             itemBuilder: (context, index) {
-                              final product = provider.homeProducts[index];
-                              final imageUrl = product.images.isNotEmpty
-                                  ? (product.images.first.signedUrl ??
-                                        'assets/SmallBottlePlaceholder.png')
-                                  : 'assets/SmallBottlePlaceholder.png';
-
-                              return SmallBottleCards(
-                                smallBottle: SmallBottle(
-                                  bottlename: product.productName,
-                                  bottleimage: imageUrl,
-                                ),
-                              );
+                              return SubscriptionContainer();
                             },
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                      top: 30.0,
-                      left: 15,
-                      right: 15,
-                      bottom: 15,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                        SizedBox(height: 16.h),
                         Text(
                           'Most Popular Products',
                           style: TextStyle(
                             color: AllColors.olivegreenColor,
                             fontWeight: FontWeight.bold,
-                            fontSize: 20,
+                            fontSize: 20.sp,
                           ),
                         ),
-                        const SizedBox(height: 10),
+                        SizedBox(height: 6.h),
                         provider.homeProducts.isEmpty
-                            ? const Center(
+                            ? Center(
                                 child: Text(
                                   "No products found",
-                                  style: TextStyle(fontSize: 16),
+                                  style: TextStyle(fontSize: 16.sp),
                                 ),
                               )
                             : GridView.builder(
-                                physics: const NeverScrollableScrollPhysics(),
                                 shrinkWrap: true,
+                                padding: EdgeInsets.only(bottom: 20.h),
+                                physics: const NeverScrollableScrollPhysics(),
                                 itemCount: provider.homeProducts.length,
                                 gridDelegate:
                                     const SliverGridDelegateWithFixedCrossAxisCount(
@@ -201,20 +130,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                 itemBuilder: (context, index) {
                                   final product = provider.homeProducts[index];
-                                  return BigGridContainer(
-                                    product: product,
-                                    showPrice: false,
-                                    showActions: false,
-                                  );
+                                  return HomeProductCard(product: product);
                                 },
                               ),
-                        const SizedBox(height: 20),
-                        const ImageContainer(height: 180),
                       ],
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
     );
   }

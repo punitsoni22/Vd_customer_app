@@ -3,7 +3,6 @@ import 'package:vd_customer_app/core/constants/cart_items.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_summary_rowtext.dart';
 import 'package:vd_customer_app/feature/cart_screen/widgets/cart_info_container.dart';
 import 'package:vd_customer_app/feature/cart_screen/widgets/cart_items.dart';
-import 'package:vd_customer_app/navigation_bar.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_appbar.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/cart_items_container.dart';
@@ -16,10 +15,8 @@ class CartScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: CustomAppBar(
+      appBar: CommonAppBar(
         title: 'Cart',
-        islineNeeded: true,
-        colors: Colors.white,
       ),
 
       body: Padding(

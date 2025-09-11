@@ -1,20 +1,36 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Prefs {
-  static const String _tokenKey = "auth_token";
+  // 🔑 Centralized Keys
+  static const String keyAuthToken = "auth_token";
 
-  static Future<void> saveToken(String token) async {
+  /// Save a String
+  static Future<void> saveString(String key, String value) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_tokenKey, token);
+    await prefs.setString(key, value);
   }
 
-  static Future<String?> getToken() async {
+  /// Get a String
+  static Future<String?> getString(String key) async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_tokenKey);
+    return prefs.getString(key);
   }
 
-  static Future<void> clearToken() async {
+  /// Save a bool
+  static Future<void> saveBool(String key, bool value) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_tokenKey);
+    await prefs.setBool(key, value);
+  }
+
+  /// Get a bool
+  static Future<bool?> getBool(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(key);
+  }
+
+  /// Clear a key
+  static Future<void> clear(String key) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(key);
   }
 }

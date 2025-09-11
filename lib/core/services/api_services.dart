@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
-import 'package:vd_customer_app/core/services/api_return_codes.dart';
-import 'package:vd_customer_app/core/utils/prefs/prefs.dart'; // prefs helper for token
+
+import '../utils/prefs/prefs.dart';
+import 'api_return_codes.dart';
 
 class Api {
   static const String baseUrl = 'https://devbackend.veedasip.com/api';
@@ -13,9 +14,8 @@ class Api {
     String endpoint, {
     Map<String, dynamic>? data,
   }) async {
-    final token = await Prefs.getToken();
+    final token = await Prefs.getString(Prefs.keyAuthToken);
     final uri = Uri.parse('$baseUrl/$endpoint');
-    log("this is url: $uri");
     final headers = {
       'Content-Type': 'application/json; charset=UTF-8',
       if (token != null) 'Authorization': 'Bearer $token',
@@ -32,10 +32,6 @@ class Api {
       } else {
         throw UnsupportedError('Unsupported HTTP method: $method');
       }
-
-      log(
-        'Response ($method $endpoint): ${response.statusCode} - ${response.body}',
-      );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final decoded = jsonDecode(response.body);

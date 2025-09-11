@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
 
@@ -13,14 +15,15 @@ class AuthProvider extends ChangeNotifier {
     isLoading = true;
     notifyListeners();
 
-    token = await Prefs.getToken(); // get token from SharedPreferences
+    token = await Prefs.getString(Prefs.keyAuthToken);
+    log('Auth Token: $token');
 
     isLoading = false;
     notifyListeners();
   }
 
   Future<void> clearToken() async {
-    await Prefs.clearToken();
+    await Prefs.clear(Prefs.keyAuthToken);
     token = null;
     notifyListeners();
   }

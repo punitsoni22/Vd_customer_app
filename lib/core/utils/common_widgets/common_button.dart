@@ -8,10 +8,11 @@ class CommonButton extends StatelessWidget {
   final Color? backgroundColor;
   final TextStyle? textStyle;
   final IconData? icon;
-  final bool? isFullWidth;
+  final bool isFullWidth;
   final Color? color;
   final BoxConstraints? selfconstraints;
   final double? radius;
+  final bool isLoading;
   final Widget? child;
 
   const CommonButton({
@@ -22,20 +23,21 @@ class CommonButton extends StatelessWidget {
     this.backgroundColor,
     this.textStyle,
     this.icon,
-    this.isFullWidth,
+    this.isFullWidth = false,
     this.color,
     this.selfconstraints,
     this.radius,
+    this.isLoading = false,
     this.child,
   });
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: BorderRadius.circular(10),
-      onTap: onTap,
+      borderRadius: BorderRadius.circular(radius ?? 10),
+      onTap: isLoading ? null : onTap,
       child: Container(
-        width: isFullWidth == true ? double.infinity : null,
+        width: isFullWidth ? double.infinity : null,
         constraints: selfconstraints ?? const BoxConstraints(minHeight: 48),
         decoration: BoxDecoration(
           border: Border.all(color: color ?? AllColors.buttonColor),
@@ -44,28 +46,36 @@ class CommonButton extends StatelessWidget {
         ),
         alignment: Alignment.center,
         padding: padding ?? const EdgeInsets.symmetric(horizontal: 16),
-        child:
-            child ??
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (icon != null) ...[
-                  Icon(icon, size: 15, color: Colors.white),
-                  const SizedBox(width: 6),
-                ],
-                Text(
-                  buttonValue,
-                  style:
-                      textStyle ??
-                      const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                        color: Colors.white,
-                      ),
+        child: isLoading
+            ? const SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
                 ),
-              ],
-            ),
+              )
+            : child ??
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (icon != null) ...[
+                        Icon(icon, size: 15, color: Colors.white),
+                        const SizedBox(width: 6),
+                      ],
+                      Text(
+                        buttonValue,
+                        style:
+                            textStyle ??
+                            const TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                      ),
+                    ],
+                  ),
       ),
     );
   }

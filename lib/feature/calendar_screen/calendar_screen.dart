@@ -5,7 +5,6 @@ import 'package:vd_customer_app/core/utils/common_widgets/common_appbar.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_calendar.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_textfield.dart';
-import 'package:vd_customer_app/navigation_bar.dart';
 
 class CalendarScreen extends StatelessWidget {
   const CalendarScreen({super.key});
@@ -14,10 +13,8 @@ class CalendarScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AllColors.backgroundColor,
-      appBar: CustomAppBar(
-        alignment: Alignment.centerLeft,
+      appBar: CommonAppBar(
         title: 'Order Calendar',
-        islineNeeded: true,
         actions: [
           Icon(Icons.shopping_cart_outlined, color: AllColors.olivegreenColor),
           SizedBox(width: 5),
@@ -139,7 +136,7 @@ class CalendarScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                MyTextField(label: 'Select Duration', radius: 15),
+                CommonTextField(label: 'Select Duration', radius: 15),
                 SizedBox(height: 10),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 12.0),

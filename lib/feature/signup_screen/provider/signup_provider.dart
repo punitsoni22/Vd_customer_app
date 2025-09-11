@@ -1,43 +1,76 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:vd_customer_app/core/services/api_services.dart';
-
 import '../../../core/routing/routes.dart';
+import '../../../core/services/api_services.dart';
+import '../../../core/utils/prefs/prefs.dart';
 
 class SignupProvider extends ChangeNotifier {
-  bool isLoading = false;
-  String? message;
+  bool _isLoading = false;
 
-  Future<void> signup(Map<String, dynamic> data, BuildContext context) async {
-    print("Mydata → $data");
-    isLoading = true;
-    message = null;
-    notifyListeners();
+  bool get isLoading => _isLoading;
 
+  Future<void> signup({
+    required String email,
+    required String password,
+    required String fullName,
+    required String mobileNumber,
+    required BuildContext context,
+  }) async {
+    _setLoading(true);
     try {
-      final response = await Api.post('register', data);
-      log("this is response: $response");
+      final payload = {
+        "data": {
+          "emailId": email.trim(),
+          "password": password.trim(),
+          "fullName": fullName.trim(),
+          "mobileNumber": mobileNumber.trim(),
+        },
+      };
+      log("Signup payload → $payload");
 
-      if (response['success'] == true) {
-        log("justtest");
-        message = response['message'];
-        context.goNamed(AppRoutes.loginsscreen);
+      final response = await Api.post('register', payload);
+      log("Signup response → $response");
+
+      final success = response['success'] == true;
+      final msg =
+          (response['message'] ??
+                  (success ? 'Signup successful' : 'Signup failed'))
+              .toString();
+      final data = response['data'];
+      if (!context.mounted) return;
+
+      if (success) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(msg)));
+        final token = data['token'];
+        await Prefs.saveString(Prefs.keyAuthToken, token);
+        context.goNamed(AppRoutes.bottomBarScreen);
       } else {
-        message = response['message'] ?? "Signup failed";
+        _showError(context, msg);
       }
-    } catch (e) {
-      message = "Exception: $e";
+    } catch (e, st) {
+      log('Signup exception', error: e, stackTrace: st);
+      if (context.mounted) {
+        _showError(context, 'Something went wrong. Please try again.');
+      }
+    } finally {
+      _setLoading(false);
     }
-
-    isLoading = false;
-    notifyListeners();
   }
 
-  void clearMessage() {
-    message = null;
-    notifyListeners();
+  void _setLoading(bool v) {
+    if (_isLoading != v) {
+      _isLoading = v;
+      notifyListeners();
+    }
+  }
+
+  void _showError(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
   }
 }
