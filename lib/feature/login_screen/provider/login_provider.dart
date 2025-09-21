@@ -26,7 +26,11 @@ class LoginProvider extends ChangeNotifier {
 
   String? get number => _number;
 
-  void setEmail(String v) => _email = v.trim();
+  void setEmail(String v) {
+    print("jugug $v");
+    _email = v.trim();
+    notifyListeners();
+  }
 
   void setPassword(String v) => _password = v;
 
@@ -53,6 +57,7 @@ class LoginProvider extends ChangeNotifier {
         "roleUniqueIds": ["CUSTOMER"],
       },
     };
+    print('$payload');
     _setLoading(true);
     _result(success: false, message: null);
     try {

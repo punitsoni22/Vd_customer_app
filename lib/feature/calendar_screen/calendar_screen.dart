@@ -220,7 +220,7 @@ class CalendarScreen extends StatelessWidget {
                   child: CommonButton(
                     buttonValue: 'Add to Cart',
                     backgroundColor: AllColors.iconColor,
-                    color: AllColors.iconColor,
+                    bordercolor: AllColors.iconColor,
                   ),
                 ),
               ],

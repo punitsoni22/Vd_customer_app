@@ -66,7 +66,9 @@ class Product {
       deletedBy: json['deletedby']?.toString(),
 
       images: (json['images'] as List? ?? const [])
-          .map((e) => ProductImage.fromJson(Map<String, dynamic>.from(e as Map)))
+          .map(
+            (e) => ProductImage.fromJson(Map<String, dynamic>.from(e as Map)),
+          )
           .toList(),
 
       // ✅ parse list of variants
@@ -74,13 +76,25 @@ class Product {
           .map((e) => Variant.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
 
-      availaibleCitiesName:
-      (json['availaibleCitiesName'] as List? ?? const [])
+      availaibleCitiesName: (json['availaibleCitiesName'] as List? ?? const [])
           .map((e) => e.toString())
           .toList(),
 
       signedImageUrl: signedUrl,
     );
+  }
+  String get displayPrice {
+    if (variants.isNotEmpty) {
+      return variants.first.price;
+    }
+    return "N/A";
+  }
+
+  String get displayquantity {
+    if (variants.isNotEmpty) {
+      return variants.first.quantityInMl;
+    }
+    return "N/A";
   }
 }
 

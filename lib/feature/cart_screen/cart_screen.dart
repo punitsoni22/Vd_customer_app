@@ -1,23 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:vd_customer_app/core/constants/cart_items.dart';
+import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_summary_rowtext.dart';
+import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
 import 'package:vd_customer_app/feature/cart_screen/widgets/cart_info_container.dart';
 import 'package:vd_customer_app/feature/cart_screen/widgets/cart_items.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_appbar.dart';
-import 'package:vd_customer_app/core/utils/common_widgets/cart_items_container.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
 
-class CartScreen extends StatelessWidget {
+class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
 
   @override
+  State<CartScreen> createState() => _CartScreenState();
+}
+
+class _CartScreenState extends State<CartScreen> {
+  @override
   Widget build(BuildContext context) {
+    final provider = context.watch<CartProvider>();
+    final items = provider.cartItems;
+
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: CommonAppBar(
-        title: 'Cart',
-      ),
+      appBar: CommonAppBar(title: 'Cart'),
 
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 21.0, vertical: 10),
@@ -33,10 +39,11 @@ class CartScreen extends StatelessWidget {
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.all(12),
-                itemCount: cartItems.length,
+
+                itemCount: items.length,
                 itemBuilder: (context, index) {
-                  final item = cartItems[index];
-                  return CartItem(item: item);
+                  final product = items[index];
+                  return CartItem(item: product);
                 },
               ),
             ),
@@ -68,7 +75,7 @@ class CartScreen extends StatelessWidget {
             CommonButton(
               buttonValue: 'Proceed To Checkout',
               backgroundColor: AllColors.iconColor,
-              color: AllColors.iconColor,
+              bordercolor: AllColors.iconColor,
             ),
           ],
         ),

@@ -76,7 +76,7 @@ class NavigationBottomBar extends StatelessWidget {
                         splashColor: Colors.transparent,
                         highlightColor: Colors.transparent,
                         child: Padding(
-                          padding: const EdgeInsets.only(top: 10, bottom: 8),
+                          padding: const EdgeInsets.only(top: 10, bottom: 7),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [

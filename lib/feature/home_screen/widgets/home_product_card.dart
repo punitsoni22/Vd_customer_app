@@ -47,29 +47,32 @@ class HomeProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Colors.teal.withValues(alpha: 0.10),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: height,
-                  child: (imgUrl != null && imgUrl.isNotEmpty)
-                      ? Image.network(
-                          imgUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Image.asset(
+            Expanded(
+              flex: 6,
+              child: Container(
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: Colors.teal.withValues(alpha: 0.10),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: SizedBox(
+                    width: double.infinity,
+
+                    child: (imgUrl != null && imgUrl.isNotEmpty)
+                        ? Image.network(
+                            imgUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => Image.asset(
+                              'assets/images/Bigbottle.png',
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : Image.asset(
                             'assets/images/Bigbottle.png',
                             fit: BoxFit.cover,
                           ),
-                        )
-                      : Image.asset(
-                          'assets/images/Bigbottle.png',
-                          fit: BoxFit.cover,
-                        ),
+                  ),
                 ),
               ),
             ),

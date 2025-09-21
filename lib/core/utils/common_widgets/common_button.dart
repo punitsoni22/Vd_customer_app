@@ -9,7 +9,7 @@ class CommonButton extends StatelessWidget {
   final TextStyle? textStyle;
   final IconData? icon;
   final bool isFullWidth;
-  final Color? color;
+  final Color? bordercolor;
   final BoxConstraints? selfconstraints;
   final double? radius;
   final bool isLoading;
@@ -24,7 +24,7 @@ class CommonButton extends StatelessWidget {
     this.textStyle,
     this.icon,
     this.isFullWidth = false,
-    this.color,
+    this.bordercolor,
     this.selfconstraints,
     this.radius,
     this.isLoading = false,
@@ -40,7 +40,7 @@ class CommonButton extends StatelessWidget {
         width: isFullWidth ? double.infinity : null,
         constraints: selfconstraints ?? const BoxConstraints(minHeight: 48),
         decoration: BoxDecoration(
-          border: Border.all(color: color ?? AllColors.buttonColor),
+          border: Border.all(color: bordercolor ?? AllColors.buttonColor),
           color: backgroundColor ?? AllColors.buttonColor,
           borderRadius: BorderRadius.circular(radius ?? 10),
         ),

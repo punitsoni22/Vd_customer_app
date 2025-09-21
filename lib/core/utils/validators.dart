@@ -1,6 +1,8 @@
 class Validators {
   static final _email = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-  static final _password = RegExp(r'^(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$&*~]).{8,}$');
+  static final _password = RegExp(
+    r'^(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$&*~]).{8,}$',
+  );
   static final _digitsOnly = RegExp(r'^\d+$');
 
   static String? name(String? v) {

@@ -224,7 +224,12 @@ class _LoginStep extends StatelessWidget {
                         controller: emailCtrl,
                         label: "Email",
                         keyboardType: TextInputType.emailAddress,
-                        onChanged: provider.setEmail,
+                        onChanged: (v) {
+                          print("bigi");
+                          provider.setEmail(v);
+                          formKey.currentState
+                              ?.validate(); // 👈 re-check on typing
+                        },
                         validator: (v) {
                           final s = v?.trim() ?? '';
                           if (s.isEmpty) return "Email is required";
