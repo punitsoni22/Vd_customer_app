@@ -10,8 +10,6 @@ class ProductProvider extends ChangeNotifier {
   List<Product> products = [];
 
   Future<void> getProducts(Map<String, dynamic> requestData) async {
-    // log("Request Data → $requestData");
-    log("Products count: ${products.length}");
     isLoading = true;
     message = null;
     notifyListeners();

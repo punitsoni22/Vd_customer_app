@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import '../../core/theme/colors.dart';
 
 class NavigationBottomBar extends StatelessWidget {
   final int currentIndex;
+  final int? visibleItemCount;
   final ValueChanged<int> onTap;
 
   const NavigationBottomBar({
     super.key,
     required this.currentIndex,
     required this.onTap,
+    this.visibleItemCount,
   });
 
-  static const _items = <_BottomItem>[
+  static const _allItems = <_BottomItem>[
     _BottomItem(label: 'Home', icon: Icons.grid_view_rounded),
     _BottomItem(label: 'Product', icon: Icons.inventory_2_outlined),
     _BottomItem(label: 'Subscription', icon: Icons.add),
@@ -23,92 +24,96 @@ class NavigationBottomBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final selectedColor = AllColors.buttonColor;
-    final unselectedColor = Color(0xFF2F3A40);
-    return ClipRRect(
-      borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(26.r),
-        topRight: Radius.circular(26.r),
-      ),
-      child: Container(
-        height: 70.h,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x1A000000),
-              blurRadius: 12,
-              offset: Offset(0, -2),
-            ),
-          ],
-        ),
-        child: LayoutBuilder(
-          builder: (context, c) {
-            final totalW = c.maxWidth;
-            final itemW = totalW / _items.length;
-            final indicatorW = 30.w;
+    final items = _allItems.take(visibleItemCount ?? _allItems.length).toList();
 
-            return Stack(
-              children: [
-                AnimatedPositioned(
-                  duration: const Duration(milliseconds: 250),
-                  curve: Curves.easeOutCubic,
-                  top: 0,
-                  left: currentIndex * itemW + (itemW - indicatorW) / 2,
-                  child: Container(
-                    width: indicatorW,
-                    height: 3,
-                    decoration: BoxDecoration(
-                      color: selectedColor,
-                      borderRadius: BorderRadius.circular(3),
+    final selectedColor = AllColors.buttonColor;
+    const unselectedColor = Color(0xFF2F3A40);
+
+    return Material(
+      color: Colors.white,
+      elevation: 8,
+      child: SafeArea(
+        top: false,
+        minimum: const EdgeInsets.only(top: 6),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minHeight: kBottomNavigationBarHeight,
+          ),
+          child: LayoutBuilder(
+            builder: (context, c) {
+              final totalW = c.maxWidth;
+              final itemW = totalW / items.length;
+              const indicatorH = 3.0;
+              const indicatorW = 30.0;
+
+              return Stack(
+                children: [
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeOutCubic,
+                    top: 0,
+                    left: currentIndex * itemW + (itemW - indicatorW) / 2,
+                    child: Container(
+                      width: indicatorW,
+                      height: indicatorH,
+                      decoration: BoxDecoration(
+                        color: selectedColor,
+                        borderRadius: BorderRadius.circular(2.r),
+                      ),
                     ),
                   ),
-                ),
 
-                Row(
-                  children: List.generate(_items.length, (i) {
-                    final item = _items[i];
-                    final selected = i == currentIndex;
+                  Row(
+                    children: List.generate(items.length, (i) {
+                      final item = items[i];
+                      final selected = i == currentIndex;
 
-                    return Expanded(
-                      child: InkWell(
-                        onTap: () => onTap(i),
-                        splashColor: Colors.transparent,
-                        highlightColor: Colors.transparent,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 10, bottom: 8),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              _IconWithExtras(
-                                item: item,
-                                color: selected
-                                    ? selectedColor
-                                    : unselectedColor,
-                              ),
-
-                              Text(
-                                item.label,
-                                style: TextStyle(
-                                  fontSize: 12.5,
-                                  fontWeight: selected
-                                      ? FontWeight.w600
-                                      : FontWeight.w500,
+                      return Expanded(
+                        child: InkWell(
+                          onTap: () => onTap(i),
+                          splashColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              vertical: 8.h,
+                              horizontal: 4.w,
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                _IconWithExtras(
+                                  item: item,
                                   color: selected
                                       ? selectedColor
                                       : unselectedColor,
                                 ),
-                              ),
-                            ],
+                                SizedBox(height: 4.h),
+                                DefaultTextStyle.merge(
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    fontWeight: selected
+                                        ? FontWeight.w600
+                                        : FontWeight.w500,
+                                    color: selected
+                                        ? selectedColor
+                                        : unselectedColor,
+                                  ),
+                                  child: Text(item.label, softWrap: false),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  }),
-                ),
-              ],
-            );
-          },
+                      );
+                    }),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -123,20 +128,22 @@ class _IconWithExtras extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const iconSize = 24.0;
+
     if (item.label == 'Subscription') {
       return Container(
-        width: 26.w,
-        height: 26.h,
+        width: 28.w,
+        height: 28.h,
         decoration: const BoxDecoration(
           shape: BoxShape.circle,
           color: Color(0xFF39434A),
         ),
         alignment: Alignment.center,
-        child: Icon(Icons.add, size: 20.sp, color: Colors.white),
+        child: Icon(Icons.add, size: 22.sp, color: Colors.white),
       );
     }
 
-    return Icon(item.icon, size: 24.w, color: color);
+    return Icon(item.icon, size: iconSize, color: color);
   }
 }
 

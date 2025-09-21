@@ -5,48 +5,125 @@ import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/core/services/xd.dart';
 
 class ProductDetailProvider extends ChangeNotifier {
-  bool isLoading = false;
-  String? message;
+  // List state (for "More Popular Products")
+  bool isListLoading = false;
   List<Product> detailProducts = [];
+  String? listMessage;
 
+  // Detail state (for the hero product)
+  bool isDetailLoading = false;
+  Product? specificProduct;
+  String? detailMessage;
+
+  // --- DETAIL STATE ---
+  int selectedVariantIndex = 0;
+
+  void _resetSelection() {
+    selectedVariantIndex = 0;
+  }
+
+  void selectVariantByIndex(int i) {
+    if (specificProduct == null) return;
+    if (i < 0 || i >= specificProduct!.variants.length) return;
+    selectedVariantIndex = i;
+    notifyListeners();
+  }
+
+  void selectVariantByMl(int ml) {
+    if (specificProduct == null) return;
+    final idx = specificProduct!.variants.indexWhere((v) => v.quantityInMl == ml);
+    if (idx != -1) {
+      selectedVariantIndex = idx;
+      notifyListeners();
+    }
+  }
+
+  String get selectedPriceLabel {
+    if (specificProduct == null || specificProduct!.variants.isEmpty) return '₹ 0';
+    final price = double.tryParse(specificProduct!.variants[selectedVariantIndex].price) ?? 0.0;
+    return '₹ ${price.toInt()}';
+  }
+
+  List<String> get variantVolumesMl {
+    if (specificProduct == null) return [];
+    return specificProduct!.variants.map((v) => v.quantityInMl).toList();
+  }
+
+  // -------- LIST: /getAllProducts ----------
   Future<void> fetchDetailProducts(Map<String, dynamic> requestData) async {
-    log("HomeScreen fetch started");
-    isLoading = true;
-    message = null;
+    log("fetchDetailProducts started");
+    isListLoading = true;
+    listMessage = null;
     notifyListeners();
 
     try {
       final response = await Api.post('getAllProducts', requestData);
-      log("DetailScreen API Response → $response");
-
       if (response['success'] == true) {
         final List<dynamic> items = response['data']?['items'] ?? [];
         detailProducts = items.map((e) => Product.fromJson(e)).toList();
 
-        // Generate signed URLs for each product image , forloop
-        for (var product in detailProducts) {
-          for (var image in product.images) {
-            if (image.rawImageUrl.isNotEmpty) {
-              image.signedUrl = await generateSignedUrl(image.rawImageUrl);
+        // sign image URLs if present
+        for (var p in detailProducts) {
+          for (var img in p.images) {
+            final raw = img.rawImageUrl;
+            if (raw != null && raw.isNotEmpty) {
+              img.signedUrl = await generateSignedUrl(raw);
             }
           }
         }
-        message = response['message'] ?? "Products fetched successfully";
+        listMessage = response['message'] ?? "Products fetched successfully";
       } else {
         detailProducts = [];
-        message = response['message'] ?? "Failed to fetch products";
+        listMessage = response['message'] ?? "Failed to fetch products";
       }
     } catch (e) {
       detailProducts = [];
-      message = "Exception: $e";
+      listMessage = "Exception: $e";
     }
 
-    isLoading = false;
+    isListLoading = false;
     notifyListeners();
   }
 
-  void clearMessage() {
-    message = null;
+  // -------- DETAIL: /getSpecificProducts ----------
+  Future<void> fetchSpecificProduct(int productId) async {
+    log("fetchSpecificProduct($productId) started");
+    isDetailLoading = true;
+    specificProduct = null;
+    detailMessage = null;
+    notifyListeners();
+
+    try {
+      final body = {
+        "data": {"productId": productId},
+      };
+      final response = await Api.post('getSpecificProducts', body);
+
+      final data = response['data'];
+      if (data != null) {
+        final p = Product.fromJson(data);
+        for (var img in p.images) {
+          final raw = img.rawImageUrl;
+          if (raw != null && raw.isNotEmpty) {
+            img.signedUrl = await generateSignedUrl(raw);
+          }
+        }
+
+        specificProduct = p;
+      } else {
+        detailMessage = "No product found";
+      }
+    } catch (e) {
+      detailMessage = "Exception: $e";
+    }
+
+    isDetailLoading = false;
+    notifyListeners();
+  }
+
+  void clearMessages() {
+    listMessage = null;
+    detailMessage = null;
     notifyListeners();
   }
 }
