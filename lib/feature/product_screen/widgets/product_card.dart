@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/models/product_model.dart';
+import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
 import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
@@ -15,7 +17,7 @@ class ProductCard extends StatelessWidget {
     super.key,
     required this.product,
     this.width = 160,
-    this.height = 240,
+    this.height = 300,
   });
 
   String _title(Product p) {
@@ -25,15 +27,8 @@ class ProductCard extends StatelessWidget {
   }
 
   String _price(Product p) {
-    final price = p.displayPrice.isNotEmpty ? p.displayPrice : 'N/A';
-    return "₹$price";
-  }
-
-  String _quantity(Product p) {
-    final quantityinMl = p.displayquantity.isNotEmpty
-        ? p.displayquantity
-        : 'N/A';
-    return '$quantityinMl ml';
+    final price = double.tryParse(p.variants.first.price) ?? 0.0;
+    return '₹ ${price.toInt()}';
   }
 
   @override
@@ -42,174 +37,209 @@ class ProductCard extends StatelessWidget {
         ? product.images.first.signedUrl
         : null;
 
-    return SizedBox(
-      width: width,
-      height: height,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: const [
-            BoxShadow(
-              blurRadius: 8,
-              spreadRadius: 0,
-              offset: Offset(0, 2),
-              color: Color(0x14000000),
-            ),
-          ],
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              flex: 2,
-              child: Container(
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: Colors.teal.withValues(alpha: 0.10),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(15),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: double.infinity,
-                    child: (imgUrl != null && imgUrl.isNotEmpty)
-                        ? Image.network(
-                            imgUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Image.asset(
+    return InkWell(
+      onTap: () => context.pushNamed(
+        AppRoutes.productDetailScreen,
+        pathParameters: {'id': product.id.toString()},
+      ),
+      child: SizedBox(
+        width: width.w,
+        height: height.h,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: const [
+              BoxShadow(
+                blurRadius: 8,
+                spreadRadius: 0,
+                offset: Offset(0, 2),
+                color: Color(0x14000000),
+              ),
+            ],
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 3,
+                child: Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Colors.teal.withValues(alpha: 0.10),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: double.infinity,
+                      child: (imgUrl != null && imgUrl.isNotEmpty)
+                          ? Image.network(
+                              imgUrl,
+                              fit: BoxFit.cover,
+                              errorBuilder: (_, __, ___) => Image.asset(
+                                'assets/images/Bigbottle.png',
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : Image.asset(
                               'assets/images/Bigbottle.png',
                               fit: BoxFit.cover,
                             ),
-                          )
-                        : Image.asset(
-                            'assets/images/Bigbottle.png',
-                            fit: BoxFit.cover,
-                          ),
+                    ),
                   ),
                 ),
               ),
-            ),
 
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(6.h),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
+              Expanded(
+                flex: 1,
+                child: Padding(
+                  padding: EdgeInsets.all(6.h),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  _title(product),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontSize: 12.sp,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.2,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                SizedBox(height: 2.h),
+                                Container(
+                                  width: 30.w,
+                                  height: 2.h,
+                                  decoration: BoxDecoration(
+                                    color: AllColors.tabBarline,
+                                    borderRadius: BorderRadius.circular(3),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          SizedBox(width: 8.w),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: AllColors.buttonColor,
+                              shape: BoxShape.circle,
+                              boxShadow: const [
+                                BoxShadow(
+                                  blurRadius: 6,
+                                  offset: Offset(0, 2),
+                                  color: Color(0x1A000000),
+                                ),
+                              ],
+                            ),
+                            width: 24.w,
+                            height: 24.h,
+                            child: Icon(
+                              Icons.arrow_outward_rounded,
+                              size: 12.sp,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 4.h),
+                      Expanded(
+                        child: RichText(
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          text: TextSpan(
                             children: [
-                              Text(
-                                _title(product),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                              TextSpan(
+                                text: _price(product),
                                 style: TextStyle(
-                                  fontSize: 10.sp,
-                                  fontWeight: FontWeight.w700,
+                                  fontSize: 12.sp,
                                   letterSpacing: 0.2,
                                   color: Colors.black,
                                 ),
                               ),
-                              SizedBox(height: 2.h),
-                              Container(
-                                width: 30.w,
-                                height: 2.h,
-                                decoration: BoxDecoration(
-                                  color: AllColors.tabBarline,
-                                  borderRadius: BorderRadius.circular(3),
+                              TextSpan(
+                                text: ' Per Bottle',
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  letterSpacing: 0.2,
+                                  color: AllColors.buttonColor,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        SizedBox(width: 8.w),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: AllColors.buttonColor,
-                            shape: BoxShape.circle,
-                            boxShadow: const [
-                              BoxShadow(
-                                blurRadius: 6,
-                                offset: Offset(0, 2),
-                                color: Color(0x1A000000),
-                              ),
-                            ],
-                          ),
-                          width: 24.w,
-                          height: 24.h,
-                          child: Icon(
-                            Icons.arrow_outward_rounded,
-                            size: 12.sp,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      _quantity(product),
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.2,
-                        color: Colors.grey,
                       ),
-                    ),
-                    Text(
-                      _price(product),
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.2,
-                        color: Colors.black,
-                      ),
-                    ),
-                    SizedBox(height: 5.h),
-                    Expanded(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      SizedBox(height: 4.h),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          CommonButton(
-                            buttonValue: 'Subscribe',
-                            backgroundColor: AllColors.backgroundColor,
-                            bordercolor: AllColors.tabBarline,
-                            radius: 5.r,
-                            textStyle: TextStyle(
-                              fontSize: 10.sp,
+                          Expanded(
+                            child: CommonButton(
+                              buttonValue: 'Add to Cart',
+                              variant: ButtonVariant.outlined,
                               color: AllColors.tabBarline,
+                              borderColor: AllColors.tabBarline,
+                              foregroundColor: AllColors.tabBarline,
+                              selfconstraints: BoxConstraints(minHeight: 20),
+                              borderWidth: 2,
+                              fontSize: 12.sp,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 0,
+                                vertical: 4.h,
+                              ),
+                              onTap: () {
+                                final cartProvider = context
+                                    .read<CartProvider>();
+                                final int userId = 87;
+                                cartProvider.addEditCart(product, 1, userId);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      '${product.productName} added to cart',
+                                    ),
+                                    duration: const Duration(seconds: 2),
+                                  ),
+                                );
+                              },
                             ),
                           ),
-
-                          CommonButton(
-                            buttonValue: 'Add to Cart',
-                            radius: 5.r,
-                            textStyle: TextStyle(
-                              fontSize: 10.sp,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                          SizedBox(width: 8.w),
+                          Expanded(
+                            child: CommonButton(
+                              buttonValue: 'Buy Now',
+                              variant: ButtonVariant.filled,
+                              color: AllColors.buttonColor,
+                              foregroundColor: Colors.white,
+                              selfconstraints: BoxConstraints(minHeight: 20),
+                              elevation: 6,
+                              fontSize: 12.sp,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 0,
+                                vertical: 4.h,
+                              ),
+                              onTap: () {},
                             ),
-                            onTap: () {
-                              context.read<CartProvider>().addItem(product);
-
-                              print('Added to cart');
-                            },
                           ),
                         ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 
+enum ButtonVariant { filled, outlined }
+
 class CommonButton extends StatelessWidget {
   final String buttonValue;
   final VoidCallback? onTap;
@@ -9,11 +11,18 @@ class CommonButton extends StatelessWidget {
   final TextStyle? textStyle;
   final IconData? icon;
   final bool isFullWidth;
-  final Color? bordercolor;
+  final Color? color;
+  final Color? borderColor;
+  final Color? foregroundColor;
   final BoxConstraints? selfconstraints;
   final double? radius;
   final bool isLoading;
   final Widget? child;
+  final ButtonVariant variant;
+  final double borderWidth;
+  final bool pill;
+  final double? elevation;
+  final double? fontSize;
 
   const CommonButton({
     super.key,
@@ -24,58 +33,98 @@ class CommonButton extends StatelessWidget {
     this.textStyle,
     this.icon,
     this.isFullWidth = false,
-    this.bordercolor,
+    this.color,
+    this.borderColor,
+    this.foregroundColor,
     this.selfconstraints,
     this.radius,
     this.isLoading = false,
     this.child,
+    this.variant = ButtonVariant.filled,
+    this.borderWidth = 1,
+    this.pill = false,
+    this.elevation,
+    this.fontSize,
   });
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(radius ?? 10),
-      onTap: isLoading ? null : onTap,
-      child: Container(
-        width: isFullWidth ? double.infinity : null,
-        constraints: selfconstraints ?? const BoxConstraints(minHeight: 48),
-        decoration: BoxDecoration(
-          border: Border.all(color: bordercolor ?? AllColors.buttonColor),
-          color: backgroundColor ?? AllColors.buttonColor,
-          borderRadius: BorderRadius.circular(radius ?? 10),
-        ),
-        alignment: Alignment.center,
-        padding: padding ?? const EdgeInsets.symmetric(horizontal: 16),
-        child: isLoading
-            ? const SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              )
-            : child ??
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (icon != null) ...[
-                        Icon(icon, size: 15, color: Colors.white),
-                        const SizedBox(width: 6),
-                      ],
-                      Text(
-                        buttonValue,
-                        style:
-                            textStyle ??
-                            const TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                              color: Colors.white,
-                            ),
-                      ),
-                    ],
+    final primary = color ?? AllColors.buttonColor;
+    final isOutlined = variant == ButtonVariant.outlined;
+
+    final bg = isOutlined
+        ? (backgroundColor ?? Colors.white)
+        : (backgroundColor ?? primary);
+
+    final borderCol = borderColor ?? primary;
+    final fg = foregroundColor ?? (isOutlined ? borderCol : Colors.white);
+
+    final r = pill ? (radius ?? 28) : (radius ?? 10);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(r),
+        onTap: isLoading ? null : onTap,
+        child: Container(
+          width: isFullWidth ? double.infinity : null,
+          constraints: selfconstraints ?? const BoxConstraints(minHeight: 48),
+          decoration: BoxDecoration(
+            color: bg,
+            borderRadius: BorderRadius.circular(r),
+            border: Border.all(
+              color: borderCol,
+              width: isOutlined ? borderWidth : 0,
+            ),
+            boxShadow: (elevation != null && !isOutlined)
+                ? [
+                    BoxShadow(
+                      blurRadius: elevation!,
+                      spreadRadius: 0,
+                      offset: const Offset(0, 2),
+                      color: Colors.black.withOpacity(0.12),
+                    ),
+                  ]
+                : null,
+          ),
+          alignment: Alignment.center,
+          padding:
+              padding ??
+              const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+          child: isLoading
+              ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
                   ),
+                )
+              : child ??
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (icon != null) ...[
+                          Icon(icon, size: 18, color: fg),
+                          const SizedBox(width: 8),
+                        ],
+                        Text(
+                          buttonValue,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style:
+                              textStyle ??
+                              TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: fontSize ?? 14,
+                                color: fg,
+                                letterSpacing: 0.2,
+                              ),
+                        ),
+                      ],
+                    ),
+        ),
       ),
     );
   }

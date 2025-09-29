@@ -4,7 +4,6 @@ class Product {
   final String productName;
   final String description;
 
-  // API gives a list of ints
   final List<int> availaibleCities;
 
   final int isApproved;
@@ -18,12 +17,13 @@ class Product {
 
   final List<ProductImage> images;
 
-  // ✅ variants is a list
   final List<Variant> variants;
 
   final List<String> availaibleCitiesName;
 
-  String? signedImageUrl; // optional extra
+  String? signedImageUrl;
+
+  int? quantity;
 
   Product({
     required this.id,
@@ -43,6 +43,7 @@ class Product {
     required this.variants,
     required this.availaibleCitiesName,
     this.signedImageUrl,
+    this.quantity,
   });
 
   factory Product.fromJson(Map<String, dynamic> json, {String? signedUrl}) {
@@ -71,7 +72,6 @@ class Product {
           )
           .toList(),
 
-      // ✅ parse list of variants
       variants: (json['variants'] as List? ?? const [])
           .map((e) => Variant.fromJson(Map<String, dynamic>.from(e as Map)))
           .toList(),
@@ -81,8 +81,10 @@ class Product {
           .toList(),
 
       signedImageUrl: signedUrl,
+      quantity: json['quantity'] ?? 1,
     );
   }
+
   String get displayPrice {
     if (variants.isNotEmpty) {
       return variants.first.price;

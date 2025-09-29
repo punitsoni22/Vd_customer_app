@@ -16,11 +16,9 @@ class BottomBarScreen extends StatefulWidget {
 
 class _BottomBarScreenState extends State<BottomBarScreen> {
   int _index = 0;
-
   late final List<Widget> _pages = const [
     HomeScreen(),
     ProductScreen(),
-
     SubscriptionScreen(),
     CartScreen(),
     ProfileScreen(),
@@ -31,6 +29,7 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
     return Scaffold(
       bottomNavigationBar: NavigationBottomBar(
         currentIndex: _index,
+        visibleItemCount: _pages.length,
         onTap: (i) => setState(() => _index = i),
       ),
       body: IndexedStack(index: _index, children: _pages),

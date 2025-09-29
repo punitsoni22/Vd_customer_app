@@ -118,21 +118,21 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           radius: 20,
                           buttonValue: '2 Ltr',
                           backgroundColor: AllColors.lightgreenColor,
-                          bordercolor: AllColors.lightgreenColor,
+
                           selfconstraints: const BoxConstraints(minHeight: 40),
                         ),
                         CommonButton(
                           radius: 20,
                           buttonValue: '1 Ltr',
                           backgroundColor: AllColors.lightgreenColor,
-                          bordercolor: AllColors.lightgreenColor,
+
                           selfconstraints: const BoxConstraints(minHeight: 40),
                         ),
                         CommonButton(
                           radius: 20,
                           buttonValue: '3 Ltr',
                           backgroundColor: AllColors.lightgreenColor,
-                          bordercolor: AllColors.lightgreenColor,
+
                           selfconstraints: const BoxConstraints(minHeight: 40),
                         ),
                       ],
@@ -215,7 +215,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           child: CommonButton(
                             buttonValue: 'Subscribe',
                             textStyle: TextStyle(color: AllColors.iconColor),
-                            bordercolor: AllColors.iconColor,
+
                             backgroundColor: Colors.transparent,
                           ),
                         ),

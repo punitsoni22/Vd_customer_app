@@ -20,7 +20,6 @@ class SubscriptionScreen extends StatelessWidget {
           Icon(Icons.search_rounded, color: AllColors.olivegreenColor),
         ],
       ),
-      // bottomNavigationBar: CommonBottomAppbar(),
       body: Column(children: [Expanded(child: SubscriptionTabBar())]),
     );
   }

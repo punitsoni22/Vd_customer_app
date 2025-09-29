@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/models/product_model.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
-import 'package:vd_customer_app/core/utils/common_widgets/common_add_subt_button.dart';
 import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
 
 class CartItem extends StatelessWidget {
@@ -15,6 +14,9 @@ class CartItem extends StatelessWidget {
     final String? imgUrl = (item.images.isNotEmpty)
         ? item.images.first.signedUrl
         : null;
+
+    final cartProvider = context.read<CartProvider>();
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(11),
@@ -48,34 +50,77 @@ class CartItem extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
-                      item.productName,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: Text(
+                        item.productName,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                    Spacer(),
                     GestureDetector(
                       onTap: () {
-                        context.read<CartProvider>().removeItem(item);
-                        print('Deleted');
+                        cartProvider.removeItem(item);
                       },
-                      child: Icon(Icons.delete, color: Colors.red),
+                      child: const Icon(Icons.delete, color: Colors.red),
                     ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "\$${item.displayPrice}",
+                  "₹${(double.tryParse(item.variants.first.price) ?? 0) * (item.quantity ?? 1)}",
                   style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 8),
 
-                AddSubtButton(
-                  selfconstraints: BoxConstraints(maxWidth: 80),
-                  iconColor: Colors.blue,
-                  bordercolor: AllColors.greyborderColor,
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        if ((item.quantity ?? 1) > 1) {
+                          item.quantity = (item.quantity ?? 1) - 1;
+                          cartProvider.notifyListeners();
+                        }
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: AllColors.greyborderColor),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        child: const Icon(Icons.remove, size: 16),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+
+                    Text(
+                      '${item.quantity ?? 1}',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    const SizedBox(width: 8),
+
+                    GestureDetector(
+                      onTap: () {
+                        item.quantity = (item.quantity ?? 1) + 1;
+                        cartProvider.notifyListeners();
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: AllColors.greyborderColor),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        child: const Icon(Icons.add, size: 16),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
