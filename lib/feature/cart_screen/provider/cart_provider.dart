@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:vd_customer_app/core/models/product_model.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
+import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
 
 class CartProvider extends ChangeNotifier {
   final List<Product> _cartItems = [];
@@ -34,15 +36,30 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchLatestCart(int userId) async {
+  Future<int?> getCurrentUserId() async {
+    final userIdString = await Prefs.getString("user_id");
+    if (userIdString == null) return null;
+    return int.tryParse(userIdString);
+  }
+
+  Future<void> fetchLatestCart() async {
     try {
+      final userId = await getCurrentUserId();
+      if (userId == null) return;
+
       final response = await Api.post('getLatestCartByUserId', {
         "data": {"userId": userId},
       });
       print("Latest Cart Response: $response");
 
       if (response['success'] == true && response['data'] != null) {
-        setCartFromApi(response['data']);
+        dynamic cartData = response['data'];
+
+        if (cartData is String && cartData.isNotEmpty) {
+          cartData = Map<String, dynamic>.from(jsonDecode(cartData));
+        }
+
+        setCartFromApi(cartData);
       } else {
         print(
           "Fetch Latest Cart failed: ${response['message'] ?? 'No message'}",
@@ -53,7 +70,8 @@ class CartProvider extends ChangeNotifier {
     }
   }
 
-  void addItem(Product product) {
+  Future<void> addItem(Product product) async {
+    await fetchLatestCart();
     final index = _cartItems.indexWhere((p) => p.id == product.id);
     if (index >= 0) {
       _cartItems[index].quantity = (_cartItems[index].quantity ?? 1) + 1;
@@ -62,51 +80,53 @@ class CartProvider extends ChangeNotifier {
       _cartItems.add(product);
     }
     notifyListeners();
+    await addEditCart();
   }
 
-  void removeItem(Product product) {
-    _cartItems.remove(product);
+  Future<void> removeItem(Product product) async {
+    await fetchLatestCart();
+    _cartItems.removeWhere((p) => p.id == product.id);
     notifyListeners();
+    await addEditCart();
   }
 
-  void increaseQuantity(Product product) {
+  Future<void> increaseQuantity(Product product) async {
     final index = _cartItems.indexWhere((p) => p.id == product.id);
     if (index >= 0) {
       _cartItems[index].quantity = (_cartItems[index].quantity ?? 1) + 1;
       notifyListeners();
+      await addEditCart();
     }
   }
 
-  void decreaseQuantity(Product product) {
+  Future<void> decreaseQuantity(Product product) async {
     final index = _cartItems.indexWhere((p) => p.id == product.id);
-    if (index >= 0 && (_cartItems[index].quantity ?? 1) > 1) {
-      _cartItems[index].quantity = (_cartItems[index].quantity ?? 1) - 1;
-      notifyListeners();
+    if (index >= 0) {
+      if ((_cartItems[index].quantity ?? 1) > 1) {
+        _cartItems[index].quantity = (_cartItems[index].quantity ?? 1) - 1;
+        notifyListeners();
+        await addEditCart();
+      } else {
+        await removeItem(product);
+      }
     }
   }
 
-  Future<void> addEditCart(Product product, int quantity, int userId) async {
+  Future<void> addEditCart() async {
     try {
-      final existingIndex = _cartItems.indexWhere((p) => p.id == product.id);
-      if (existingIndex >= 0) {
-        _cartItems[existingIndex].quantity = quantity;
-      } else {
-        product.quantity = quantity;
-        _cartItems.add(product);
-      }
-      notifyListeners();
+      final productsPayload = _cartItems.map((p) {
+        return {
+          "productId": p.id,
+          "variantId": p.variants.first.id,
+          "quantity": p.quantity,
+          "price": double.tryParse(p.variants.first.price) ?? 0.0,
+        };
+      }).toList();
 
       final payload = {
         "data": {
-          'id': _cartId ?? 0,
-          "products": [
-            {
-              "productId": product.id,
-              "variantId": product.variants.first.id,
-              "quantity": quantity,
-              "price": double.tryParse(product.variants.first.price) ?? 0.0,
-            },
-          ],
+          if (_cartId != null) 'id': _cartId,
+          "products": productsPayload,
         },
       };
 
@@ -115,8 +135,7 @@ class CartProvider extends ChangeNotifier {
 
       if (response['success'] == true && response['data'] != null) {
         _cartId = response['data']['id'] ?? _cartId;
-
-        await fetchLatestCart(userId);
+        await fetchLatestCart();
       } else {
         print('Cart API error: ${response['message'] ?? 'No message'}');
       }

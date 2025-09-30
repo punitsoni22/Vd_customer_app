@@ -19,9 +19,8 @@ class _CartScreenState extends State<CartScreen> {
   @override
   void initState() {
     super.initState();
-
     Future.microtask(() {
-      context.read<CartProvider>().fetchLatestCart(87);
+      context.read<CartProvider>().fetchLatestCart();
     });
   }
 

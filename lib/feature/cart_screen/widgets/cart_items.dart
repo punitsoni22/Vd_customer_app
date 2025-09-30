@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/models/product_model.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
+import 'package:vd_customer_app/feature/cart_screen/widgets/add_sub_button.dart';
 
 class CartItem extends StatelessWidget {
   final Product item;
@@ -14,7 +15,6 @@ class CartItem extends StatelessWidget {
     final String? imgUrl = (item.images.isNotEmpty)
         ? item.images.first.signedUrl
         : null;
-
     final cartProvider = context.read<CartProvider>();
 
     return Container(
@@ -43,7 +43,6 @@ class CartItem extends StatelessWidget {
                 : Image.asset('assets/images/Bigbottle.png', fit: BoxFit.cover),
           ),
           const SizedBox(width: 12),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,9 +59,7 @@ class CartItem extends StatelessWidget {
                       ),
                     ),
                     GestureDetector(
-                      onTap: () {
-                        cartProvider.removeItem(item);
-                      },
+                      onTap: () => cartProvider.removeItem(item),
                       child: const Icon(Icons.delete, color: Colors.red),
                     ),
                   ],
@@ -73,54 +70,10 @@ class CartItem extends StatelessWidget {
                   style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 8),
-
-                Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        if ((item.quantity ?? 1) > 1) {
-                          item.quantity = (item.quantity ?? 1) - 1;
-                          cartProvider.notifyListeners();
-                        }
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AllColors.greyborderColor),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        child: const Icon(Icons.remove, size: 16),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-
-                    Text(
-                      '${item.quantity ?? 1}',
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                    const SizedBox(width: 8),
-
-                    GestureDetector(
-                      onTap: () {
-                        item.quantity = (item.quantity ?? 1) + 1;
-                        cartProvider.notifyListeners();
-                      },
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: AllColors.greyborderColor),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        child: const Icon(Icons.add, size: 16),
-                      ),
-                    ),
-                  ],
+                AddSubtButton(
+                  quantity: item.quantity ?? 1,
+                  onAdd: () => cartProvider.increaseQuantity(item),
+                  onSubtract: () => cartProvider.decreaseQuantity(item),
                 ),
               ],
             ),

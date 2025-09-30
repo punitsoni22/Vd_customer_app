@@ -202,8 +202,7 @@ class ProductCard extends StatelessWidget {
                               onTap: () {
                                 final cartProvider = context
                                     .read<CartProvider>();
-                                final int userId = 87;
-                                cartProvider.addEditCart(product, 1, userId);
+                                cartProvider.addItem(product);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(

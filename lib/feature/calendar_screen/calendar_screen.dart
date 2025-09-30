@@ -45,7 +45,7 @@ class CalendarScreen extends StatelessWidget {
                       ),
                     ),
 
-                    AddSubtButton(radius: 17),
+                    CommonAddSubtButton(radius: 17),
                   ],
                 ),
                 SizedBox(height: 5),

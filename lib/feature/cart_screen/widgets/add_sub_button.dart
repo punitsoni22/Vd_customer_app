@@ -1,17 +1,21 @@
-import 'dart:ffi';
-
 import 'package:flutter/material.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 
-class CommonAddSubtButton extends StatelessWidget {
+class AddSubtButton extends StatelessWidget {
+  final int quantity;
+  final VoidCallback onAdd;
+  final VoidCallback onSubtract;
   final BoxConstraints? selfconstraints;
   final EdgeInsetsGeometry? padding;
   final double? radius;
   final Color? bordercolor;
   final Color? iconColor;
 
-  const CommonAddSubtButton({
+  const AddSubtButton({
     super.key,
+    required this.quantity,
+    required this.onAdd,
+    required this.onSubtract,
     this.selfconstraints,
     this.padding,
     this.radius,
@@ -22,7 +26,7 @@ class CommonAddSubtButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: padding ?? EdgeInsets.all(5),
+      padding: padding ?? const EdgeInsets.all(5),
       constraints: selfconstraints ?? const BoxConstraints(),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(radius ?? 10),
@@ -32,11 +36,17 @@ class CommonAddSubtButton extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Icon(Icons.remove, color: iconColor ?? AllColors.olivegreenColor),
+          GestureDetector(
+            onTap: onSubtract,
+            child: Icon(Icons.remove, color: Colors.blue),
+          ),
           SizedBox(width: 5),
-          Text('3', style: TextStyle(color: AllColors.olivegreenColor)),
+          Text('$quantity', style: TextStyle(color: Colors.black)),
           SizedBox(width: 5),
-          Icon(Icons.add, color: iconColor ?? AllColors.olivegreenColor),
+          GestureDetector(
+            onTap: onAdd,
+            child: Icon(Icons.add, color: Colors.blue),
+          ),
         ],
       ),
     );

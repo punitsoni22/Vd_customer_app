@@ -148,7 +148,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Row(children: [AddSubtButton(radius: 15)]),
+                    Row(children: [CommonAddSubtButton(radius: 15)]),
                     const SizedBox(height: 22),
 
                     const Padding(
