@@ -5,6 +5,13 @@ class Cart {
   final int userId;
   final String status;
   final double totalPrice;
+  final String? createdOn;
+  final String? createdBy;
+  final String? updatedOn;
+  final String? updatedBy;
+  final int isDeleted;
+  final String? deletedOn;
+  final String? deletedBy;
   final List<CartDetail> cartDetails;
 
   Cart({
@@ -12,23 +19,41 @@ class Cart {
     required this.userId,
     required this.status,
     required this.totalPrice,
-    required this.cartDetails,
+    this.createdOn,
+    this.createdBy,
+    this.updatedOn,
+    this.updatedBy,
+    required this.isDeleted,
+    this.deletedOn,
+    this.deletedBy,
+    this.cartDetails = const [],
   });
 
   factory Cart.fromJson(Map<String, dynamic> json) {
-    final data = json['data'] ?? {};
-    final details = (data['cartDetails'] as List? ?? [])
+    final details = (json['cartDetails'] as List? ?? [])
         .map((e) => CartDetail.fromJson(Map<String, dynamic>.from(e)))
         .toList();
 
     return Cart(
-      id: data['id'] ?? 0,
-      userId: data['userId'] ?? 0,
-      status: data['status'] ?? 'INACTIVE',
-      totalPrice:
-          double.tryParse(data['totalPrice']?.toString() ?? '0.0') ?? 0.0,
+      id: json['id'] ?? 0,
+      userId: json['userId'] ?? 0,
+      status: json['status'] ?? 'INACTIVE',
+      totalPrice: _parseDouble(json['totalPrice']),
+      createdOn: json['createdon']?.toString(),
+      createdBy: json['createdby']?.toString(),
+      updatedOn: json['updatedon']?.toString(),
+      updatedBy: json['updatedby']?.toString(),
+      isDeleted: json['isdeleted'] ?? 0,
+      deletedOn: json['deletedon']?.toString(),
+      deletedBy: json['deletedby']?.toString(),
       cartDetails: details,
     );
+  }
+
+  static double _parseDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is num) return value.toDouble();
+    return double.tryParse(value.toString()) ?? 0.0;
   }
 
   bool get isActive => status.toUpperCase() == 'ACTIVE';
@@ -38,29 +63,69 @@ class Cart {
 class CartDetail {
   final int id;
   final int productId;
+  final int variantId;
   int quantity;
   final double price;
   final double totalPrice;
-  final Product product;
+  final CartProduct? product;
 
   CartDetail({
     required this.id,
     required this.productId,
+    required this.variantId,
     required this.quantity,
     required this.price,
     required this.totalPrice,
-    required this.product,
+    this.product,
   });
 
   factory CartDetail.fromJson(Map<String, dynamic> json) {
     return CartDetail(
       id: json['id'] ?? 0,
       productId: json['productId'] ?? 0,
+      variantId: json['variantId'] ?? 0,
       quantity: json['quantity'] ?? 0,
-      price: double.tryParse(json['price']?.toString() ?? '0.0') ?? 0.0,
-      totalPrice:
-          double.tryParse(json['totalPrice']?.toString() ?? '0.0') ?? 0.0,
-      product: Product.fromJson(json['product'] ?? {}),
+      price: Cart._parseDouble(json['price']),
+      totalPrice: Cart._parseDouble(json['totalPrice']),
+      product: json['product'] != null
+          ? CartProduct.fromJson(Map<String, dynamic>.from(json['product']))
+          : null,
+    );
+  }
+
+  factory CartDetail.fromProduct(Product product) {
+    return CartDetail(
+      id: 0,
+      productId: product.id,
+      variantId: product.variants.first.id,
+      quantity: 1,
+      price: double.tryParse(product.variants.first.price) ?? 0.0,
+      totalPrice: double.tryParse(product.variants.first.price) ?? 0.0,
+      product: CartProduct(
+        id: product.id,
+        productName: product.productName,
+        images: product.images.map((e) => e.signedUrl ?? '').toList(),
+      ),
+    );
+  }
+}
+
+class CartProduct {
+  final int id;
+  final String productName;
+  final List<String> images;
+
+  CartProduct({
+    required this.id,
+    required this.productName,
+    required this.images,
+  });
+
+  factory CartProduct.fromJson(Map<String, dynamic> json) {
+    return CartProduct(
+      id: json['id'] ?? 0,
+      productName: json['productName'] ?? '',
+      images: (json['images'] as List? ?? []).map((e) => e.toString()).toList(),
     );
   }
 }

@@ -18,7 +18,7 @@ class AuthScreen extends StatelessWidget {
             // Navigate after checking token
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (auth.token != null) {
-                context.goNamed(AppRoutes.signupScreen);
+                context.goNamed(AppRoutes.bottomBarScreen);
               } else {
                 context.goNamed(AppRoutes.signupScreen);
               }

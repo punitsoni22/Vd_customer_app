@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:vd_customer_app/core/models/cart_model.dart';
 import 'package:vd_customer_app/core/models/product_model.dart';
 import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
@@ -202,7 +203,11 @@ class ProductCard extends StatelessWidget {
                               onTap: () {
                                 final cartProvider = context
                                     .read<CartProvider>();
-                                cartProvider.addItem(product);
+
+                                final cartDetail = CartDetail.fromProduct(
+                                  product,
+                                );
+                                cartProvider.addItem(cartDetail);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(

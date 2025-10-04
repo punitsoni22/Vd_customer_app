@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/theme/colors.dart';
-import '../../core/utils/common_widgets/subscription_container.dart';
+import '../../core/utils/common_widgets/common_subscription_container.dart';
 import 'provider/home_provider.dart';
 import 'widgets/home_product_card.dart';
 

@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:vd_customer_app/core/models/product_model.dart';
+import 'package:vd_customer_app/core/models/cart_model.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
 import 'package:vd_customer_app/feature/cart_screen/widgets/add_sub_button.dart';
 
 class CartItem extends StatelessWidget {
-  final Product item;
+  final CartDetail item;
 
   const CartItem({super.key, required this.item});
 
   @override
   Widget build(BuildContext context) {
-    final String? imgUrl = (item.images.isNotEmpty)
-        ? item.images.first.signedUrl
+    final String? imgUrl = (item.product?.images.isNotEmpty ?? false)
+        ? item.product!.images.first
         : null;
+
     final cartProvider = context.read<CartProvider>();
 
     return Container(
@@ -51,7 +52,7 @@ class CartItem extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        item.productName,
+                        item.product?.productName ?? '',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -66,12 +67,12 @@ class CartItem extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "₹${(double.tryParse(item.variants.first.price) ?? 0) * (item.quantity ?? 1)}",
+                  "₹${(item.price)}",
                   style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 8),
                 AddSubtButton(
-                  quantity: item.quantity ?? 1,
+                  quantity: item.quantity,
                   onAdd: () => cartProvider.increaseQuantity(item),
                   onSubtract: () => cartProvider.decreaseQuantity(item),
                 ),

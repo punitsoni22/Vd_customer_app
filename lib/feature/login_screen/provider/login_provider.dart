@@ -1,9 +1,12 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
+import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
 
 class LoginProvider extends ChangeNotifier {
   bool _isLoading = false;
@@ -49,6 +52,19 @@ class LoginProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Map<String, dynamic> _decodeJwt(String token) {
+    final parts = token.split('.');
+    if (parts.length != 3) {
+      throw Exception('Invalid JWT token');
+    }
+    final payload = base64Url.normalize(parts[1]);
+    final payloadMap = json.decode(utf8.decode(base64Url.decode(payload)));
+    if (payloadMap is! Map<String, dynamic>) {
+      throw Exception('Invalid JWT payload');
+    }
+    return payloadMap;
+  }
+
   Future<void> loginViaEmail(BuildContext context) async {
     final payload = {
       "data": {
@@ -69,7 +85,22 @@ class LoginProvider extends ChangeNotifier {
         final token = res['data']?['token']?.toString();
         if (token != null) {
           await Prefs.saveString(Prefs.keyAuthToken, token);
+          print("DEBUG: Login response data = ${res['data']}");
+
+          try {
+            final payload = _decodeJwt(token);
+            final userId = payload['id'];
+            if (userId != null) {
+              await Prefs.saveString("user_id", userId.toString());
+              print("DEBUG: User ID extracted from token → $userId");
+
+              context.read<CartProvider>().fetchLatestCart();
+            }
+          } catch (e) {
+            print("DEBUG: Failed to decode token: $e");
+          }
         }
+
         if (!context.mounted) return;
         _result(success: true, message: res['message']?.toString());
         context.goNamed(AppRoutes.bottomBarScreen);
@@ -138,6 +169,15 @@ class LoginProvider extends ChangeNotifier {
       final ok = res['success'] == true;
       if (ok) {
         if (!context.mounted) return;
+
+        final userId = res['dataResponse']?['userId']?.toString();
+        if (userId != null) {
+          await Prefs.saveString("user_id", userId);
+          print("DEBUG: User ID saved → $userId");
+
+          context.read<CartProvider>().fetchLatestCart();
+        }
+
         _result(
           success: true,
           message:

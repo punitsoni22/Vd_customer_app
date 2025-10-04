@@ -5,7 +5,7 @@ import 'package:vd_customer_app/core/theme/colors.dart';
 import '../../core/utils/common_widgets/common_add_subt_button.dart';
 import '../../core/utils/common_widgets/common_appbar.dart';
 import '../../core/utils/common_widgets/common_button.dart';
-import '../../core/utils/common_widgets/subscription_container.dart';
+import '../../core/utils/common_widgets/common_subscription_container.dart';
 import '../home_screen/widgets/home_product_card.dart';
 import 'provider/product_detail_provider.dart';
 

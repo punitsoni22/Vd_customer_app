@@ -1,7 +1,10 @@
 import 'package:go_router/go_router.dart';
+import 'package:vd_customer_app/core/utils/common_widgets/common_subscription_container.dart';
 import 'package:vd_customer_app/feature/cart_screen/cart_screen.dart';
 import 'package:vd_customer_app/feature/checkout_screen/checkout_screen.dart';
 import 'package:vd_customer_app/feature/product_detail_screen/product_detail_screen.dart';
+import 'package:vd_customer_app/feature/subscription_date_screen/subscription_date_screen.dart';
+import 'package:vd_customer_app/feature/subscription_product_screen/subscription_product_screen.dart';
 import '../../feature/auth_screen/auth_screen.dart';
 import '../../feature/home_screen/home_screen.dart';
 import '../../feature/login_screen/login_screen.dart';
@@ -58,6 +61,16 @@ GoRouter buildRouter() {
         path: '/checkout_screen',
         name: AppRoutes.checkoutScreen,
         builder: (context, state) => const CheckoutScreen(),
+      ),
+      GoRoute(
+        path: '/subscription_product_screen',
+        name: AppRoutes.subscriptionProductScreen,
+        builder: (context, state) => const SubscriptionProductScreen(),
+      ),
+      GoRoute(
+        path: '/subscription_date_screen',
+        name: AppRoutes.subscriptionDateScreen,
+        builder: (context, state) => const SubscriptionDateScreen(),
       ),
     ],
   );

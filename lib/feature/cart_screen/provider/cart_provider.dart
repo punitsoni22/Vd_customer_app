@@ -1,141 +1,155 @@
-import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:vd_customer_app/core/models/product_model.dart';
+import 'package:vd_customer_app/core/models/cart_model.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
 
 class CartProvider extends ChangeNotifier {
-  final List<Product> _cartItems = [];
-  List<Product> get cartItems => _cartItems;
+  Cart? _cart;
+  Cart? get cart => _cart;
 
-  int? _cartId;
-  int? get cartId => _cartId;
+  List<CartDetail> get cartItems => _cart?.cartDetails ?? [];
 
-  bool get isEmpty => _cartItems.isEmpty;
+  int? get cartId => _cart?.id;
+
+  bool get isEmpty => cartItems.isEmpty;
 
   void setCartFromApi(Map<String, dynamic> data) {
-    _cartItems.clear();
+    if (data == null) return;
 
-    if (data != null) {
-      _cartId = data['id'];
+    final cart = Cart.fromJson(data);
 
-      if (data['status'] == 'ACTIVE') {
-        final cartDetails = data['cartDetails'] as List? ?? [];
+    if (!cart.isActive) return;
+    if (cart.cartDetails.isEmpty) return;
 
-        _cartItems.addAll(
-          cartDetails.map((item) {
-            final productJson = item['product'] ?? {};
-            final product = Product.fromJson(productJson);
-            product.quantity = item['quantity'] ?? 1;
-            return product;
-          }),
+    if (_cart == null) {
+      _cart = cart;
+    } else {
+      for (var item in cart.cartDetails) {
+        final i = _cart!.cartDetails.indexWhere(
+          (p) => p.productId == item.productId && p.variantId == item.variantId,
         );
+        if (i >= 0) {
+          _cart!.cartDetails[i].quantity = max(
+            _cart!.cartDetails[i].quantity,
+            item.quantity,
+          );
+        } else {
+          _cart!.cartDetails.add(item);
+        }
       }
     }
-
     notifyListeners();
   }
 
   Future<int?> getCurrentUserId() async {
     final userIdString = await Prefs.getString("user_id");
-    if (userIdString == null) return null;
-    return int.tryParse(userIdString);
+    if (userIdString == null) {
+      debugPrint("DEBUG: No user_id found in prefs");
+      return null;
+    }
+    final id = int.tryParse(userIdString);
+    debugPrint("DEBUG: Current userId = $id");
+    return id;
   }
 
   Future<void> fetchLatestCart() async {
     try {
       final userId = await getCurrentUserId();
+      print("DEBUG: Current userId = $userId");
+
       if (userId == null) return;
 
       final response = await Api.post('getLatestCartByUserId', {
         "data": {"userId": userId},
       });
-      print("Latest Cart Response: $response");
+
+      print("DEBUG: API Response = $response");
 
       if (response['success'] == true && response['data'] != null) {
-        dynamic cartData = response['data'];
-
-        if (cartData is String && cartData.isNotEmpty) {
-          cartData = Map<String, dynamic>.from(jsonDecode(cartData));
-        }
-
-        setCartFromApi(cartData);
+        setCartFromApi(response['data']);
       } else {
         print(
-          "Fetch Latest Cart failed: ${response['message'] ?? 'No message'}",
+          "DEBUG: Fetch Latest Cart failed: ${response['message'] ?? 'No message'}",
         );
       }
     } catch (e) {
-      print("Fetch Latest Cart Exception: $e");
+      print("DEBUG: Fetch Latest Cart Exception: $e");
     }
   }
 
-  Future<void> addItem(Product product) async {
-    await fetchLatestCart();
-    final index = _cartItems.indexWhere((p) => p.id == product.id);
+  Future<void> addItem(CartDetail item) async {
+    final index = cartItems.indexWhere(
+      (p) => p.productId == item.productId && p.variantId == item.variantId,
+    );
     if (index >= 0) {
-      _cartItems[index].quantity = (_cartItems[index].quantity ?? 1) + 1;
+      cartItems[index].quantity += 1;
     } else {
-      product.quantity = 1;
-      _cartItems.add(product);
+      item.quantity = 1;
+      cartItems.add(item);
     }
     notifyListeners();
     await addEditCart();
   }
 
-  Future<void> removeItem(Product product) async {
-    await fetchLatestCart();
-    _cartItems.removeWhere((p) => p.id == product.id);
+  Future<void> removeItem(CartDetail item) async {
+    cartItems.removeWhere(
+      (p) => p.productId == item.productId && p.variantId == item.variantId,
+    );
     notifyListeners();
     await addEditCart();
   }
 
-  Future<void> increaseQuantity(Product product) async {
-    final index = _cartItems.indexWhere((p) => p.id == product.id);
+  Future<void> increaseQuantity(CartDetail item) async {
+    final index = cartItems.indexWhere(
+      (p) => p.productId == item.productId && p.variantId == item.variantId,
+    );
     if (index >= 0) {
-      _cartItems[index].quantity = (_cartItems[index].quantity ?? 1) + 1;
+      cartItems[index].quantity += 1;
       notifyListeners();
       await addEditCart();
     }
   }
 
-  Future<void> decreaseQuantity(Product product) async {
-    final index = _cartItems.indexWhere((p) => p.id == product.id);
+  Future<void> decreaseQuantity(CartDetail item) async {
+    final index = cartItems.indexWhere(
+      (p) => p.productId == item.productId && p.variantId == item.variantId,
+    );
     if (index >= 0) {
-      if ((_cartItems[index].quantity ?? 1) > 1) {
-        _cartItems[index].quantity = (_cartItems[index].quantity ?? 1) - 1;
+      if (cartItems[index].quantity > 1) {
+        cartItems[index].quantity -= 1;
         notifyListeners();
         await addEditCart();
       } else {
-        await removeItem(product);
+        await removeItem(item);
       }
     }
   }
 
+  Future<void> refreshCartFromBackend() async {
+    await fetchLatestCart();
+  }
+
   Future<void> addEditCart() async {
     try {
-      final productsPayload = _cartItems.map((p) {
+      final productsPayload = cartItems.map((p) {
         return {
-          "productId": p.id,
-          "variantId": p.variants.first.id,
+          "productId": p.productId,
+          "variantId": p.variantId,
           "quantity": p.quantity,
-          "price": double.tryParse(p.variants.first.price) ?? 0.0,
+          "price": p.price,
         };
       }).toList();
 
       final payload = {
-        "data": {
-          if (_cartId != null) 'id': _cartId,
-          "products": productsPayload,
-        },
+        "data": {if (cartId != null) 'id': cartId, "products": productsPayload},
       };
 
       final response = await Api.post('addEditCart', payload);
       print('Add/Edit Cart Response: $response');
 
       if (response['success'] == true && response['data'] != null) {
-        _cartId = response['data']['id'] ?? _cartId;
-        await fetchLatestCart();
+        _cart = _cart?.copyWith(id: response['data']['id'] ?? cartId);
       } else {
         print('Cart API error: ${response['message'] ?? 'No message'}');
       }
@@ -144,11 +158,33 @@ class CartProvider extends ChangeNotifier {
     }
   }
 
-  double get subtotal => _cartItems.fold<double>(
+  double get subtotal => cartItems.fold<double>(
     0,
-    (sum, item) =>
-        sum +
-        ((double.tryParse(item.variants.first.price) ?? 0.0) *
-            (item.quantity ?? 1)),
+    (sum, item) => sum + ((item.price) * (item.quantity)),
   );
+}
+
+extension CartCopy on Cart {
+  Cart copyWith({
+    int? id,
+    int? userId,
+    String? status,
+    double? totalPrice,
+    List<CartDetail>? cartDetails,
+  }) {
+    return Cart(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      status: status ?? this.status,
+      totalPrice: totalPrice ?? this.totalPrice,
+      createdOn: createdOn,
+      createdBy: createdBy,
+      updatedOn: updatedOn,
+      updatedBy: updatedBy,
+      isDeleted: isDeleted,
+      deletedOn: deletedOn,
+      deletedBy: deletedBy,
+      cartDetails: cartDetails ?? this.cartDetails,
+    );
+  }
 }

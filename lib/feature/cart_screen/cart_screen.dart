@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_summary_rowtext.dart';
+import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
 import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
 import 'package:vd_customer_app/feature/cart_screen/widgets/cart_info_container.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
@@ -19,8 +20,13 @@ class _CartScreenState extends State<CartScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      context.read<CartProvider>().fetchLatestCart();
+
+    Future.microtask(() async {
+      final provider = context.read<CartProvider>();
+      final userIdString = await Prefs.getString(Prefs.keyUserId);
+      if (userIdString != null) {
+        provider.fetchLatestCart();
+      }
     });
   }
 
@@ -45,17 +51,34 @@ class _CartScreenState extends State<CartScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
             ),
             Expanded(
-              child: items.isEmpty
-                  ? const Center(child: Text("Your cart is empty"))
-                  : ListView.builder(
-                      padding: const EdgeInsets.all(12),
-                      itemCount: items.length,
-                      itemBuilder: (context, index) {
-                        final product = items[index];
-                        return CartItem(item: product);
-                      },
-                    ),
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  final provider = context.read<CartProvider>();
+                  final userIdString = await Prefs.getString(Prefs.keyUserId);
+                  if (userIdString != null) {
+                    await provider.fetchLatestCart();
+                  }
+                },
+                child: items.isEmpty
+                    ? ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        children: const [
+                          SizedBox(height: 100),
+                          Center(child: Text("Your cart is empty")),
+                        ],
+                      )
+                    : ListView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.all(12),
+                        itemCount: items.length,
+                        itemBuilder: (context, index) {
+                          final product = items[index];
+                          return CartItem(item: product);
+                        },
+                      ),
+              ),
             ),
+
             const SizedBox(height: 10),
             CustomInfoContainer(
               borderColor: AllColors.greyborderColor,
