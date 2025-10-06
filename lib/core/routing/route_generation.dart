@@ -2,6 +2,8 @@ import 'package:go_router/go_router.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_subscription_container.dart';
 import 'package:vd_customer_app/feature/cart_screen/cart_screen.dart';
 import 'package:vd_customer_app/feature/checkout_screen/checkout_screen.dart';
+import 'package:vd_customer_app/feature/my_order_screen/my_order_screen.dart';
+import 'package:vd_customer_app/feature/order_detail_screen.dart/order_detail_screen.dart';
 import 'package:vd_customer_app/feature/product_detail_screen/product_detail_screen.dart';
 import 'package:vd_customer_app/feature/subscription_date_screen/subscription_date_screen.dart';
 import 'package:vd_customer_app/feature/subscription_product_screen/subscription_product_screen.dart';
@@ -15,7 +17,7 @@ import 'routes.dart';
 
 GoRouter buildRouter() {
   return GoRouter(
-    initialLocation: AppRoutes.authScreen,
+    initialLocation: AppRoutes.myOrderScreen,
     routes: [
       GoRoute(
         path: '/auth_screen',
@@ -71,6 +73,17 @@ GoRouter buildRouter() {
         path: '/subscription_date_screen',
         name: AppRoutes.subscriptionDateScreen,
         builder: (context, state) => const SubscriptionDateScreen(),
+      ),
+      GoRoute(
+        path: '/my_order_screen',
+        name: AppRoutes.myOrderScreen,
+        builder: (context, state) => const MyOrderScreen(),
+      ),
+      GoRoute(
+        path: '/order_detail_screen',
+        name: AppRoutes.orderDetailScreen,
+        builder: (context, state) =>
+            const OrderDetailScreen(imageUrl: 'assets/images/image.png'),
       ),
     ],
   );

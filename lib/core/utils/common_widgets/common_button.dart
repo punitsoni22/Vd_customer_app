@@ -23,6 +23,7 @@ class CommonButton extends StatelessWidget {
   final bool pill;
   final double? elevation;
   final double? fontSize;
+  final double? iconSize;
 
   const CommonButton({
     super.key,
@@ -45,6 +46,7 @@ class CommonButton extends StatelessWidget {
     this.pill = false,
     this.elevation,
     this.fontSize,
+    this.iconSize,
   });
 
   @override
@@ -106,7 +108,7 @@ class CommonButton extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         if (icon != null) ...[
-                          Icon(icon, size: 18, color: fg),
+                          Icon(icon, size: iconSize ?? 18, color: fg),
                           const SizedBox(width: 8),
                         ],
                         Text(

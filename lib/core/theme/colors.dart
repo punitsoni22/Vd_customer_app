@@ -18,4 +18,7 @@ class AllColors {
   static Color imagetealbackColor = Colors.teal.withOpacity(0.05);
   static Color greyborderColor = Color.fromARGB(255, 213, 214, 216);
   static Color navigationBarIcon = Color(0xFF45525F);
+  static Color myOrderTextColor = Color(0xFF656B7A);
+  static Color orderDetailIconColor = Color(0xFF318531);
+  static Color statusRedColor = Color(0xFB90D);
 }
