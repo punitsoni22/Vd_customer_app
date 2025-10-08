@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
+import 'package:vd_customer_app/feature/my_order_screen/provider/my_order_provider.dart';
 import 'core/routing/route_generation.dart';
 import 'feature/auth_screen/provider/auth_provider.dart';
 import 'feature/home_screen/provider/home_provider.dart';
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => HomeProvider()),
         ChangeNotifierProvider(create: (_) => ProductDetailProvider()),
         ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => MyOrderProvider()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(393, 850),

@@ -1,12 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
-import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
 import 'package:vd_customer_app/feature/my_order_screen/widgets/my_order_card.dart';
-import 'package:vd_customer_app/feature/profile_screen/widgets/profile_orders_container.dart';
+import 'package:vd_customer_app/feature/my_order_screen/provider/my_order_provider.dart';
 
-class MyOrderTabBar extends StatelessWidget {
+class MyOrderTabBar extends StatefulWidget {
   const MyOrderTabBar({super.key});
+
+  @override
+  State<MyOrderTabBar> createState() => _MyOrderTabBarState();
+}
+
+class _MyOrderTabBarState extends State<MyOrderTabBar> {
+  @override
+  void initState() {
+    super.initState();
+    // Fetch orders after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<MyOrderProvider>();
+      provider.fetchOrders(); // <-- fetch orders here
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,9 +39,8 @@ class MyOrderTabBar extends StatelessWidget {
             child: TabBar(
               labelColor: AllColors.lightgreenColor,
               unselectedLabelColor: Colors.grey[300],
-
               indicatorColor: AllColors.tabBarline,
-              tabs: [
+              tabs: const [
                 Tab(text: "All Order"),
                 Tab(text: "Subscription"),
                 Tab(text: "One Time Order"),
@@ -34,65 +48,52 @@ class MyOrderTabBar extends StatelessWidget {
             ),
           ),
         ),
+        body: Consumer<MyOrderProvider>(
+          builder: (context, provider, _) {
+            if (provider.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-        body: TabBarView(
-          children: [
-            Padding(
-              padding: EdgeInsets.all(8.0.r),
-              child: const MyOrderCard(
-                id: 'Order ID: CRD78901',
-                date: '2024-11-20',
-                status: 'Pause',
-                imageUrl: 'assets/images/image.png',
-                productName: 'Alkaline Water',
-                detail: 'Quantity: 1',
-                paymentMethod: 'PayPal',
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8.0.r),
-              child: const MyOrderCard(
-                id: 'CRD78901',
-                date: '2024-11-20',
-                status: 'Delivered',
-                imageUrl: 'assets/images/image.png',
-                productName: 'Alkaline Water',
-                detail: 'Quantity: 1',
-                paymentMethod: 'PayPal',
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(8.0.r),
-              child: const MyOrderCard(
-                id: 'CRD78901',
-                date: '2024-11-20',
-                status: 'Active',
-                imageUrl: 'assets/images/image.png',
-                productName: 'Alkaline Water',
-                detail: 'Quantity: 1',
-                paymentMethod: 'PayPal',
-              ),
-            ),
-          ],
+            if (provider.orders.isEmpty) {
+              return const Center(child: Text("No orders found."));
+            }
+
+            final orders = provider.orders;
+
+            return TabBarView(
+              children: List.generate(3, (tabIndex) {
+                return ListView.builder(
+                  padding: EdgeInsets.all(8.0.r),
+                  itemCount: orders.length,
+                  itemBuilder: (context, i) {
+                    final order = orders[i];
+                    final cartDetail = order.cart.cartDetails.isNotEmpty
+                        ? order.cart.cartDetails[0]
+                        : null;
+
+                    return Padding(
+                      padding: EdgeInsets.all(8.0.r),
+                      child: MyOrderCard(
+                        id: 'Order ID: ${order.orderId}',
+                        date: order.orderConfirmedDate.split('T').first,
+                        status: order.status,
+                        productName:
+                            cartDetail?.productName ?? 'Alkaline Water',
+                        imageUrl:
+                            cartDetail?.productImages.signedUrl ??
+                            cartDetail?.productImages.imageUrl ??
+                            'assets/images/image.png',
+                        detail: 'Quantity: ${cartDetail?.quantity ?? 1}',
+                        paymentMethod: 'PayPal',
+                      ),
+                    );
+                  },
+                );
+              }),
+            );
+          },
         ),
       ),
-    );
-  }
-}
-
-class AllOrderCards extends StatelessWidget {
-  const AllOrderCards({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MyOrderCard(
-      id: '',
-      date: '',
-      status: '',
-      imageUrl: '',
-      productName: '',
-      detail: '',
-      paymentMethod: '',
     );
   }
 }
