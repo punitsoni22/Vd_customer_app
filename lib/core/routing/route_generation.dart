@@ -5,6 +5,7 @@ import 'package:vd_customer_app/feature/checkout_screen/checkout_screen.dart';
 import 'package:vd_customer_app/feature/my_order_screen/my_order_screen.dart';
 import 'package:vd_customer_app/feature/order_detail_screen.dart/order_detail_screen.dart';
 import 'package:vd_customer_app/feature/product_detail_screen/product_detail_screen.dart';
+import 'package:vd_customer_app/feature/profile_screen/profile_screen.dart';
 import 'package:vd_customer_app/feature/subscription_date_screen/subscription_date_screen.dart';
 import 'package:vd_customer_app/feature/subscription_product_screen/subscription_product_screen.dart';
 import '../../feature/auth_screen/auth_screen.dart';
@@ -17,7 +18,7 @@ import 'routes.dart';
 
 GoRouter buildRouter() {
   return GoRouter(
-    initialLocation: AppRoutes.myOrderScreen,
+    initialLocation: AppRoutes.authScreen,
     routes: [
       GoRoute(
         path: '/auth_screen',
@@ -84,6 +85,11 @@ GoRouter buildRouter() {
         name: AppRoutes.orderDetailScreen,
         builder: (context, state) =>
             const OrderDetailScreen(imageUrl: 'assets/images/image.png'),
+      ),
+      GoRoute(
+        path: '/profile_screen',
+        name: AppRoutes.profileScreen,
+        builder: (context, state) => const ProfileScreen(),
       ),
     ],
   );

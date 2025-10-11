@@ -14,7 +14,7 @@ class SubscriptionDateScreen extends StatelessWidget {
       backgroundColor: Colors.white,
       appBar: CommonAppBar(title: 'Subscription'),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: EdgeInsets.all(8.0.r),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -2,21 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vd_customer_app/core/models/product_model.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
-
 import 'package:vd_customer_app/feature/subscription_product_screen/widgets/price_drop_down_bar.dart';
 
 class SubscriptionProductCard extends StatelessWidget {
   final Product? product;
   final double width;
   final double height;
-
   const SubscriptionProductCard({
     super.key,
     this.product,
     this.width = 160,
     this.height = 286,
   });
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -42,7 +39,6 @@ class SubscriptionProductCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(15),
                   child: SizedBox(
                     width: double.infinity,
-
                     child: Image.asset(
                       'assets/images/Bigbottle.png',
                       fit: BoxFit.cover,
@@ -51,7 +47,6 @@ class SubscriptionProductCard extends StatelessWidget {
                 ),
               ),
             ),
-
             Expanded(
               flex: 4,
               child: Padding(

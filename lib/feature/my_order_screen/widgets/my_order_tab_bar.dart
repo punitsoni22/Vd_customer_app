@@ -16,10 +16,10 @@ class _MyOrderTabBarState extends State<MyOrderTabBar> {
   @override
   void initState() {
     super.initState();
-    // Fetch orders after first frame
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<MyOrderProvider>();
-      provider.fetchOrders(); // <-- fetch orders here
+      provider.fetchOrders();
     });
   }
 

@@ -8,19 +8,18 @@ import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
 import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
+import 'package:vd_customer_app/feature/product_detail_screen/provider/product_detail_provider.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
   final double width;
   final double height;
-
   const ProductCard({
     super.key,
     required this.product,
     this.width = 160,
     this.height = 300,
   });
-
   String _title(Product p) {
     final name = (p.productName.isNotEmpty ? p.productName : 'ALKALINE WATER')
         .toUpperCase();
@@ -37,11 +36,10 @@ class ProductCard extends StatelessWidget {
     final String? imgUrl = (product.images.isNotEmpty)
         ? product.images.first.signedUrl
         : null;
-
     return InkWell(
       onTap: () => context.pushNamed(
         AppRoutes.productDetailScreen,
-        pathParameters: {'id': product.id.toString()},
+        pathParameters: {'productId': product.id.toString()},
       ),
       child: SizedBox(
         width: width.w,
@@ -64,7 +62,7 @@ class ProductCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                flex: 3,
+                flex: 5,
                 child: Container(
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
@@ -92,9 +90,8 @@ class ProductCard extends StatelessWidget {
                   ),
                 ),
               ),
-
               Expanded(
-                flex: 1,
+                flex: 2,
                 child: Padding(
                   padding: EdgeInsets.all(6.h),
                   child: Column(
@@ -201,20 +198,9 @@ class ProductCard extends StatelessWidget {
                                 vertical: 4.h,
                               ),
                               onTap: () {
-                                final cartProvider = context
-                                    .read<CartProvider>();
-
-                                final cartDetail = CartDetail.fromProduct(
-                                  product,
-                                );
-                                cartProvider.addItem(cartDetail);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      '${product.productName} added to cart',
-                                    ),
-                                    duration: const Duration(seconds: 2),
-                                  ),
+                                context.push(
+                                  AppRoutes.productDetailScreen,
+                                  extra: {'productId': product.id},
                                 );
                               },
                             ),

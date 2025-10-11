@@ -3,7 +3,6 @@ import 'package:vd_customer_app/core/theme/colors.dart';
 
 class RatingSection extends StatelessWidget {
   const RatingSection({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Container(

@@ -6,7 +6,6 @@ import 'package:vd_customer_app/core/utils/common_widgets/common_calendar.dart';
 
 class SubscriptionDateDropdown extends StatefulWidget {
   const SubscriptionDateDropdown({super.key});
-
   @override
   State<SubscriptionDateDropdown> createState() =>
       _SubscriptionDateDropdownState();
@@ -14,9 +13,7 @@ class SubscriptionDateDropdown extends StatefulWidget {
 
 class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
   String selectedValue = "Daily";
-
   final List<String> items = ["Daily", "Weekly", "Alternate Day", "Custom"];
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -50,9 +47,7 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
             ),
           ),
         ),
-
         SizedBox(height: 12.h),
-
         _buildWidgetForSelection(selectedValue),
       ],
     );
@@ -116,7 +111,6 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
   }
 
   Widget _alternateDayWidget() => _simpleBox("Alternate Day");
-
   Widget _customWidget() {
     return Container(
       padding: EdgeInsets.all(8.r),

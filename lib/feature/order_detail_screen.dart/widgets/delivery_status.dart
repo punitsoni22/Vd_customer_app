@@ -4,7 +4,6 @@ import 'package:vd_customer_app/core/theme/colors.dart';
 
 class DeliveryStatusCard extends StatelessWidget {
   const DeliveryStatusCard({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -53,9 +52,7 @@ class DeliveryStatusCard extends StatelessWidget {
             'Your item has been delivered',
             style: TextStyle(color: AllColors.myOrderTextColor, fontSize: 13),
           ),
-
           const SizedBox(height: 14),
-
           Row(
             children: [
               Icon(
@@ -78,9 +75,7 @@ class DeliveryStatusCard extends StatelessWidget {
               ),
             ],
           ),
-
           const SizedBox(height: 6),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [

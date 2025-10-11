@@ -7,10 +7,9 @@ class OrdersCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AllColors.backgroundColor,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AllColors.textfieldborderColor),
       ),

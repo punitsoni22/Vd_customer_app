@@ -66,7 +66,6 @@ class CartDetail {
   final int variantId;
   int quantity;
   final double price;
-  final double totalPrice;
   final CartProduct? product;
 
   CartDetail({
@@ -75,9 +74,10 @@ class CartDetail {
     required this.variantId,
     required this.quantity,
     required this.price,
-    required this.totalPrice,
     this.product,
   });
+
+  double get totalPrice => price * quantity;
 
   factory CartDetail.fromJson(Map<String, dynamic> json) {
     return CartDetail(
@@ -86,7 +86,6 @@ class CartDetail {
       variantId: json['variantId'] ?? 0,
       quantity: json['quantity'] ?? 0,
       price: Cart._parseDouble(json['price']),
-      totalPrice: Cart._parseDouble(json['totalPrice']),
       product: json['product'] != null
           ? CartProduct.fromJson(Map<String, dynamic>.from(json['product']))
           : null,
@@ -94,13 +93,13 @@ class CartDetail {
   }
 
   factory CartDetail.fromProduct(Product product) {
+    final price = double.tryParse(product.variants.first.price) ?? 0.0;
     return CartDetail(
       id: 0,
       productId: product.id,
       variantId: product.variants.first.id,
       quantity: 1,
-      price: double.tryParse(product.variants.first.price) ?? 0.0,
-      totalPrice: double.tryParse(product.variants.first.price) ?? 0.0,
+      price: price,
       product: CartProduct(
         id: product.id,
         productName: product.productName,

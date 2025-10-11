@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_appbar.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
+import 'package:vd_customer_app/feature/profile_screen/widgets/logout_button.dart';
 import 'package:vd_customer_app/feature/profile_screen/widgets/profile_orders_container.dart';
 import 'package:vd_customer_app/feature/profile_screen/widgets/profile_header_cont.dart';
 
@@ -12,10 +14,10 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(title: 'Profile'),
-      backgroundColor: AllColors.backgroundColor,
+      backgroundColor: Colors.white,
 
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 15.w),
         child: Column(
           children: [
             ProfileHeader(
@@ -23,8 +25,10 @@ class ProfileScreen extends StatelessWidget {
               phoneNumber: '9746132587',
               ontouch: () {},
             ),
+            SizedBox(height: 15.h),
             OrdersCard(),
-            SizedBox(height: 10),
+            SizedBox(height: 15.h),
+            LogoutButton(),
           ],
         ),
       ),

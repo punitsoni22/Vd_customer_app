@@ -18,7 +18,7 @@ class DeliveryTimeCards extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: selected ? AllColors.iconColor : AllColors.backgroundColor,
+        color: selected ? AllColors.iconColor : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.grey.shade300),
       ),

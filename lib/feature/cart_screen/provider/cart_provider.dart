@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:vd_customer_app/core/models/cart_model.dart';
+import 'package:vd_customer_app/core/models/product_model.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
 
@@ -82,12 +83,22 @@ class CartProvider extends ChangeNotifier {
     final index = cartItems.indexWhere(
       (p) => p.productId == item.productId && p.variantId == item.variantId,
     );
+
     if (index >= 0) {
-      cartItems[index].quantity += 1;
+      cartItems[index].quantity += item.quantity;
+
+      cartItems[index] = CartDetail(
+        id: cartItems[index].id,
+        productId: cartItems[index].productId,
+        variantId: cartItems[index].variantId,
+        quantity: cartItems[index].quantity,
+        price: cartItems[index].price,
+        product: item.product,
+      );
     } else {
-      item.quantity = 1;
       cartItems.add(item);
     }
+
     notifyListeners();
     await addEditCart();
   }
@@ -156,6 +167,14 @@ class CartProvider extends ChangeNotifier {
     } catch (e) {
       print('Add/Edit Cart Exception: $e');
     }
+  }
+
+  void clearCart() {
+    _cart?.cartDetails.clear();
+
+    _cart = null;
+
+    notifyListeners();
   }
 
   double get subtotal => cartItems.fold<double>(

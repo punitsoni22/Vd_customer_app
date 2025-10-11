@@ -6,10 +6,11 @@ class SubscriptionPriceDropdown extends StatefulWidget {
   const SubscriptionPriceDropdown({super.key});
 
   @override
-  State<SubscriptionPriceDropdown> createState() => _CustomDropdownState();
+  State<SubscriptionPriceDropdown> createState() =>
+      _SubscriptionPriceDropdownState();
 }
 
-class _CustomDropdownState extends State<SubscriptionPriceDropdown> {
+class _SubscriptionPriceDropdownState extends State<SubscriptionPriceDropdown> {
   String selectedValue = "100ml at ₹100";
 
   final List<String> items = [
