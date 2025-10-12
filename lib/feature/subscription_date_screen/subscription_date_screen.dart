@@ -3,10 +3,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_appbar.dart';
 import 'package:vd_customer_app/feature/subscription_date_screen/widgets/date_dropdown_menu.dart';
-import 'package:vd_customer_app/feature/subscription_product_screen/widgets/price_drop_down_bar.dart';
 
 class SubscriptionDateScreen extends StatelessWidget {
-  const SubscriptionDateScreen({super.key});
+  final List<Map<String, dynamic>>? selectedProducts;
+  const SubscriptionDateScreen({super.key, this.selectedProducts});
 
   @override
   Widget build(BuildContext context) {
@@ -15,21 +15,23 @@ class SubscriptionDateScreen extends StatelessWidget {
       appBar: CommonAppBar(title: 'Subscription'),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 10.h),
-            Text(
-              'Choose your Delivery Frequency',
-              style: TextStyle(
-                color: AllColors.olivegreenColor,
-                fontSize: 18.sp,
-                fontWeight: FontWeight.bold,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 10.h),
+              Text(
+                'Choose your Delivery Frequency',
+                style: TextStyle(
+                  color: AllColors.olivegreenColor,
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            SizedBox(height: 15.h),
-            SubscriptionDateDropdown(),
-          ],
+              SizedBox(height: 15.h),
+              SubscriptionDateDropdown(selectedProducts: selectedProducts),
+            ],
+          ),
         ),
       ),
     );

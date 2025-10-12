@@ -1,5 +1,4 @@
 import 'package:go_router/go_router.dart';
-import 'package:vd_customer_app/core/utils/common_widgets/common_subscription_container.dart';
 import 'package:vd_customer_app/feature/cart_screen/cart_screen.dart';
 import 'package:vd_customer_app/feature/checkout_screen/checkout_screen.dart';
 import 'package:vd_customer_app/feature/product_detail_screen/product_detail_screen.dart';
@@ -70,7 +69,11 @@ GoRouter buildRouter() {
       GoRoute(
         path: '/subscription_date_screen',
         name: AppRoutes.subscriptionDateScreen,
-        builder: (context, state) => const SubscriptionDateScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final selectedProducts = extra?['selectedProducts'] as List<Map<String, dynamic>>?;
+          return SubscriptionDateScreen(selectedProducts: selectedProducts);
+        },
       ),
     ],
   );

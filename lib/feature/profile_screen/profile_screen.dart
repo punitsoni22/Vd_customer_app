@@ -1,7 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_appbar.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
+import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
 import 'package:vd_customer_app/feature/profile_screen/widgets/profile_orders_container.dart';
 import 'package:vd_customer_app/feature/profile_screen/widgets/profile_header_cont.dart';
 
@@ -25,6 +30,16 @@ class ProfileScreen extends StatelessWidget {
             ),
             OrdersCard(),
             SizedBox(height: 10),
+            CommonButton(
+              onTap: () async {
+                await Prefs.clear(Prefs.keyAuthToken);
+                await Prefs.clear(Prefs.keyUserId);
+                GoRouter.of(context).go(AppRoutes.authScreen);
+                
+              },
+              color: AllColors.olivegreenColor,
+              buttonValue: 'Logout',
+            ),
           ],
         ),
       ),
