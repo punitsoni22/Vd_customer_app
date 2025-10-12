@@ -7,17 +7,13 @@ import 'package:vd_customer_app/feature/cart_screen/widgets/add_sub_button.dart'
 
 class CartItem extends StatelessWidget {
   final CartDetail item;
-
   const CartItem({super.key, required this.item});
-
   @override
   Widget build(BuildContext context) {
     final String? imgUrl = (item.product?.images.isNotEmpty ?? false)
         ? item.product!.images.first
         : null;
-
     final cartProvider = context.read<CartProvider>();
-
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(11),

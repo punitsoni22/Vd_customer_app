@@ -40,4 +40,11 @@ class Prefs {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getKeys();
   }
+
+  static Future<void> clearAll() async {
+    final keys = await getKeys();
+    for (var key in keys) {
+      await clear(key);
+    }
+  }
 }

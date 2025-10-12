@@ -12,10 +12,11 @@ class SubscriptionPriceDropdown extends StatefulWidget {
   const SubscriptionPriceDropdown({Key? key, required this.variants, this.onVariantSelected, this.selectedIndex = 0}) : super(key: key);
 
   @override
-  State<SubscriptionPriceDropdown> createState() => _CustomDropdownState();
+  State<SubscriptionPriceDropdown> createState() =>
+      _SubscriptionPriceDropdownState();
 }
 
-class _CustomDropdownState extends State<SubscriptionPriceDropdown> {
+class _SubscriptionPriceDropdownState extends State<SubscriptionPriceDropdown> {
   int? selectedIndex;
 
   @override

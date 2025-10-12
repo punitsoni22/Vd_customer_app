@@ -5,7 +5,6 @@ import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
 
 class SubscriptionTabBar extends StatelessWidget {
   const SubscriptionTabBar({super.key});
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -30,7 +29,6 @@ class SubscriptionTabBar extends StatelessWidget {
             ),
           ),
         ),
-
         body: const TabBarView(
           children: [
             SubscriptionList(isActive: true),
@@ -45,7 +43,6 @@ class SubscriptionTabBar extends StatelessWidget {
 class SubscriptionList extends StatelessWidget {
   final bool isActive;
   const SubscriptionList({super.key, required this.isActive});
-
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -95,7 +92,6 @@ class SubscriptionList extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 12.h),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: const [

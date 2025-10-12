@@ -80,9 +80,7 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
             ),
           ),
         ),
-
         SizedBox(height: 12.h),
-
         _buildWidgetForSelection(selectedValue),
 
         SizedBox(height: 18.h),
@@ -488,7 +486,6 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
   }
 
   Widget _alternateDayWidget() => _simpleBox("Alternate Day");
-
   Widget _customWidget() {
     return Container(
       padding: EdgeInsets.all(8.r),

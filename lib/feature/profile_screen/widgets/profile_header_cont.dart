@@ -5,27 +5,27 @@ class ProfileHeader extends StatelessWidget {
   final String name;
   final String phoneNumber;
   final VoidCallback ontouch;
-
   const ProfileHeader({
     super.key,
     required this.name,
     required this.phoneNumber,
     required this.ontouch,
   });
-
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AllColors.backgroundColor,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AllColors.textfieldborderColor),
       ),
       child: Row(
         children: [
-          const CircleAvatar(radius: 24, backgroundImage: AssetImage('')),
+          const CircleAvatar(
+            radius: 24,
+            backgroundImage: AssetImage('assets/images/bottlerect.png'),
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(

@@ -20,7 +20,7 @@ class AuthScreen extends StatelessWidget {
               if (auth.token != null) {
                 context.goNamed(AppRoutes.bottomBarScreen);
               } else {
-                context.goNamed(AppRoutes.signupScreen);
+                context.goNamed(AppRoutes.loginScreen);
               }
             });
 

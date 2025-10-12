@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_summary_rowtext.dart';
 import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
 import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
@@ -11,7 +13,6 @@ import 'package:vd_customer_app/feature/cart_screen/widgets/cart_items.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
-
   @override
   State<CartScreen> createState() => _CartScreenState();
 }
@@ -20,7 +21,6 @@ class _CartScreenState extends State<CartScreen> {
   @override
   void initState() {
     super.initState();
-
     Future.microtask(() async {
       final provider = context.read<CartProvider>();
       final userIdString = await Prefs.getString(Prefs.keyUserId);
@@ -35,7 +35,6 @@ class _CartScreenState extends State<CartScreen> {
     final provider = context.watch<CartProvider>();
     final items = provider.cartItems;
     final subtotal = provider.subtotal;
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CommonAppBar(title: 'Cart'),
@@ -78,7 +77,6 @@ class _CartScreenState extends State<CartScreen> {
                       ),
               ),
             ),
-
             const SizedBox(height: 10),
             CustomInfoContainer(
               borderColor: AllColors.greyborderColor,
@@ -112,6 +110,9 @@ class _CartScreenState extends State<CartScreen> {
             ),
             const SizedBox(height: 10),
             CommonButton(
+              onTap: () {
+                context.pushNamed(AppRoutes.checkoutScreen);
+              },
               buttonValue: 'Proceed To Checkout',
               backgroundColor: AllColors.iconColor,
             ),

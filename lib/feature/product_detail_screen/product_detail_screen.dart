@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:vd_customer_app/core/models/cart_model.dart';
+import 'package:vd_customer_app/core/models/product_model.dart';
+import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
-
+import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
 import '../../core/utils/common_widgets/common_add_subt_button.dart';
 import '../../core/utils/common_widgets/common_appbar.dart';
 import '../../core/utils/common_widgets/common_button.dart';
@@ -11,36 +16,59 @@ import 'provider/product_detail_provider.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   const ProductDetailScreen({super.key});
-
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
 }
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
+  int selectedQuantity = 1;
+  Variant? selectedVariant;
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<ProductDetailProvider>();
-      final requestData = {
-        "filterModel": {},
-        "orderBy": "productName",
-        "orderDir": "ASC",
-        "searchText": "",
-        "page": 1,
-        "pageSize": 10,
-      };
-      provider.fetchDetailProducts(requestData);
+      final data = GoRouterState.of(context).extra as Map?;
+      final productId = data?['productId'];
+      if (productId != null) {
+        final provider = context.read<ProductDetailProvider>();
+        provider.fetchSpecificProduct(productId).then((_) {
+          if (provider.selectedProduct != null &&
+              provider.selectedProduct!.variants.isNotEmpty) {
+            setState(() {
+              selectedVariant = provider.selectedProduct!.variants.first;
+            });
+          }
+        });
+        final requestData = {
+          "filterModel": {},
+          "orderBy": "productName",
+          "orderDir": "ASC",
+          "searchText": "",
+          "page": 1,
+          "pageSize": 10,
+        };
+        provider.fetchDetailProducts(requestData);
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ProductDetailProvider>();
-
     return Scaffold(
       backgroundColor: AllColors.backgroundColor,
-      appBar: CommonAppBar(title: 'Product Detail'),
+      appBar: CommonAppBar(
+        title: 'Product Detail',
+        titleAlignment: BarTitleAlignment.center,
+        showBack: true,
+        onBack: () {
+          if (GoRouter.of(context).canPop()) {
+            GoRouter.of(context).pop();
+          } else {
+            GoRouter.of(context).goNamed(AppRoutes.bottomBarScreen);
+          }
+        },
+      ),
       body: provider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
@@ -49,15 +77,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Main Image
                     Padding(
                       padding: const EdgeInsets.only(bottom: 8.0),
                       child: SubscriptionContainer(),
                     ),
-
-                    // Product Name
                     Text(
-                      'Alkaline Water',
+                      provider.selectedProduct?.productName ?? 'Product Name',
                       style: TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.bold,
@@ -69,7 +94,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       thickness: 2,
                     ),
                     Text(
-                      'pH 9.5+ for improved hydration',
+                      provider.selectedProduct?.description ??
+                          'pH 9.5+ for improved hydration',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -79,7 +105,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     Row(
                       children: [
                         Text(
-                          'Rs. 400.00',
+                          'Rs. ${provider.selectedProduct?.displayPrice ?? '00'}',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.w500,
@@ -101,11 +127,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ],
                     ),
                     const Divider(),
-
                     Text(
                       'Volume',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 13.sp,
                         color: AllColors.iconColor,
                         fontWeight: FontWeight.w500,
                       ),
@@ -113,83 +138,99 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     const SizedBox(height: 5),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        CommonButton(
-                          radius: 20,
-                          buttonValue: '2 Ltr',
-                          backgroundColor: AllColors.lightgreenColor,
-
-                          selfconstraints: const BoxConstraints(minHeight: 40),
-                        ),
-                        CommonButton(
-                          radius: 20,
-                          buttonValue: '1 Ltr',
-                          backgroundColor: AllColors.lightgreenColor,
-
-                          selfconstraints: const BoxConstraints(minHeight: 40),
-                        ),
-                        CommonButton(
-                          radius: 20,
-                          buttonValue: '3 Ltr',
-                          backgroundColor: AllColors.lightgreenColor,
-
-                          selfconstraints: const BoxConstraints(minHeight: 40),
-                        ),
-                      ],
+                      children:
+                          provider.selectedProduct?.variants.map((variant) {
+                            String displayQuantity =
+                                '${variant.quantityInMl} L';
+                            final isSelected =
+                                selectedVariant?.id == variant.id;
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  selectedVariant = variant;
+                                  selectedQuantity = 1;
+                                });
+                              },
+                              child: CommonButton(
+                                radius: 16.r,
+                                buttonValue: displayQuantity,
+                                textStyle: TextStyle(
+                                  fontSize: 11.sp,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                backgroundColor: isSelected
+                                    ? AllColors.lightgreenColor
+                                    : Colors.grey.shade400,
+                                selfconstraints: BoxConstraints(
+                                  minHeight: 38.h,
+                                  maxWidth: 91.w,
+                                ),
+                              ),
+                            );
+                          }).toList() ??
+                          [],
                     ),
                     const SizedBox(height: 10),
-
                     Text(
                       'Quantity',
                       style: TextStyle(
-                        fontSize: 16,
+                        fontSize: 13.sp,
                         color: AllColors.iconColor,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Row(children: [CommonAddSubtButton(radius: 15)]),
-                    const SizedBox(height: 22),
-
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.0),
-                      child: SubscriptionContainer(),
+                    Row(
+                      children: [
+                        CommonAddSubtButton(
+                          radius: 15,
+                          initialQuantity: selectedQuantity,
+                          onQuantityChanged: (newQuantity) {
+                            setState(() {
+                              selectedQuantity = newQuantity;
+                            });
+                          },
+                        ),
+                      ],
                     ),
-
-                    // About Section
+                    SizedBox(height: 22.h),
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 8.0.h),
+                      child: const SubscriptionContainer(),
+                    ),
                     Text(
                       'About this Product',
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         color: Colors.black,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 5),
+                    SizedBox(height: 5.h),
                     Text(
-                      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum ",
-                      style: const TextStyle(
-                        fontSize: 11,
+                      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text...",
+                      style: TextStyle(
+                        fontSize: 11.sp,
                         color: Color.fromARGB(255, 54, 54, 54),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 20),
-
+                    SizedBox(height: 20.h),
                     Text(
                       'More Popular Products',
                       style: TextStyle(
-                        fontSize: 19,
+                        fontSize: 19.sp,
                         color: AllColors.olivegreenColor,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10.h),
                     provider.detailProducts.isEmpty
-                        ? const Center(
+                        ? Center(
                             child: Text(
                               "No products found",
-                              style: TextStyle(fontSize: 16),
+                              style: TextStyle(fontSize: 16.sp),
                             ),
                           )
                         : GridView.builder(
@@ -208,20 +249,65 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               return HomeProductCard(product: product);
                             },
                           ),
-
                     Row(
                       children: [
                         Expanded(
                           child: CommonButton(
                             buttonValue: 'Subscribe',
                             textStyle: TextStyle(color: AllColors.iconColor),
-
                             backgroundColor: Colors.transparent,
                           ),
                         ),
-                        const SizedBox(width: 10),
-                        const Expanded(
-                          child: CommonButton(buttonValue: 'Add to Cart'),
+                        SizedBox(width: 10.w),
+                        Expanded(
+                          child: CommonButton(
+                            buttonValue: 'Add to Cart',
+                            variant: ButtonVariant.filled,
+                            color: AllColors.buttonColor,
+                            foregroundColor: Colors.white,
+                            selfconstraints: BoxConstraints(minHeight: 38.h),
+                            fontSize: 14.sp,
+                            onTap: () {
+                              final productProvider = context
+                                  .read<ProductDetailProvider>();
+                              final cartProvider = context.read<CartProvider>();
+                              final selectedProduct =
+                                  productProvider.selectedProduct;
+                              if (selectedProduct == null ||
+                                  selectedProduct.variants.isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Product not available'),
+                                  ),
+                                );
+                                return;
+                              }
+                              final variant =
+                                  selectedVariant ??
+                                  selectedProduct.variants.first;
+                              cartProvider.addItem(
+                                CartDetail(
+                                  id: 0,
+                                  productId: selectedProduct.id,
+                                  variantId: variant.id,
+                                  quantity: selectedQuantity,
+                                  price: double.tryParse(variant.price) ?? 0,
+                                  product: CartProduct(
+                                    id: selectedProduct.id,
+                                    productName: selectedProduct.productName,
+                                    images: selectedProduct.images
+                                        .map((e) => e.signedUrl ?? '')
+                                        .toList(),
+                                  ),
+                                ),
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Added to cart successfully'),
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ],
                     ),

@@ -1,6 +1,8 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vd_customer_app/core/models/product_model.dart';
+import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/core/services/xd.dart';
 
@@ -8,6 +10,8 @@ class ProductDetailProvider extends ChangeNotifier {
   bool isLoading = false;
   String? message;
   List<Product> detailProducts = [];
+
+  Product? selectedProduct;
 
   Future<void> fetchDetailProducts(Map<String, dynamic> requestData) async {
     log("HomeScreen fetch started");
@@ -17,7 +21,7 @@ class ProductDetailProvider extends ChangeNotifier {
 
     try {
       final response = await Api.post('getAllProducts', requestData);
-      log("DetailScreen API Response → $response");
+      // log("DetailScreen API Response → $response");
 
       if (response['success'] == true) {
         final List<dynamic> items = response['data']?['items'] ?? [];
@@ -38,6 +42,40 @@ class ProductDetailProvider extends ChangeNotifier {
       }
     } catch (e) {
       detailProducts = [];
+      message = "Exception: $e";
+    }
+
+    isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> fetchSpecificProduct(int productId) async {
+    isLoading = true;
+    message = null;
+    notifyListeners();
+
+    try {
+      final response = await Api.post('getSpecificProducts', {
+        "data": {"productId": productId},
+      });
+      log("Specific Product API Response → $response");
+
+      if (response['success'] == true && response['data'] != null) {
+        selectedProduct = Product.fromJson(response['data']);
+
+        for (var image in selectedProduct!.images) {
+          if (image.rawImageUrl.isNotEmpty) {
+            image.signedUrl = await generateSignedUrl(image.rawImageUrl);
+          }
+        }
+
+        message = response['message'] ?? "Product fetched successfully";
+      } else {
+        selectedProduct = null;
+        message = response['message'] ?? "Failed to fetch product";
+      }
+    } catch (e) {
+      selectedProduct = null;
       message = "Exception: $e";
     }
 

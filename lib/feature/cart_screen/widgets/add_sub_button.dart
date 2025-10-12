@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 
 class AddSubtButton extends StatelessWidget {
@@ -26,10 +27,10 @@ class AddSubtButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: padding ?? const EdgeInsets.all(5),
+      padding: padding ?? EdgeInsets.all(5.r),
       constraints: selfconstraints ?? const BoxConstraints(),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(radius ?? 10),
+        borderRadius: BorderRadius.circular(radius ?? 10.r),
         border: Border.all(color: bordercolor ?? AllColors.buttonColor),
         color: Colors.transparent,
       ),
@@ -40,9 +41,9 @@ class AddSubtButton extends StatelessWidget {
             onTap: onSubtract,
             child: Icon(Icons.remove, color: Colors.blue),
           ),
-          SizedBox(width: 5),
+          SizedBox(width: 5.w),
           Text('$quantity', style: TextStyle(color: Colors.black)),
-          SizedBox(width: 5),
+          SizedBox(width: 5.w),
           GestureDetector(
             onTap: onAdd,
             child: Icon(Icons.add, color: Colors.blue),
