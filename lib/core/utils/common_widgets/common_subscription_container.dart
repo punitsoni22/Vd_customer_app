@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+import 'package:vd_customer_app/core/routing/routes.dart';
 
 class SubscriptionContainer extends StatelessWidget {
   final double? height;
@@ -15,25 +17,30 @@ class SubscriptionContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius),
-      child: Container(
-        height: height ?? 205,
-        padding: EdgeInsets.only(right: 12.w),
-        child: Image.asset(
-          assetPath,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stack) {
-            return Container(
-              color: Colors.grey.shade200,
-              alignment: Alignment.center,
-              child: Text(
-                'Asset not found:\n$assetPath',
-                textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.black54),
-              ),
-            );
-          },
+    return GestureDetector(
+      onTap: () {
+        context.push(AppRoutes.subscriptionProductScreen);
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(borderRadius),
+        child: Container(
+          height: height ?? 205,
+          padding: EdgeInsets.only(right: 12.w),
+          child: Image.asset(
+            assetPath,
+            fit: BoxFit.cover,
+            errorBuilder: (context, error, stack) {
+              return Container(
+                color: Colors.grey.shade200,
+                alignment: Alignment.center,
+                child: Text(
+                  'Asset not found:\n$assetPath',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.black54),
+                ),
+              );
+            },
+          ),
         ),
       ),
     );

@@ -17,7 +17,7 @@ import 'routes.dart';
 
 GoRouter buildRouter() {
   return GoRouter(
-    initialLocation: AppRoutes.authScreen,
+    initialLocation: AppRoutes.productDetailScreen,
     routes: [
       GoRoute(
         path: '/auth_screen',
@@ -74,7 +74,8 @@ GoRouter buildRouter() {
         name: AppRoutes.subscriptionDateScreen,
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          final selectedProducts = extra?['selectedProducts'] as List<Map<String, dynamic>>?;
+          final selectedProducts =
+              extra?['selectedProducts'] as List<Map<String, dynamic>>?;
           return SubscriptionDateScreen(selectedProducts: selectedProducts);
         },
       ),

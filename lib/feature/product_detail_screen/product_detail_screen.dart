@@ -7,6 +7,7 @@ import 'package:vd_customer_app/core/models/product_model.dart';
 import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
+import 'package:vd_customer_app/feature/product_detail_screen/widgets/drop_down_volume.dart';
 import '../../core/utils/common_widgets/common_add_subt_button.dart';
 import '../../core/utils/common_widgets/common_appbar.dart';
 import '../../core/utils/common_widgets/common_button.dart';
@@ -56,7 +57,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<ProductDetailProvider>();
     return Scaffold(
-      backgroundColor: AllColors.backgroundColor,
+      backgroundColor: Colors.white,
       appBar: CommonAppBar(
         title: 'Product Detail',
         titleAlignment: BarTitleAlignment.center,
@@ -136,41 +137,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                     ),
                     const SizedBox(height: 5),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children:
-                          provider.selectedProduct?.variants.map((variant) {
-                            String displayQuantity =
-                                '${variant.quantityInMl} L';
-                            final isSelected =
-                                selectedVariant?.id == variant.id;
-                            return GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  selectedVariant = variant;
-                                  selectedQuantity = 1;
-                                });
-                              },
-                              child: CommonButton(
-                                radius: 16.r,
-                                buttonValue: displayQuantity,
-                                textStyle: TextStyle(
-                                  fontSize: 11.sp,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                                backgroundColor: isSelected
-                                    ? AllColors.lightgreenColor
-                                    : Colors.grey.shade400,
-                                selfconstraints: BoxConstraints(
-                                  minHeight: 38.h,
-                                  maxWidth: 91.w,
-                                ),
-                              ),
-                            );
-                          }).toList() ??
-                          [],
+                    SizedBox(
+                      width: double.infinity,
+                      child: DropdownVolume(
+                        variants: provider.selectedProduct?.variants ?? [],
+                        selectedVariant: selectedVariant,
+                        onVariantSelected: (variant) {
+                          setState(() {
+                            selectedVariant = variant;
+                            selectedQuantity = 1;
+                          });
+                        },
+                      ),
                     ),
+
                     const SizedBox(height: 10),
                     Text(
                       'Quantity',
@@ -252,10 +232,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     Row(
                       children: [
                         Expanded(
-                          child: CommonButton(
-                            buttonValue: 'Subscribe',
-                            textStyle: TextStyle(color: AllColors.iconColor),
-                            backgroundColor: Colors.transparent,
+                          child: GestureDetector(
+                            onTap: () {
+                              GoRouter.of(
+                                context,
+                              ).pushNamed(AppRoutes.subscriptionProductScreen);
+                            },
+                            child: CommonButton(
+                              buttonValue: 'Subscribe',
+                              textStyle: TextStyle(color: AllColors.iconColor),
+                              backgroundColor: Colors.transparent,
+                            ),
                           ),
                         ),
                         SizedBox(width: 10.w),
