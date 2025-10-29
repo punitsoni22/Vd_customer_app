@@ -21,13 +21,8 @@ class _CartScreenState extends State<CartScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() async {
-      final provider = context.read<CartProvider>();
-      final userIdString = await Prefs.getString(Prefs.keyUserId);
-      if (userIdString != null) {
-        provider.fetchLatestCart();
-      }
-    });
+    // initial fetch is handled centrally by BottomBarScreen when this tab
+    // is created. Avoid doing network calls here to prevent duplicate calls.
   }
 
   @override

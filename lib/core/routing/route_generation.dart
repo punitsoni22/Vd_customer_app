@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vd_customer_app/feature/cart_screen/cart_screen.dart';
 import 'package:vd_customer_app/feature/checkout_screen/checkout_screen.dart';
@@ -37,7 +38,22 @@ GoRouter buildRouter() {
       GoRoute(
         path: '/bottom_bar_screen',
         name: AppRoutes.bottomBarScreen,
-        builder: (context, state) => const BottomBarScreen(),
+        builder: (context, state) {
+          final extra = state.extra;
+          int initialIndex = 0;
+          if (extra is Map<String, dynamic>) {
+            final idx = extra['index'];
+            if (idx is int) {
+              initialIndex = idx;
+            } else if (idx is String) {
+              initialIndex = int.tryParse(idx) ?? 0;
+            }
+          }
+          return BottomBarScreen(
+            key: ValueKey('bottom_bar_$initialIndex'),
+            initialIndex: initialIndex,
+          );
+        },
       ),
       GoRoute(
         path: '/home_screen',
@@ -74,7 +90,8 @@ GoRouter buildRouter() {
         name: AppRoutes.subscriptionDateScreen,
         builder: (context, state) {
           final extra = state.extra as Map<String, dynamic>?;
-          final selectedProducts = extra?['selectedProducts'] as List<Map<String, dynamic>>?;
+          final selectedProducts =
+              extra?['selectedProducts'] as List<Map<String, dynamic>>?;
           return SubscriptionDateScreen(selectedProducts: selectedProducts);
         },
       ),

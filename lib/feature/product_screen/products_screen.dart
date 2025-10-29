@@ -15,16 +15,8 @@ class _ProductScreenState extends State<ProductScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProductProvider>().getProducts({
-        "filterModel": {},
-        "orderBy": "productName",
-        "orderDir": "ASC",
-        "searchText": "",
-        "page": 1,
-        "pageSize": 10,
-      });
-    });
+    // initial fetch is handled centrally by BottomBarScreen when this tab
+    // is created. Avoid doing network calls here to prevent duplicate calls.
   }
 
   @override

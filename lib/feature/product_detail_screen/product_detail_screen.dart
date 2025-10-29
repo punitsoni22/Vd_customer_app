@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/models/cart_model.dart';
 import 'package:vd_customer_app/core/models/product_model.dart';
 import 'package:vd_customer_app/core/routing/routes.dart';
@@ -23,6 +27,8 @@ class ProductDetailScreen extends StatefulWidget {
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   int selectedQuantity = 1;
   Variant? selectedVariant;
+  bool isAddingToCart = false;
+
   @override
   void initState() {
     super.initState();
@@ -55,6 +61,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ProductDetailProvider>();
+    final double bottomBarHeight = 64.h;
+
     return Scaffold(
       backgroundColor: AllColors.backgroundColor,
       appBar: CommonAppBar(
@@ -69,10 +77,114 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           }
         },
       ),
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          height: bottomBarHeight,
+          padding: EdgeInsets.symmetric(horizontal: 8.0.w, vertical: 8.h),
+          color: Colors.transparent,
+          child: Row(
+            children: [
+              Expanded(
+                child: CommonButton(
+                  buttonValue: 'Subscribe',
+                  textStyle: TextStyle(color: AllColors.iconColor),
+                  backgroundColor: Colors.transparent,
+                  selfconstraints: BoxConstraints(minHeight: 40.h),
+                ),
+              ),
+              SizedBox(width: 10.w),
+              Expanded(
+                child: CommonButton(
+                  buttonValue: 'Add to Cart',
+                  variant: ButtonVariant.filled,
+                  color: AllColors.buttonColor,
+                  foregroundColor: Colors.white,
+                  selfconstraints: BoxConstraints(minHeight: 40.h),
+                  fontSize: 14.sp,
+                  isLoading: isAddingToCart,
+                  onTap: isAddingToCart
+                      ? null
+                      : () async {
+                          final productProvider = context
+                              .read<ProductDetailProvider>();
+                          final cartProvider = context.read<CartProvider>();
+                          final selectedProduct =
+                              productProvider.selectedProduct;
+                          if (selectedProduct == null ||
+                              selectedProduct.variants.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Product not available'),
+                              ),
+                            );
+                            return;
+                          }
+                          final variant =
+                              selectedVariant ?? selectedProduct.variants.first;
+
+                          final cartDetail = CartDetail(
+                            id: 0,
+                            productId: selectedProduct.id,
+                            variantId: variant.id,
+                            quantity: selectedQuantity,
+                            price: double.tryParse(variant.price) ?? 0,
+                            product: CartProduct(
+                              id: selectedProduct.id,
+                              productName: selectedProduct.productName,
+                              images: selectedProduct.images
+                                  .map((e) => e.signedUrl ?? '')
+                                  .toList(),
+                            ),
+                          );
+
+                          setState(() {
+                            isAddingToCart = true;
+                          });
+
+                          final result = await cartProvider.addItem(
+                            cartDetail,
+                            context: context,
+                          );
+
+                          setState(() {
+                            isAddingToCart = false;
+                          });
+
+                          final success = result['success'] == true;
+                          final message =
+                              result['message'] ??
+                              (success
+                                  ? 'Added to cart successfully'
+                                  : 'Failed to add to cart');
+                          if (success) {
+                            // navigate to bottom bar screen with Cart tab selected
+                            context.goNamed(
+                              AppRoutes.bottomBarScreen,
+                              extra: {'index': 3},
+                            );
+                          }
+
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(SnackBar(content: Text(message)));
+                        },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
       body: provider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : Padding(
-              padding: const EdgeInsets.all(8.0),
+              // add bottom padding equal to the bottom bar height so content
+              // is not hidden behind the fixed action bar
+              padding: EdgeInsets.only(
+                left: 8.w,
+                top: 8.h,
+                right: 8.w,
+                // bottom: bottomBarHeight + 8.h,
+              ),
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,19 +220,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           'Rs. ${provider.selectedProduct?.displayPrice ?? '00'}',
                           style: TextStyle(
                             fontSize: 20,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        SizedBox(width: 15),
-                        Icon(
-                          Icons.star,
-                          color: const Color.fromARGB(255, 246, 225, 37),
-                        ),
-                        Text(
-                          '4.5 Review',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -209,7 +308,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
                     SizedBox(height: 5.h),
                     Text(
-                      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text...",
+                      "Lorem Ipsum\u00a0is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text...",
                       style: TextStyle(
                         fontSize: 11.sp,
                         color: Color.fromARGB(255, 54, 54, 54),
@@ -249,68 +348,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               return HomeProductCard(product: product);
                             },
                           ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CommonButton(
-                            buttonValue: 'Subscribe',
-                            textStyle: TextStyle(color: AllColors.iconColor),
-                            backgroundColor: Colors.transparent,
-                          ),
-                        ),
-                        SizedBox(width: 10.w),
-                        Expanded(
-                          child: CommonButton(
-                            buttonValue: 'Add to Cart',
-                            variant: ButtonVariant.filled,
-                            color: AllColors.buttonColor,
-                            foregroundColor: Colors.white,
-                            selfconstraints: BoxConstraints(minHeight: 38.h),
-                            fontSize: 14.sp,
-                            onTap: () {
-                              final productProvider = context
-                                  .read<ProductDetailProvider>();
-                              final cartProvider = context.read<CartProvider>();
-                              final selectedProduct =
-                                  productProvider.selectedProduct;
-                              if (selectedProduct == null ||
-                                  selectedProduct.variants.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Product not available'),
-                                  ),
-                                );
-                                return;
-                              }
-                              final variant =
-                                  selectedVariant ??
-                                  selectedProduct.variants.first;
-                              cartProvider.addItem(
-                                CartDetail(
-                                  id: 0,
-                                  productId: selectedProduct.id,
-                                  variantId: variant.id,
-                                  quantity: selectedQuantity,
-                                  price: double.tryParse(variant.price) ?? 0,
-                                  product: CartProduct(
-                                    id: selectedProduct.id,
-                                    productName: selectedProduct.productName,
-                                    images: selectedProduct.images
-                                        .map((e) => e.signedUrl ?? '')
-                                        .toList(),
-                                  ),
-                                ),
-                              );
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Added to cart successfully'),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
                 ),
               ),

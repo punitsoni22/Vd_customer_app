@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 
 class OrdersCard extends StatelessWidget {
@@ -25,7 +27,15 @@ class OrdersCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          BuildmenuCont(icon: Icons.inventory_2_outlined, title: 'All Order’s'),
+          GestureDetector(
+            onTap: () {
+              GoRouter.of(context).push(AppRoutes.myOrderScreen);
+            },
+            child: BuildmenuCont(
+              icon: Icons.inventory_2_outlined,
+              title: 'All Order’s',
+            ),
+          ),
           BuildmenuCont(
             icon: Icons.calendar_today_outlined,
             title: 'Order Calendar',

@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_calendar.dart';
 import '../provider/subscription_provider.dart';
+import 'address_bottom_sheet.dart';
 
 class SubscriptionDateDropdown extends StatefulWidget {
   final List<Map<String, dynamic>>? selectedProducts;
@@ -155,20 +156,35 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                           },
                         ),
                       ),
-                      SizedBox(width: 8.w),
-                      Container(
-                        decoration: BoxDecoration(
-                          color: AllColors.olivegreenColor.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.add,
-                            color: AllColors.olivegreenColor,
-                          ),
-                          onPressed: () {},
-                        ),
-                      ),
+
+                      // SizedBox(width: 8.w),
+                      // Container(
+                      //   decoration: BoxDecoration(
+                      //     color: AllColors.olivegreenColor.withOpacity(0.15),
+                      //     borderRadius: BorderRadius.circular(8.r),
+                      //   ),
+                      //   child: IconButton(
+                      //     icon: Icon(
+                      //       Icons.add,
+                      //       color: AllColors.olivegreenColor,
+                      //     ),
+                      //     onPressed: () async {
+                      //       // open bottom sheet to add address
+                      //       final added = await showModalBottomSheet<bool>(
+                      //         context: context,
+                      //         isScrollControlled: true,
+                      //         builder: (_) => const AddressBottomSheet(),
+                      //       );
+                      //       // if added, refresh addresses
+                      //       if (added == true) {
+                      //         Provider.of<SubscriptionProvider>(
+                      //           context,
+                      //           listen: false,
+                      //         ).getAllAddresses();
+                      //       }
+                      //     },
+                      //   ),
+                      // ),
                     ],
                   ),
                   SizedBox(height: 18.h),

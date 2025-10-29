@@ -20,6 +20,8 @@ class CheckoutScreen extends StatefulWidget {
 }
 
 class _CheckoutScreenState extends State<CheckoutScreen> {
+  int _selectedDeliveryIndex = 0;
+  int _selectedPaymentIndex = 0;
   @override
   void initState() {
     super.initState();
@@ -78,11 +80,27 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   DeliveryTimeCards(
                     title: "Today",
                     time: "9 AM - 12 PM",
-                    selected: true,
+                    selected: _selectedDeliveryIndex == 0,
+                    onTap: () => setState(() => _selectedDeliveryIndex = 0),
                   ),
-                  DeliveryTimeCards(title: "Today", time: "1 PM - 4 PM"),
-                  DeliveryTimeCards(title: "Tomorrow", time: "9 AM - 12 PM"),
-                  DeliveryTimeCards(title: "Tomorrow", time: "1 PM - 4 PM"),
+                  DeliveryTimeCards(
+                    title: "Today",
+                    time: "1 PM - 4 PM",
+                    selected: _selectedDeliveryIndex == 1,
+                    onTap: () => setState(() => _selectedDeliveryIndex = 1),
+                  ),
+                  DeliveryTimeCards(
+                    title: "Tomorrow",
+                    time: "9 AM - 12 PM",
+                    selected: _selectedDeliveryIndex == 2,
+                    onTap: () => setState(() => _selectedDeliveryIndex = 2),
+                  ),
+                  DeliveryTimeCards(
+                    title: "Tomorrow",
+                    time: "1 PM - 4 PM",
+                    selected: _selectedDeliveryIndex == 3,
+                    onTap: () => setState(() => _selectedDeliveryIndex = 3),
+                  ),
                 ],
               ),
             ),
@@ -102,28 +120,35 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 border: Border.all(color: AllColors.textfieldborderColor),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Column(
+              child: Column(
                 children: [
                   PaymentOptionCard(
                     icon: Icons.qr_code,
                     title: "UPI",
                     badge: "Instant",
-                    selected: true,
+                    selected: _selectedPaymentIndex == 0,
+                    onTap: () => setState(() => _selectedPaymentIndex = 0),
                   ),
                   PaymentOptionCard(
                     icon: Icons.credit_card,
                     title: "Card Payment",
                     badge: "Secure",
+                    selected: _selectedPaymentIndex == 1,
+                    onTap: () => setState(() => _selectedPaymentIndex = 1),
                   ),
                   PaymentOptionCard(
                     icon: Icons.local_shipping,
                     title: "Cash on Delivery",
                     badge: "Easy",
+                    selected: _selectedPaymentIndex == 2,
+                    onTap: () => setState(() => _selectedPaymentIndex = 2),
                   ),
                   PaymentOptionCard(
                     icon: Icons.account_balance_wallet,
                     title: "Wallet",
                     badge: "Fast",
+                    selected: _selectedPaymentIndex == 3,
+                    onTap: () => setState(() => _selectedPaymentIndex = 3),
                   ),
                 ],
               ),

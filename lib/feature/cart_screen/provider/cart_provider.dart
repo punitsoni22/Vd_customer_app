@@ -1,9 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:vd_customer_app/core/models/cart_model.dart';
-import 'package:vd_customer_app/core/models/product_model.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
+import 'package:go_router/go_router.dart';
+import 'package:vd_customer_app/core/routing/routes.dart';
 
 class CartProvider extends ChangeNotifier {
   Cart? _cart;
@@ -16,8 +17,7 @@ class CartProvider extends ChangeNotifier {
   bool get isEmpty => cartItems.isEmpty;
 
   void setCartFromApi(Map<String, dynamic> data) {
-    if (data == null) return;
-
+    // 'data' is non-nullable Map coming from API; no null check needed
     final cart = Cart.fromJson(data);
 
     if (!cart.isActive) return;
@@ -79,28 +79,116 @@ class CartProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> addItem(CartDetail item) async {
-    final index = cartItems.indexWhere(
-      (p) => p.productId == item.productId && p.variantId == item.variantId,
-    );
+  Future<Map<String, dynamic>> addItem(
+    CartDetail item, {
+    BuildContext? context,
+  }) async {
+    try {
+      // Step 1: fetch latest cart from backend
+      final latest = await Api.post('getLatestCartByUserId', {});
 
-    if (index >= 0) {
-      cartItems[index].quantity += item.quantity;
+      int cartIdToUse = 0;
+      List existingDetails = [];
 
-      cartItems[index] = CartDetail(
-        id: cartItems[index].id,
-        productId: cartItems[index].productId,
-        variantId: cartItems[index].variantId,
-        quantity: cartItems[index].quantity,
-        price: cartItems[index].price,
-        product: item.product,
-      );
-    } else {
-      cartItems.add(item);
+      if (latest['success'] == true && latest['data'] != null) {
+        final data = latest['data'] as Map<String, dynamic>;
+        // use existing cart id only if status is ACTIVE
+        final status = (data['status'] ?? '').toString().toUpperCase();
+        if (status == 'ACTIVE') {
+          cartIdToUse = data['id'] ?? 0;
+          existingDetails = (data['cartDetails'] as List<dynamic>?) ?? [];
+        } else {
+          // non-active cart -> create new (id 0)
+          cartIdToUse = 0;
+          existingDetails = [];
+        }
+      } else {
+        // no cart exists -> create new with id = 0
+        cartIdToUse = 0;
+        existingDetails = [];
+      }
+
+      // Step 2: build products payload from existing details + new item
+      final List<Map<String, dynamic>> productsPayload = [];
+
+      for (final d in existingDetails) {
+        try {
+          productsPayload.add({
+            'productId': d['productId'],
+            'variantId': d['variantId'],
+            'quantity': d['quantity'],
+            'price': d['price'],
+          });
+        } catch (_) {}
+      }
+
+      // Append new item (backend will decide how to merge/update quantities)
+      productsPayload.add({
+        'productId': item.productId,
+        'variantId': item.variantId,
+        'quantity': item.quantity,
+        'price': item.price,
+      });
+
+      // Step 3: compute totalPrice (sum of price * quantity)
+      double total = 0;
+      for (final p in productsPayload) {
+        final q = (p['quantity'] is int)
+            ? (p['quantity'] as int)
+            : int.tryParse(p['quantity'].toString()) ?? 0;
+        final pr = double.tryParse(p['price'].toString()) ?? 0.0;
+        total += pr * q;
+      }
+
+      final payload = {
+        'data': {
+          'id': cartIdToUse,
+          'products': productsPayload,
+          'totalPrice': total,
+        },
+      };
+
+      // Step 4: call addEditCart API
+      final resp = await Api.post('addEditCart', payload);
+      print('addItem API Response: $resp');
+
+      if (resp['success'] == true && resp['data'] != null) {
+        // Update local cart from backend response
+        setCartFromApi(resp['data']);
+        return {'success': true, 'message': 'Added to cart successfully'};
+      } else {
+        // API returned failure - print/log and return message
+        final msg = resp['message'] ?? 'Failed to add to cart';
+        print('addEditCart failed: $msg');
+
+        // If server returned 401 (unauthorized), clear prefs, clear cart and navigate to login
+        try {
+          final msgStr = msg.toString();
+          if (msgStr.contains('401')) {
+            // clear stored auth and user id
+            await Prefs.clear(Prefs.keyAuthToken);
+            await Prefs.clear(Prefs.keyUserId);
+            await Prefs.clearAll();
+
+            // clear local cart state
+            clearCart();
+
+            // navigate to login/auth screen if context provided
+            if (context != null) {
+              context.goNamed(AppRoutes.loginScreen);
+            }
+          }
+        } catch (e) {
+          // ignore errors during logout handling but log if needed
+          print('Error during logout handling: $e');
+        }
+
+        return {'success': false, 'message': msg};
+      }
+    } catch (e) {
+      print('addItem exception: $e');
+      return {'success': false, 'message': e.toString()};
     }
-
-    notifyListeners();
-    await addEditCart();
   }
 
   Future<void> removeItem(CartDetail item) async {
