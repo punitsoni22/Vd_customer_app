@@ -10,6 +10,7 @@ class MyOrderScreen extends StatelessWidget {
     return Scaffold(
       appBar: CommonAppBar(
         title: 'My Orders',
+        showBack: true,
         titleAlignment: BarTitleAlignment.center,
       ),
       body: const MyOrderTabBar(),

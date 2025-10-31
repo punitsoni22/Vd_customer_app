@@ -219,7 +219,12 @@ class ProductCard extends StatelessWidget {
                                 horizontal: 0,
                                 vertical: 4.h,
                               ),
-                              onTap: () {},
+                              onTap: () {
+                                context.push(
+                                  AppRoutes.productDetailScreen,
+                                  extra: {'productId': product.id},
+                                );
+                              },
                             ),
                           ),
                         ],

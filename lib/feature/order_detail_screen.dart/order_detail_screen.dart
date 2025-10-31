@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_appbar.dart';
-import 'package:vd_customer_app/feature/home_screen/widgets/home_product_card.dart';
 import 'package:vd_customer_app/feature/order_detail_screen.dart/widgets/delivery_status.dart';
 import 'package:vd_customer_app/feature/order_detail_screen.dart/widgets/rating_section.dart';
 

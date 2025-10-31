@@ -2,6 +2,8 @@ import 'dart:collection';
 import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:vd_customer_app/core/models/order_model.dart';
+import 'package:vd_customer_app/core/models/subscription_model.dart';
+import 'package:vd_customer_app/core/models/unified_order_model_.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/core/services/xd.dart';
 import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
@@ -22,6 +24,18 @@ class MyOrderProvider extends ChangeNotifier {
   String? get message => _message;
   List<Order> get orders => UnmodifiableListView(_orders);
 
+  final List<SubscriptionModel> _subscriptions = [];
+  List<SubscriptionModel> get subscriptions =>
+      UnmodifiableListView(_subscriptions);
+
+  final List<UnifiedOrderModel> _allOrdersUnified = [];
+  List<UnifiedOrderModel> get allOrdersUnified => _allOrdersUnified;
+
+  bool allDataLoaded = false;
+  bool isLoadingAll = false;
+  bool subscriptionsLoaded = false;
+  bool ordersLoaded = false;
+
   @override
   void dispose() {
     _disposed = true;
@@ -30,6 +44,65 @@ class MyOrderProvider extends ChangeNotifier {
 
   void _safeNotify() {
     if (!_disposed) notifyListeners();
+  }
+
+  void mergeAllOrders() {
+    _allOrdersUnified.clear();
+
+    for (var order in _orders) {
+      if (order.cart.cartDetails.isNotEmpty) {
+        final c = order.cart.cartDetails[0];
+        _allOrdersUnified.add(
+          UnifiedOrderModel(
+            id: order.orderId.toString(),
+            type: "order",
+            date: order.orderConfirmedDate.split('T').first,
+            status: order.status,
+            productName: c.productName,
+            quantity: c.quantity,
+            signedUrl: c.productImages.signedUrl,
+            rawImageUrl: c.productImages.imageUrl,
+          ),
+        );
+      }
+    }
+
+    for (var sub in _subscriptions) {
+      for (var p in sub.products) {
+        _allOrdersUnified.add(
+          UnifiedOrderModel(
+            id: sub.id.toString(),
+            type: "subscription",
+            date: sub.startDate.toString().split(" ").first,
+            status: sub.subscriptionType,
+            productName: p.productName,
+            quantity: p.quantity,
+            signedUrl: p.signedUrl,
+            rawImageUrl: p.imageUrl,
+            nextDelivery: sub.startDate.toString().split(" ").first,
+            deliveryFrequency: sub.deliveryFrequencyType,
+          ),
+        );
+      }
+    }
+
+    _allOrdersUnified.sort((a, b) => b.date.compareTo(a.date));
+    _safeNotify();
+  }
+
+  Future<void> loadAllForTab1() async {
+    if (isLoadingAll || allDataLoaded) return;
+
+    isLoadingAll = true;
+    _safeNotify();
+
+    await fetchSubscriptions();
+    await fetchOrders();
+
+    mergeAllOrders();
+    allDataLoaded = true;
+    isLoadingAll = false;
+    _safeNotify();
   }
 
   Future<void> fetchOrders({int page = 1}) async {
@@ -88,17 +161,66 @@ class MyOrderProvider extends ChangeNotifier {
           }),
         );
 
+        ordersLoaded = true;
         _message = response['message'] ?? "Orders fetched successfully";
       } else {
         _orders.clear();
+        ordersLoaded = true;
         _message = response['message'] ?? "Failed to fetch orders";
         log("API returned failure: $_message");
       }
     } catch (e, st) {
       if (rid != _requestId) return;
       _orders.clear();
+      ordersLoaded = true;
       _message = "Exception: $e";
       log("MyOrder fetch exception: $e\n$st");
+    } finally {
+      if (rid != _requestId) return;
+      _isLoading = false;
+      _safeNotify();
+    }
+  }
+
+  Future<void> fetchSubscriptions({int page = 1}) async {
+    final int rid = ++_requestId;
+    _isLoading = true;
+    _message = null;
+    _safeNotify();
+
+    try {
+      final token = await Prefs.getString(Prefs.keyAuthToken) ?? "";
+
+      final response = await Api.post("getAllSubscription", {
+        "page": page,
+        "pageSize": 10,
+        "searchText": "",
+        "token": token,
+      });
+
+      log("Subscription API Response: $response");
+
+      if (rid != _requestId) return;
+
+      if (response["success"] == true) {
+        final List<dynamic> items = response["data"]?["subscription"] ?? [];
+
+        _subscriptions.clear();
+        _subscriptions.addAll(items.map((e) => SubscriptionModel.fromJson(e)));
+
+        subscriptionsLoaded = true;
+        _message = "Subscriptions fetched";
+      } else {
+        _subscriptions.clear();
+        subscriptionsLoaded = true;
+        _message = response["message"] ?? "Failed to fetch subscriptions";
+      }
+    } catch (e, st) {
+      if (rid != _requestId) return;
+      _subscriptions.clear();
+      subscriptionsLoaded = true;
+      _message = "Error: $e";
+      log("fetchSubscriptions err: $e\n$st");
     } finally {
       if (rid != _requestId) return;
       _isLoading = false;

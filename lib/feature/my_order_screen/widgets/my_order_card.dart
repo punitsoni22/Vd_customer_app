@@ -50,13 +50,13 @@ class MyOrderCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12.r),
         color: Colors.white,
         border: Border.all(color: Colors.grey.shade300),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.shade100,
-            spreadRadius: 1,
-            blurRadius: 5,
-          ),
-        ],
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: Colors.grey.shade100,
+        //     spreadRadius: 1,
+        //     blurRadius: 5,
+        //   ),
+        // ],
       ),
 
       child: Column(
@@ -68,21 +68,6 @@ class MyOrderCard extends StatelessWidget {
               Text(
                 id,
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.sp),
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 5.h),
-                decoration: BoxDecoration(
-                  color: getStatusColor(status),
-                  borderRadius: BorderRadius.circular(20.r),
-                ),
-                child: Text(
-                  status,
-                  style: TextStyle(
-                    color: statusFontColor(status),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12.sp,
-                  ),
-                ),
               ),
             ],
           ),
@@ -108,7 +93,7 @@ class MyOrderCard extends StatelessWidget {
                   height: 74.h,
                   width: 74.w,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Image.asset(
+                  errorBuilder: (context, error, stackTrace) => Image.asset(
                     'assets/images/image.png',
                     height: 74.h,
                     width: 74.w,
@@ -144,7 +129,7 @@ class MyOrderCard extends StatelessWidget {
                     Row(
                       children: [
                         Icon(
-                          Icons.account_balance_wallet_outlined,
+                          icon2 ?? Icons.account_balance_wallet_outlined,
                           size: 16.sp,
                           color: Colors.grey,
                         ),
