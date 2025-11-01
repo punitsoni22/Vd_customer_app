@@ -12,23 +12,26 @@ class SubscriptionDateScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: CommonAppBar(title: 'Subscription'),
+      appBar: CommonAppBar(
+        title: 'Subscription',
+        titleAlignment: BarTitleAlignment.center,
+      ),
       body: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: EdgeInsets.symmetric(horizontal: 15.0.w, vertical: 12.h),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 10.h),
+              SizedBox(height: 8.h),
               Text(
                 'Choose your Delivery Frequency',
                 style: TextStyle(
                   color: AllColors.olivegreenColor,
                   fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(height: 15.h),
+              SizedBox(height: 9.h),
               SubscriptionDateDropdown(selectedProducts: selectedProducts),
             ],
           ),

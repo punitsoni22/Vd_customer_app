@@ -111,6 +111,11 @@ GoRouter buildRouter() {
         name: AppRoutes.profileScreen,
         builder: (context, state) => const ProfileScreen(),
       ),
+      GoRoute(
+        path: 'homescreen2',
+        name: AppRoutes.homescreen2,
+        builder: (context, state) => const CheckoutScreen(),
+      ),
     ],
   );
 }

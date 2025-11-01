@@ -64,7 +64,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     final double bottomBarHeight = 64.h;
 
     return Scaffold(
-      backgroundColor: AllColors.backgroundColor,
+      backgroundColor: Colors.white,
       appBar: CommonAppBar(
         title: 'Product Detail',
         titleAlignment: BarTitleAlignment.center,
@@ -87,9 +87,15 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               Expanded(
                 child: CommonButton(
                   buttonValue: 'Subscribe',
-                  textStyle: TextStyle(color: AllColors.iconColor),
+                  borderColor: AllColors.tabBarline,
+                  textStyle: TextStyle(
+                    color: AllColors.iconColor,
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  padding: EdgeInsets.all(5.r),
                   backgroundColor: Colors.transparent,
-                  selfconstraints: BoxConstraints(minHeight: 40.h),
+                  selfconstraints: BoxConstraints(minHeight: 50.h),
                 ),
               ),
               SizedBox(width: 10.w),
@@ -99,9 +105,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   variant: ButtonVariant.filled,
                   color: AllColors.buttonColor,
                   foregroundColor: Colors.white,
-                  selfconstraints: BoxConstraints(minHeight: 40.h),
-                  fontSize: 14.sp,
+                  selfconstraints: BoxConstraints(minHeight: 50.h),
+                  fontSize: 16.sp,
                   isLoading: isAddingToCart,
+                  padding: EdgeInsets.all(5.r),
                   onTap: isAddingToCart
                       ? null
                       : () async {
@@ -180,9 +187,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               // add bottom padding equal to the bottom bar height so content
               // is not hidden behind the fixed action bar
               padding: EdgeInsets.only(
-                left: 8.w,
-                top: 8.h,
-                right: 8.w,
+                left: 22.w,
+                top: 2.h,
+                right: 12.w,
                 // bottom: bottomBarHeight + 8.h,
               ),
               child: SingleChildScrollView(
@@ -190,26 +197,28 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
+                      padding: EdgeInsets.only(bottom: 5.0),
                       child: SubscriptionContainer(),
                     ),
+                    SizedBox(height: 10.h),
                     Text(
                       provider.selectedProduct?.productName ?? 'Product Name',
                       style: TextStyle(
-                        fontSize: 17,
+                        fontSize: 13.sp,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Divider(
-                      endIndent: 300,
+                      endIndent: 250,
                       color: AllColors.tabBarline,
                       thickness: 2,
                     ),
+                    SizedBox(height: 2.h),
                     Text(
                       provider.selectedProduct?.description ??
                           'pH 9.5+ for improved hydration',
                       style: TextStyle(
-                        fontSize: 13,
+                        fontSize: 10.sp,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -225,7 +234,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         ),
                       ],
                     ),
-                    const Divider(),
+                    Padding(
+                      padding: const EdgeInsets.all(0),
+                      child: const Divider(),
+                    ),
                     Text(
                       'Volume',
                       style: TextStyle(
@@ -234,41 +246,61 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         fontWeight: FontWeight.w500,
                       ),
                     ),
-                    const SizedBox(height: 5),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children:
-                          provider.selectedProduct?.variants.map((variant) {
-                            String displayQuantity =
-                                '${variant.quantityInMl} L';
-                            final isSelected =
-                                selectedVariant?.id == variant.id;
-                            return GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  selectedVariant = variant;
-                                  selectedQuantity = 1;
-                                });
-                              },
-                              child: CommonButton(
-                                radius: 16.r,
-                                buttonValue: displayQuantity,
-                                textStyle: TextStyle(
-                                  fontSize: 11.sp,
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
+                    SizedBox(height: 6.h),
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children:
+                            provider.selectedProduct?.variants.map((variant) {
+                              String displayQuantity =
+                                  '${variant.quantityInMl} L';
+                              final isSelected =
+                                  selectedVariant?.id == variant.id;
+                              return GestureDetector(
+                                onTap: () {
+                                  setState(() {
+                                    selectedVariant = variant;
+                                    selectedQuantity = 1;
+                                  });
+                                },
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                    right: 29.0.w,
+                                    bottom: 2.h,
+                                  ),
+                                  child: CommonButton(
+                                    radius: 20.r,
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 8.w,
+                                    ),
+                                    buttonValue: displayQuantity,
+                                    textStyle: TextStyle(
+                                      fontSize: 11.sp,
+                                      color: isSelected
+                                          ? Colors.white
+                                          : AllColors.buttonColor,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                    borderColor: AllColors.buttonColor,
+                                    backgroundColor: isSelected
+                                        ? AllColors.lightgreenColor
+                                        : const Color.fromARGB(
+                                            255,
+                                            248,
+                                            253,
+                                            255,
+                                          ),
+                                    selfconstraints: BoxConstraints(
+                                      minHeight: 38.h,
+                                      maxWidth: 91.w,
+                                    ),
+                                  ),
                                 ),
-                                backgroundColor: isSelected
-                                    ? AllColors.lightgreenColor
-                                    : Colors.grey.shade400,
-                                selfconstraints: BoxConstraints(
-                                  minHeight: 38.h,
-                                  maxWidth: 91.w,
-                                ),
-                              ),
-                            );
-                          }).toList() ??
-                          [],
+                              );
+                            }).toList() ??
+                            [],
+                      ),
                     ),
                     const SizedBox(height: 10),
                     Text(
@@ -276,14 +308,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       style: TextStyle(
                         fontSize: 13.sp,
                         color: AllColors.iconColor,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
                         CommonAddSubtButton(
-                          radius: 15,
+                          radius: 15.r,
                           initialQuantity: selectedQuantity,
                           onQuantityChanged: (newQuantity) {
                             setState(() {
@@ -294,14 +326,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ],
                     ),
                     SizedBox(height: 22.h),
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.0.h),
-                      child: const SubscriptionContainer(),
-                    ),
+
                     Text(
                       'About this Product',
                       style: TextStyle(
-                        fontSize: 14.sp,
+                        fontSize: 17.sp,
                         color: Colors.black,
                         fontWeight: FontWeight.w500,
                       ),
@@ -310,21 +339,21 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     Text(
                       "Lorem Ipsum\u00a0is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text...",
                       style: TextStyle(
-                        fontSize: 11.sp,
+                        fontSize: 13.sp,
                         color: Color.fromARGB(255, 54, 54, 54),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     SizedBox(height: 20.h),
                     Text(
-                      'More Popular Products',
+                      'Most Popular Products',
                       style: TextStyle(
                         fontSize: 19.sp,
                         color: AllColors.olivegreenColor,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
-                    SizedBox(height: 10.h),
+                    SizedBox(height: 12.h),
                     provider.detailProducts.isEmpty
                         ? Center(
                             child: Text(

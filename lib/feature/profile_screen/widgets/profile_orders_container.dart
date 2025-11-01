@@ -13,7 +13,7 @@ class OrdersCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AllColors.textfieldborderColor),
+        border: Border.all(color: AllColors.outlineColor),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -77,10 +77,14 @@ class BuildmenuCont extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.green.shade50,
+              color: AllColors.profileBackColor,
               shape: BoxShape.circle,
             ),
-            child: Icon(icon, size: 20, color: iconColor ?? Colors.green),
+            child: Icon(
+              icon,
+              size: 20,
+              color: iconColor ?? AllColors.profileIconColor,
+            ),
           ),
           const SizedBox(width: 12),
           Text(

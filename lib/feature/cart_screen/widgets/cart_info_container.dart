@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vd_customer_app/core/theme/colors.dart';
 
 class CustomInfoContainer extends StatelessWidget {
   final IconData icon;
@@ -30,18 +31,26 @@ class CustomInfoContainer extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: backgroundColor,
-        border: Border.all(color: borderColor ?? Colors.grey),
+        border: Border.all(color: borderColor ?? AllColors.buttonColor),
         borderRadius: BorderRadius.circular(borderRadius ?? 12),
       ),
       child: Row(
         crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.center,
         children: [
-          Icon(icon, size: iconSize ?? 20, color: iconColor ?? Colors.black),
+          Icon(
+            icon,
+            size: iconSize ?? 20,
+            color: iconColor ?? AllColors.buttonColor,
+          ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               text,
-              style: TextStyle(fontSize: 15, color: textColor ?? Colors.black),
+              style: TextStyle(
+                fontSize: 15,
+                color: textColor ?? const Color(0xFF565D65),
+                fontWeight: FontWeight.w400,
+              ),
             ),
           ),
         ],

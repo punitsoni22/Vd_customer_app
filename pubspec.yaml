@@ -41,6 +41,7 @@ dependencies:
   get: ^4.6.6
   intl: ^0.18.0
   flutter_screenutil:
+  dropdown_button2: ^2.3.9
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -90,8 +91,8 @@ flutter:
   # list giving the asset and other descriptors for the font. For
   # example:
   # fonts:
-  #   - family: Lufga
-  #     fonts:
+  #   - family: 
+  #     fonts:Lufga
   #       - asset: assets/fonts/lufga.ttf
     # - family: Schyler
     #   fonts:

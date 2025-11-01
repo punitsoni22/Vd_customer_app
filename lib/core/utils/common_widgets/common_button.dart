@@ -24,6 +24,7 @@ class CommonButton extends StatelessWidget {
   final double? elevation;
   final double? fontSize;
   final double? iconSize;
+  final BorderRadiusGeometry? borderRadius;
 
   const CommonButton({
     super.key,
@@ -47,6 +48,7 @@ class CommonButton extends StatelessWidget {
     this.elevation,
     this.fontSize,
     this.iconSize,
+    this.borderRadius,
   });
 
   @override
@@ -73,7 +75,7 @@ class CommonButton extends StatelessWidget {
           constraints: selfconstraints ?? const BoxConstraints(minHeight: 48),
           decoration: BoxDecoration(
             color: bg,
-            borderRadius: BorderRadius.circular(r),
+            borderRadius: borderRadius ?? BorderRadius.circular(r),
             border: Border.all(
               color: borderCol,
               width: isOutlined ? borderWidth : 0,

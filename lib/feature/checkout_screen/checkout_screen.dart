@@ -165,12 +165,22 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
                     Expanded(
                       flex: 3,
-                      child: const CommonTextField(label: 'Enter Coupon Code'),
+                      child: const CommonTextField(
+                        label: 'Enter Coupon Code',
+                        padding: EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 12,
+                        ),
+                      ),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
                       flex: 2,
                       child: CommonButton(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 12,
+                        ),
                         buttonValue: 'Apply',
                         backgroundColor: AllColors.iconColor,
                         onTap: () {},

@@ -34,7 +34,7 @@ class _ProductScreenState extends State<ProductScreen> {
               BarIcon(icon: Icons.search),
               SizedBox(width: 6),
             ],
-            showBottomLine: true,
+            showBottomLine: false,
           ),
           Expanded(
             child: provider.isLoading
@@ -45,7 +45,7 @@ class _ProductScreenState extends State<ProductScreen> {
                     shrinkWrap: true,
                     padding: EdgeInsets.symmetric(
                       vertical: 20.h,
-                      horizontal: 12.w,
+                      horizontal: 22.w,
                     ),
                     physics: const AlwaysScrollableScrollPhysics(),
                     itemCount: provider.products.length,
@@ -53,8 +53,8 @@ class _ProductScreenState extends State<ProductScreen> {
                         const SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: 2,
                           childAspectRatio: 0.54,
-                          crossAxisSpacing: 14,
-                          mainAxisSpacing: 14,
+                          crossAxisSpacing: 20,
+                          mainAxisSpacing: 20,
                         ),
                     itemBuilder: (context, index) =>
                         ProductCard(product: provider.products[index]),

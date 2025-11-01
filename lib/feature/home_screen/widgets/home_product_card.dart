@@ -14,7 +14,7 @@ class HomeProductCard extends StatelessWidget {
     super.key,
     required this.product,
     this.width = 160,
-    this.height = 232,
+    this.height = 240,
   });
 
   String _title(Product p) {
@@ -99,16 +99,16 @@ class HomeProductCard extends StatelessWidget {
                           children: [
                             Text(
                               _title(product),
-                              maxLines: 1,
+                              maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w700,
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.w500,
                                 letterSpacing: 0.2,
                                 color: Colors.black,
                               ),
                             ),
-                            SizedBox(height: 2.h),
+                            SizedBox(height: 1.h),
                             Container(
                               width: 30.w,
                               height: 2.h,

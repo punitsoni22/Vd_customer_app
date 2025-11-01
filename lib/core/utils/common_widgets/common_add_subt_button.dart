@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 
 class CommonAddSubtButton extends StatefulWidget {
@@ -7,6 +8,7 @@ class CommonAddSubtButton extends StatefulWidget {
   final double? radius;
   final Color? bordercolor;
   final Color? iconColor;
+  final int? size;
 
   final ValueChanged<int>? onQuantityChanged;
 
@@ -21,6 +23,7 @@ class CommonAddSubtButton extends StatefulWidget {
     this.iconColor,
     this.onQuantityChanged,
     this.initialQuantity = 1,
+    this.size,
   });
 
   @override
@@ -55,10 +58,10 @@ class _CommonAddSubtButtonState extends State<CommonAddSubtButton> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: widget.padding ?? const EdgeInsets.all(5),
+      padding: widget.padding ?? EdgeInsets.all(5.r),
       constraints: widget.selfconstraints ?? const BoxConstraints(),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(widget.radius ?? 10),
+        borderRadius: BorderRadius.circular(widget.radius ?? 10.r),
         border: Border.all(color: widget.bordercolor ?? AllColors.buttonColor),
         color: Colors.transparent,
       ),
@@ -69,16 +72,21 @@ class _CommonAddSubtButtonState extends State<CommonAddSubtButton> {
             onTap: _decrement,
             child: Icon(
               Icons.remove,
+              size: 28.sp,
               color: widget.iconColor ?? AllColors.olivegreenColor,
             ),
           ),
-          SizedBox(width: 5),
-          Text('$quantity', style: TextStyle(color: AllColors.olivegreenColor)),
-          SizedBox(width: 5),
+          SizedBox(width: 5.w),
+          Text(
+            '$quantity',
+            style: TextStyle(fontSize: 17.sp, color: AllColors.olivegreenColor),
+          ),
+          SizedBox(width: 5.w),
           GestureDetector(
             onTap: _increment,
             child: Icon(
               Icons.add,
+              size: 28.sp,
               color: widget.iconColor ?? AllColors.olivegreenColor,
             ),
           ),

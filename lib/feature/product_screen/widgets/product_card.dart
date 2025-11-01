@@ -28,7 +28,7 @@ class ProductCard extends StatelessWidget {
 
   String _price(Product p) {
     final price = double.tryParse(p.variants.first.price) ?? 0.0;
-    return '₹ ${price.toInt()}';
+    return '₹${price.toInt()}';
   }
 
   @override
@@ -37,10 +37,12 @@ class ProductCard extends StatelessWidget {
         ? product.images.first.signedUrl
         : null;
     return InkWell(
-      onTap: () => context.pushNamed(
-        AppRoutes.productDetailScreen,
-        pathParameters: {'productId': product.id.toString()},
-      ),
+      onTap: () {
+        context.push(
+          AppRoutes.productDetailScreen,
+          extra: {'productId': product.id},
+        );
+      },
       child: SizedBox(
         width: width.w,
         height: height.h,
@@ -151,7 +153,7 @@ class ProductCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      SizedBox(height: 4.h),
+                      SizedBox(height: 8.h),
                       Expanded(
                         child: RichText(
                           maxLines: 1,
@@ -186,17 +188,19 @@ class ProductCard extends StatelessWidget {
                           Expanded(
                             child: CommonButton(
                               buttonValue: 'Add to Cart',
+                              borderRadius: BorderRadius.circular(3.78.r),
                               variant: ButtonVariant.outlined,
                               color: AllColors.tabBarline,
                               borderColor: AllColors.tabBarline,
                               foregroundColor: AllColors.tabBarline,
                               selfconstraints: BoxConstraints(minHeight: 20),
                               borderWidth: 2,
-                              fontSize: 12.sp,
+                              fontSize: 9.sp,
                               padding: EdgeInsets.symmetric(
                                 horizontal: 0,
                                 vertical: 4.h,
                               ),
+
                               onTap: () {
                                 context.push(
                                   AppRoutes.productDetailScreen,
@@ -209,15 +213,16 @@ class ProductCard extends StatelessWidget {
                           Expanded(
                             child: CommonButton(
                               buttonValue: 'Buy Now',
+                              borderRadius: BorderRadius.circular(3.78.r),
                               variant: ButtonVariant.filled,
                               color: AllColors.buttonColor,
                               foregroundColor: Colors.white,
                               selfconstraints: BoxConstraints(minHeight: 20),
                               elevation: 6,
-                              fontSize: 12.sp,
+                              fontSize: 10.sp,
                               padding: EdgeInsets.symmetric(
                                 horizontal: 0,
-                                vertical: 4.h,
+                                vertical: 5.h,
                               ),
                               onTap: () {
                                 context.push(

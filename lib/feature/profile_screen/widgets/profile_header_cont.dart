@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 
 class ProfileHeader extends StatelessWidget {
@@ -18,12 +19,12 @@ class ProfileHeader extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AllColors.textfieldborderColor),
+        border: Border.all(color: AllColors.outlineColor),
       ),
       child: Row(
         children: [
-          const CircleAvatar(
-            radius: 24,
+          CircleAvatar(
+            radius: 27.r,
             backgroundImage: AssetImage('assets/images/bottlerect.png'),
           ),
           const SizedBox(width: 12),
@@ -48,10 +49,11 @@ class ProfileHeader extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.green.shade50,
+              color: AllColors.profileBackColor,
+
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.edit, size: 23, color: Colors.green),
+            child: Icon(Icons.edit, size: 23, color: AllColors.iconColor),
           ),
         ],
       ),

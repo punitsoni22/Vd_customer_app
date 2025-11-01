@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_appbar.dart';
@@ -12,7 +11,10 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: 'Profile'),
+      appBar: CommonAppBar(
+        title: 'Profile',
+        titleAlignment: BarTitleAlignment.center,
+      ),
       backgroundColor: Colors.white,
 
       body: Padding(

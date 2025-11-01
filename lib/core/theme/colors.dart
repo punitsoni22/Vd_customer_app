@@ -21,4 +21,7 @@ class AllColors {
   static Color myOrderTextColor = Color(0xFF656B7A);
   static Color orderDetailIconColor = Color(0xFF318531);
   static Color statusRedColor = Color(0xFB90D);
+  static Color profileBackColor = const Color(0xFFDCFCE7);
+  static Color profileIconColor = const Color(0xFF6B9080);
+  static Color outlineColor = const Color(0xFFE0E0E0);
 }

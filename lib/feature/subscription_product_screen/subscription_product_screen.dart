@@ -16,7 +16,8 @@ class SubscriptionProductScreen extends StatefulWidget {
   const SubscriptionProductScreen({super.key});
 
   @override
-  State<SubscriptionProductScreen> createState() => _SubscriptionProductScreenState();
+  State<SubscriptionProductScreen> createState() =>
+      _SubscriptionProductScreenState();
 }
 
 class _SubscriptionProductScreenState extends State<SubscriptionProductScreen> {
@@ -25,8 +26,11 @@ class _SubscriptionProductScreenState extends State<SubscriptionProductScreen> {
 
   void _onProductSelected(Map<String, dynamic> selection) {
     // Check if already selected (by productId and variantId)
-    final idx = _selectedProducts.indexWhere((e) =>
-      e['productId'] == selection['productId'] && e['variantId'] == selection['variantId']);
+    final idx = _selectedProducts.indexWhere(
+      (e) =>
+          e['productId'] == selection['productId'] &&
+          e['variantId'] == selection['variantId'],
+    );
     if (idx == -1) {
       _selectedProducts.add(selection);
     } else {
@@ -36,7 +40,9 @@ class _SubscriptionProductScreenState extends State<SubscriptionProductScreen> {
   }
 
   void _onProductUnselected(int productId, int variantId) {
-    _selectedProducts.removeWhere((e) => e['productId'] == productId && e['variantId'] == variantId);
+    _selectedProducts.removeWhere(
+      (e) => e['productId'] == productId && e['variantId'] == variantId,
+    );
     setState(() {});
   }
 
@@ -49,10 +55,10 @@ class _SubscriptionProductScreenState extends State<SubscriptionProductScreen> {
   }
 
   bool _isProductVariantSelected(int productId, int variantId) {
-    return _selectedProducts.any((e) => e['productId'] == productId && e['variantId'] == variantId);
+    return _selectedProducts.any(
+      (e) => e['productId'] == productId && e['variantId'] == variantId,
+    );
   }
-
-
 
   @override
   void initState() {
@@ -84,11 +90,11 @@ class _SubscriptionProductScreenState extends State<SubscriptionProductScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.symmetric(horizontal: 20.0.w, vertical: 5.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 10.h),
+              SizedBox(height: 25.h),
               Text(
                 'Select Products',
                 style: TextStyle(
@@ -97,56 +103,71 @@ class _SubscriptionProductScreenState extends State<SubscriptionProductScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 15.h),
+              SizedBox(height: 20.h),
               provider.isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : (provider.products.isEmpty)
-                      ? const Center(child: Text("No products found"))
-                      : GridView.builder(
-                          shrinkWrap: true,
-                          padding: EdgeInsets.only(bottom: 18.h),
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: provider.products.length,
-                          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  ? const Center(child: Text("No products found"))
+                  : GridView.builder(
+                      shrinkWrap: true,
+                      padding: EdgeInsets.only(bottom: 18.h),
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: provider.products.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
                             crossAxisCount: 2,
-                            childAspectRatio: 0.62,
-                            crossAxisSpacing: 14,
+                            childAspectRatio: 0.6,
+                            crossAxisSpacing: 18,
                             mainAxisSpacing: 14,
                           ),
-                          itemBuilder: (context, index) {
-                            final product = provider.products[index];
-                            // Check if any variant of this product is selected
-                            final hasSelectedVariant = product.variants.any((variant) => 
-                              _isProductVariantSelected(product.id, variant.id));
-                            
-                            // Get the current quantity for the first selected variant (if any)
-                            int currentQuantity = 0;
-                            if (hasSelectedVariant) {
-                              final selectedVariant = product.variants.firstWhere((variant) => 
-                                _isProductVariantSelected(product.id, variant.id));
-                              currentQuantity = _getCurrentQuantity(product.id, selectedVariant.id);
-                            }
-                            
-                            return SubscriptionProductCard(
-                              product: product,
-                              onSelect: (selection) => _onProductSelected(selection),
-                              onUnselect: (productId, variantId) => _onProductUnselected(productId, variantId),
-                              isSelected: hasSelectedVariant,
-                              currentQuantity: currentQuantity,
-                            );
-                          },
-                        ),
+                      itemBuilder: (context, index) {
+                        final product = provider.products[index];
+                        // Check if any variant of this product is selected
+                        final hasSelectedVariant = product.variants.any(
+                          (variant) =>
+                              _isProductVariantSelected(product.id, variant.id),
+                        );
+
+                        // Get the current quantity for the first selected variant (if any)
+                        int currentQuantity = 0;
+                        if (hasSelectedVariant) {
+                          final selectedVariant = product.variants.firstWhere(
+                            (variant) => _isProductVariantSelected(
+                              product.id,
+                              variant.id,
+                            ),
+                          );
+                          currentQuantity = _getCurrentQuantity(
+                            product.id,
+                            selectedVariant.id,
+                          );
+                        }
+
+                        return SubscriptionProductCard(
+                          product: product,
+                          onSelect: (selection) =>
+                              _onProductSelected(selection),
+                          onUnselect: (productId, variantId) =>
+                              _onProductUnselected(productId, variantId),
+                          isSelected: hasSelectedVariant,
+                          currentQuantity: currentQuantity,
+                        );
+                      },
+                    ),
+              SizedBox(height: 15.h),
               CommonButton(
                 onTap: _selectedProducts.isEmpty
                     ? null
                     : () {
-                        context.push(AppRoutes.subscriptionDateScreen, extra: {
-                          'selectedProducts': _selectedProducts,
-                        });
+                        context.push(
+                          AppRoutes.subscriptionDateScreen,
+                          extra: {'selectedProducts': _selectedProducts},
+                        );
                       },
                 buttonValue: 'Confirm Selection (${_selectedProducts.length})',
                 color: AllColors.tabBarline,
               ),
+              SizedBox(height: 15.h),
             ],
           ),
         ),

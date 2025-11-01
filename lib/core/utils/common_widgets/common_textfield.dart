@@ -20,6 +20,7 @@ class CommonTextField extends StatelessWidget {
   final double? width;
   final Color? color;
   final double? radius;
+  final EdgeInsetsGeometry? padding;
 
   const CommonTextField({
     super.key,
@@ -40,6 +41,7 @@ class CommonTextField extends StatelessWidget {
     this.width,
     this.color,
     this.radius,
+    this.padding,
   });
 
   @override
@@ -64,10 +66,8 @@ class CommonTextField extends StatelessWidget {
             ),
         decoration: InputDecoration(
           isDense: true,
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 12,
-            horizontal: 12,
-          ),
+          contentPadding:
+              padding ?? EdgeInsets.symmetric(vertical: 12, horizontal: 12),
           filled: true,
           fillColor: color ?? AllColors.backgroundColor,
 

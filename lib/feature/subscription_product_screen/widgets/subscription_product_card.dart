@@ -24,7 +24,8 @@ class SubscriptionProductCard extends StatefulWidget {
     this.currentQuantity = 0,
   });
   @override
-  State<SubscriptionProductCard> createState() => _SubscriptionProductCardState();
+  State<SubscriptionProductCard> createState() =>
+      _SubscriptionProductCardState();
 }
 
 class _SubscriptionProductCardState extends State<SubscriptionProductCard> {
@@ -41,17 +42,20 @@ class _SubscriptionProductCardState extends State<SubscriptionProductCard> {
   @override
   void didUpdateWidget(SubscriptionProductCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.currentQuantity != oldWidget.currentQuantity && widget.currentQuantity > 0) {
+    if (widget.currentQuantity != oldWidget.currentQuantity &&
+        widget.currentQuantity > 0) {
       quantity = widget.currentQuantity;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final String? imgUrl = (widget.product != null && widget.product!.images.isNotEmpty)
+    final String? imgUrl =
+        (widget.product != null && widget.product!.images.isNotEmpty)
         ? widget.product!.images.first.signedUrl
         : null;
-    final String productName = (widget.product != null && widget.product!.productName.isNotEmpty)
+    final String productName =
+        (widget.product != null && widget.product!.productName.isNotEmpty)
         ? widget.product!.productName.toUpperCase()
         : 'N/A';
 
@@ -62,7 +66,9 @@ class _SubscriptionProductCardState extends State<SubscriptionProductCard> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: widget.isSelected ? Border.all(color: Colors.teal, width: 2) : null,
+          border: widget.isSelected
+              ? Border.all(color: Colors.teal, width: 2)
+              : null,
         ),
         clipBehavior: Clip.antiAlias,
         child: Column(
@@ -72,9 +78,7 @@ class _SubscriptionProductCardState extends State<SubscriptionProductCard> {
               flex: 10,
               child: Container(
                 alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: Colors.teal.withOpacity(0.10),
-                ),
+                decoration: BoxDecoration(color: Colors.teal.withOpacity(0.10)),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(15),
                   child: SizedBox(
@@ -99,7 +103,7 @@ class _SubscriptionProductCardState extends State<SubscriptionProductCard> {
             Expanded(
               flex: 4,
               child: Padding(
-                padding: EdgeInsets.all(6.h),
+                padding: EdgeInsets.all(2.h),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -119,7 +123,7 @@ class _SubscriptionProductCardState extends State<SubscriptionProductCard> {
                               color: AllColors.olivegreenColor,
                             ),
                           ),
-                          SizedBox(height: 3.h),
+                          SizedBox(height: 6.h),
                           Row(
                             children: [
                               Expanded(
@@ -152,7 +156,9 @@ class _SubscriptionProductCardState extends State<SubscriptionProductCard> {
   }
 
   void _notifySelection() {
-    if (widget.onSelect != null && widget.product != null && widget.product!.variants.isNotEmpty) {
+    if (widget.onSelect != null &&
+        widget.product != null &&
+        widget.product!.variants.isNotEmpty) {
       final variant = widget.product!.variants[selectedVariantIndex];
       widget.onSelect!({
         'productId': widget.product!.id,
@@ -176,17 +182,11 @@ class _SubscriptionProductCardState extends State<SubscriptionProductCard> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(6.r),
             color: Colors.white,
-            border: Border.all(
-              color: AllColors.olivegreenColor,
-            ),
+            border: Border.all(color: AllColors.olivegreenColor),
           ),
           width: 32.w,
-          height: 32.h,
-          child: Icon(
-            Icons.add,
-            size: 16.sp,
-            color: AllColors.olivegreenColor,
-          ),
+          height: 35.h,
+          child: Icon(Icons.add, size: 16.sp, color: AllColors.olivegreenColor),
         ),
       );
     } else {
@@ -203,8 +203,11 @@ class _SubscriptionProductCardState extends State<SubscriptionProductCard> {
                 _notifySelection();
               } else {
                 // Remove item when quantity becomes 0
-                if (widget.onUnselect != null && widget.product != null && widget.product!.variants.isNotEmpty) {
-                  final variant = widget.product!.variants[selectedVariantIndex];
+                if (widget.onUnselect != null &&
+                    widget.product != null &&
+                    widget.product!.variants.isNotEmpty) {
+                  final variant =
+                      widget.product!.variants[selectedVariantIndex];
                   widget.onUnselect!(widget.product!.id, variant.id);
                 }
               }
@@ -212,16 +215,12 @@ class _SubscriptionProductCardState extends State<SubscriptionProductCard> {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(4.r),
-                color: Colors.red.withOpacity(0.1),
-                border: Border.all(color: Colors.red),
+                color: Colors.teal.withOpacity(0.1),
+                border: Border.all(color: Colors.teal),
               ),
               width: 24.w,
               height: 24.h,
-              child: Icon(
-                Icons.remove,
-                size: 12.sp,
-                color: Colors.red,
-              ),
+              child: Icon(Icons.remove, size: 12.sp, color: Colors.teal),
             ),
           ),
           SizedBox(width: 4.w),
@@ -257,11 +256,7 @@ class _SubscriptionProductCardState extends State<SubscriptionProductCard> {
               ),
               width: 24.w,
               height: 24.h,
-              child: Icon(
-                Icons.add,
-                size: 12.sp,
-                color: Colors.teal,
-              ),
+              child: Icon(Icons.add, size: 12.sp, color: Colors.teal),
             ),
           ),
         ],

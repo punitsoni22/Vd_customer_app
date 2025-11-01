@@ -30,17 +30,29 @@ class _CartScreenState extends State<CartScreen> {
     final provider = context.watch<CartProvider>();
     final items = provider.cartItems;
     final subtotal = provider.subtotal;
+
+    String infoText;
+
+    if (provider.cartId == null) {
+      infoText = 'Your cart is empty. Add items to get started!';
+    } else {
+      infoText =
+          'Your Cart contains both Regular and Subscription items. They will be processed separately at checkout.';
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: CommonAppBar(title: 'Cart'),
+      appBar: CommonAppBar(
+        title: 'Cart',
+        titleAlignment: BarTitleAlignment.center,
+      ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 21.0, vertical: 10),
         child: Column(
           children: [
             CustomInfoContainer(
               icon: Icons.info_outline,
-              text:
-                  'Your Cart contains both Regular and subscription items. They will be processed separately at the checkout',
+              text: infoText,
               backgroundColor: AllColors.cartinfocontainercolor,
               crossAxisAlignment: CrossAxisAlignment.start,
             ),
@@ -74,7 +86,7 @@ class _CartScreenState extends State<CartScreen> {
             ),
             const SizedBox(height: 10),
             CustomInfoContainer(
-              borderColor: AllColors.greyborderColor,
+              borderColor: AllColors.outlineColor,
               icon: Icons.location_on_outlined,
               text: 'Delivery Update: Standard Delivery (2-3 Days)',
               textColor: const Color.fromARGB(255, 81, 81, 81),
@@ -85,7 +97,7 @@ class _CartScreenState extends State<CartScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AllColors.greyborderColor),
+                border: Border.all(color: AllColors.outlineColor),
               ),
               child: Column(
                 children: [
@@ -106,6 +118,13 @@ class _CartScreenState extends State<CartScreen> {
             const SizedBox(height: 10),
             CommonButton(
               onTap: () {
+                final cartProvider = context.read<CartProvider>();
+                if (cartProvider.cartId == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('No products added to cart')),
+                  );
+                  return;
+                }
                 context.pushNamed(AppRoutes.checkoutScreen);
               },
               buttonValue: 'Proceed To Checkout',

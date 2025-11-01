@@ -54,28 +54,74 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          height: 38.h,
+          height: 48.h,
           padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
           decoration: BoxDecoration(
             color: Colors.grey[50],
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(10.r),
             border: Border.all(color: AllColors.olivegreenColor, width: 1),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: selectedValue,
               isExpanded: true,
-              icon: const Icon(Icons.keyboard_arrow_down, color: Colors.teal),
-              style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
+              icon: Icon(
+                Icons.keyboard_arrow_down,
+                color: AllColors.buttonColor,
+              ),
+              style: TextStyle(color: AllColors.buttonColor, fontSize: 16.sp),
+              dropdownColor: Colors.white,
+              menuMaxHeight: 250,
+              borderRadius: BorderRadius.circular(14.r),
+
+              selectedItemBuilder: (BuildContext context) {
+                return items.map((String value) {
+                  return Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 5.0.w),
+                      child: Text(
+                        value,
+                        style: TextStyle(
+                          fontSize: 15.sp,
+                          fontWeight: FontWeight.w500,
+                          color: AllColors.olivegreenColor,
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList();
+              },
+
               onChanged: (String? newValue) {
                 setState(() {
                   selectedValue = newValue!;
                 });
               },
-              items: items.map<DropdownMenuItem<String>>((String value) {
+
+              items: items.map((String value) {
+                final bool isSelected = value == selectedValue;
+
                 return DropdownMenuItem<String>(
                   value: value,
-                  child: Text(value),
+                  child: Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? Color(0xFFE8FFF9)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      value,
+                      style: TextStyle(
+                        fontSize: 15.sp,
+                        fontWeight: FontWeight.w500,
+                        color: AllColors.olivegreenColor,
+                      ),
+                    ),
+                  ),
                 );
               }).toList(),
             ),
@@ -93,9 +139,7 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
               padding: EdgeInsets.all(16.r),
               decoration: BoxDecoration(
                 color: Colors.grey[50],
-                border: Border.all(
-                  color: AllColors.olivegreenColor.withOpacity(0.2),
-                ),
+                border: Border.all(color: AllColors.olivegreenColor),
                 borderRadius: BorderRadius.circular(12.r),
               ),
               child: Column(
@@ -110,108 +154,155 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                     ),
                   ),
                   SizedBox(height: 16.h),
-
+                  Text(
+                    'Delivery Details',
+                    style: TextStyle(
+                      color: AllColors.olivegreenColor,
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(height: 5.h),
                   Row(
                     children: [
                       Expanded(
-                        child: DropdownButtonFormField<String>(
-                          value: selectedAddressId,
-                          isExpanded: true,
-                          decoration: InputDecoration(
-                            hintText: 'Select Address',
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 10,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.r),
-                              borderSide: BorderSide(
-                                color: AllColors.olivegreenColor.withOpacity(
-                                  0.3,
-                                ),
-                              ),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.r),
-                              borderSide: BorderSide(
-                                color: AllColors.olivegreenColor.withOpacity(
-                                  0.3,
-                                ),
-                              ),
-                            ),
-                            filled: true,
-                            fillColor: Colors.white,
-                            isDense: true,
+                        child: Container(
+                          height: 50.h,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
                           ),
-                          items: subProvider.addresses.map((address) {
-                            return DropdownMenuItem<String>(
-                              value: address.id.toString(),
-                              child: Text(address.fullAddress),
-                            );
-                          }).toList(),
-                          onChanged: (val) {
-                            setState(() {
-                              selectedAddressId = val;
-                            });
-                          },
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8.r),
+                            border: Border.all(
+                              color: AllColors.olivegreenColor.withOpacity(0.3),
+                              width: 1,
+                            ),
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: selectedAddressId,
+                              hint: Text(
+                                "Select Address",
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: AllColors.olivegreenColor,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                              isExpanded: true,
+                              icon: Icon(
+                                Icons.keyboard_arrow_down,
+                                color: AllColors.buttonColor,
+                              ),
+                              dropdownColor: Colors.white,
+                              borderRadius: BorderRadius.circular(14),
+                              menuMaxHeight: 250,
+
+                              selectedItemBuilder: (context) {
+                                return subProvider.addresses.map((address) {
+                                  return Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      address.fullAddress,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w500,
+                                        color: AllColors.olivegreenColor,
+                                      ),
+                                    ),
+                                  );
+                                }).toList();
+                              },
+
+                              items: subProvider.addresses.map((address) {
+                                final bool isSelected =
+                                    selectedAddressId == address.id.toString();
+                                return DropdownMenuItem<String>(
+                                  value: address.id.toString(),
+                                  child: Container(
+                                    width: double.infinity,
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: 12,
+                                      horizontal: 10,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? Color(0xFFE8FFF9)
+                                          : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Text(
+                                      address.fullAddress,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w500,
+                                        color: AllColors.olivegreenColor,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+
+                              onChanged: (val) {
+                                setState(() {
+                                  selectedAddressId = val!;
+                                });
+                              },
+                            ),
+                          ),
                         ),
                       ),
 
-                      // SizedBox(width: 8.w),
-                      // Container(
-                      //   decoration: BoxDecoration(
-                      //     color: AllColors.olivegreenColor.withOpacity(0.15),
-                      //     borderRadius: BorderRadius.circular(8.r),
-                      //   ),
-                      //   child: IconButton(
-                      //     icon: Icon(
-                      //       Icons.add,
-                      //       color: AllColors.olivegreenColor,
-                      //     ),
-                      //     onPressed: () async {
-                      //       // open bottom sheet to add address
-                      //       final added = await showModalBottomSheet<bool>(
-                      //         context: context,
-                      //         isScrollControlled: true,
-                      //         builder: (_) => const AddressBottomSheet(),
-                      //       );
-                      //       // if added, refresh addresses
-                      //       if (added == true) {
-                      //         Provider.of<SubscriptionProvider>(
-                      //           context,
-                      //           listen: false,
-                      //         ).getAllAddresses();
-                      //       }
-                      //     },
-                      //   ),
-                      // ),
+                      SizedBox(width: 8.w),
+
+                      GestureDetector(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: AllColors.buttonColor,
+                            shape: BoxShape.rectangle,
+                            borderRadius: BorderRadius.circular(5.r),
+                            boxShadow: const [],
+                          ),
+                          width: 40.w,
+                          height: 48.h,
+                          child: Icon(
+                            Icons.add,
+                            size: 20.sp,
+                            color: Colors.white,
+                          ),
+                        ),
+                        onTap: () async {
+                          final added = await showModalBottomSheet<bool>(
+                            context: context,
+                            isScrollControlled: true,
+                            builder: (_) => const AddressBottomSheet(),
+                          );
+                          if (added == true) {
+                            Provider.of<SubscriptionProvider>(
+                              context,
+                              listen: false,
+                            ).getAllAddresses();
+                          }
+                        },
+                      ),
                     ],
                   ),
+
                   SizedBox(height: 18.h),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _dateField(
-                          'Start Date',
-                          startDate,
-                          context,
-                          isStart: true,
-                        ),
-                      ),
-                      SizedBox(width: 12.w),
-                      Expanded(
-                        child: _dateField(
-                          'End Date',
-                          endDate,
-                          context,
-                          isStart: false,
-                        ),
-                      ),
-                    ],
-                  ),
+                  _dateField('Start Date', startDate, context, isStart: true),
+                  SizedBox(height: 18.h),
+
+                  _dateField('End Date', endDate, context, isStart: false),
                   SizedBox(height: 24.h),
                   CommonButton(
+                    backgroundColor: AllColors.tabBarline,
                     onTap: isLoading
                         ? null
                         : () async {
@@ -349,7 +440,10 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                   ),
                   child: Text(
                     value != null ? _formatDate(value) : 'Select Date',
-                    style: TextStyle(fontSize: 14.sp, color: Colors.black),
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: AllColors.buttonColor,
+                    ),
                   ),
                 ),
               ),
@@ -432,7 +526,7 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
             crossAxisCount: 3,
             crossAxisSpacing: 19,
             mainAxisSpacing: 15,
-            childAspectRatio: 2.4,
+            childAspectRatio: 2.8,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             children: [
@@ -450,7 +544,7 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                   child: Container(
                     decoration: BoxDecoration(
                       color: selectedDeliveryDays.contains(day)
-                          ? AllColors.olivegreenColor
+                          ? AllColors.tabBarline
                           : Colors.grey[50],
                       borderRadius: BorderRadius.circular(8.r),
                       border: Border.all(

@@ -1,7 +1,7 @@
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
-
 
 import 'package:vd_customer_app/core/models/product_model.dart';
 
@@ -9,7 +9,12 @@ class SubscriptionPriceDropdown extends StatefulWidget {
   final List<Variant> variants;
   final void Function(Variant variant, int index)? onVariantSelected;
   final int selectedIndex;
-  const SubscriptionPriceDropdown({Key? key, required this.variants, this.onVariantSelected, this.selectedIndex = 0}) : super(key: key);
+  const SubscriptionPriceDropdown({
+    super.key,
+    required this.variants,
+    this.onVariantSelected,
+    this.selectedIndex = 0,
+  });
 
   @override
   State<SubscriptionPriceDropdown> createState() =>
@@ -36,19 +41,36 @@ class _SubscriptionPriceDropdownState extends State<SubscriptionPriceDropdown> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 32.h,
-      padding: EdgeInsets.symmetric(horizontal: 3, vertical: 1),
+      height: 35.h,
+      padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
       decoration: BoxDecoration(
         color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(6.r),
         border: Border.all(color: AllColors.olivegreenColor, width: 1),
       ),
       child: DropdownButtonHideUnderline(
-        child: DropdownButton<int>(
+        child: DropdownButton2<int>(
           value: selectedIndex,
           isExpanded: true,
-          icon: Icon(Icons.keyboard_arrow_down, color: Colors.teal),
-          style: TextStyle(color: Colors.grey.shade700, fontSize: 16),
+
+          iconStyleData: IconStyleData(
+            icon: const Icon(Icons.keyboard_arrow_down, color: Colors.teal),
+          ),
+
+          dropdownStyleData: DropdownStyleData(
+            offset: const Offset(0, 5),
+            width: 180,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.white, width: 1),
+            ),
+            elevation: 4,
+            maxHeight: 180,
+          ),
+
+          style: TextStyle(color: Colors.grey.shade700, fontSize: 16.sp),
+
           onChanged: (int? newIndex) {
             setState(() {
               selectedIndex = newIndex;
@@ -58,11 +80,13 @@ class _SubscriptionPriceDropdownState extends State<SubscriptionPriceDropdown> {
               widget.onVariantSelected!(variant, newIndex);
             }
           },
+
           items: widget.variants.asMap().entries.map((entry) {
             final idx = entry.key;
             final variant = entry.value;
             final quantity = variant.quantityInMl;
             final price = variant.price;
+
             return DropdownMenuItem<int>(
               value: idx,
               child: RichText(
@@ -70,14 +94,19 @@ class _SubscriptionPriceDropdownState extends State<SubscriptionPriceDropdown> {
                   children: [
                     TextSpan(
                       text: "${quantity}ml at ",
-                      style: TextStyle(color: Colors.grey, fontSize: 13.sp),
+                      style: TextStyle(
+                        color: Colors.grey,
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                     TextSpan(
-                      text: "₹${double.tryParse(price)?.toStringAsFixed(0) ?? price}",
+                      text:
+                          "₹${double.tryParse(price)?.toStringAsFixed(0) ?? price}",
                       style: TextStyle(
                         color: Colors.teal,
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
