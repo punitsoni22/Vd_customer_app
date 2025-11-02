@@ -86,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
 
                           Padding(
-                            padding: EdgeInsets.only(left: 0.w, top: 20.h),
+                            padding: EdgeInsets.only(left: 0.w, top: 24.h),
                             child: Center(
                               child: RichText(
                                 text: TextSpan(
@@ -94,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     TextSpan(
                                       text: "Welcome to ",
                                       style: TextStyle(
-                                        fontSize: 20.sp,
+                                        fontSize: 25.sp,
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -102,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     TextSpan(
                                       text: "Vedasip",
                                       style: TextStyle(
-                                        fontSize: 20.sp,
+                                        fontSize: 25.sp,
                                         color: AllColors.iconBackgColor,
                                         fontWeight: FontWeight.bold,
                                       ),
@@ -130,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(height: 20.h),
+                          SizedBox(height: 5.h),
 
                           SizedBox(
                             height: 200.h,

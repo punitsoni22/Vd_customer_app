@@ -43,9 +43,8 @@ class MyOrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 240.h,
       width: double.infinity,
-      padding: EdgeInsets.all(10.r),
+      padding: EdgeInsets.all(15.r),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12.r),
         color: Colors.white,

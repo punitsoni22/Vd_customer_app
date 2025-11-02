@@ -58,7 +58,7 @@ class _SubscriptionPriceDropdownState extends State<SubscriptionPriceDropdown> {
           ),
 
           dropdownStyleData: DropdownStyleData(
-            offset: const Offset(0, 5),
+            offset: const Offset(-5, 27),
             width: 180,
             decoration: BoxDecoration(
               color: Colors.white,

@@ -85,25 +85,28 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                     : provider.allOrdersUnified.isEmpty
                     ? const Center(child: Text("No orders found."))
                     : ListView.builder(
-                        padding: EdgeInsets.all(8.0),
+                        padding: EdgeInsets.all(8.0.r),
                         itemCount: provider.allOrdersUnified.length,
                         itemBuilder: (context, index) {
                           final item = provider.allOrdersUnified[index];
-                          return MyOrderCard(
-                            id: '${item.type == "subscription" ? "Subscription ID" : "Order ID"}: ${item.id}',
-                            date: item.date,
-                            status: item.status,
-                            productName: item.productName,
-                            imageUrl:
-                                item.signedUrl ??
-                                item.rawImageUrl ??
-                                'assets/images/image.png',
-                            detail: item.type == "subscription"
-                                ? "Frequency: ${item.deliveryFrequency}"
-                                : "Quantity: ${item.quantity}",
-                            paymentMethod: item.type == "subscription"
-                                ? "Next delivery: ${item.nextDelivery}"
-                                : "PayPal",
+                          return Padding(
+                            padding: EdgeInsets.all(8.0.r),
+                            child: MyOrderCard(
+                              id: '${item.type == "subscription" ? "Subscription ID" : "Order ID"}: ${item.id}',
+                              date: item.date,
+                              status: item.status,
+                              productName: item.productName,
+                              imageUrl:
+                                  item.signedUrl ??
+                                  item.rawImageUrl ??
+                                  'assets/images/image.png',
+                              detail: item.type == "subscription"
+                                  ? "Frequency: ${item.deliveryFrequency}"
+                                  : "Quantity: ${item.quantity}",
+                              paymentMethod: item.type == "subscription"
+                                  ? "Next Delivery: ${item.nextDelivery}"
+                                  : "PayPal",
+                            ),
                           );
                         },
                       ),
@@ -135,7 +138,7 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                               detail: "Frequency: ${sub.deliveryFrequencyType}",
                               icon2: Icons.calendar_month,
                               paymentMethod:
-                                  "NextDelivery : ${sub.startDate.toString().split(' ').first}",
+                                  "Next Delivery : ${sub.startDate.toString().split(' ').first}",
                             ),
                           );
                         },

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
 import '../../shared/map_picker.dart';
+import 'package:vd_customer_app/core/utils/common_widgets/common_textfield.dart';
+import 'package:vd_customer_app/core/theme/colors.dart';
 
 class AddressBottomSheet extends StatefulWidget {
   const AddressBottomSheet({super.key});
@@ -17,6 +21,7 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
   final TextEditingController _state = TextEditingController();
   final TextEditingController _country = TextEditingController();
   final TextEditingController _postalCode = TextEditingController();
+
   bool _isDefault = false;
   LatLng? _pickedLatLng;
   bool _isSubmitting = false;
@@ -33,6 +38,7 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+
     if (_pickedLatLng == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please pick a location on map')),
@@ -57,7 +63,6 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
     };
 
     final resp = await Api.post('addEditAddress', payload);
-
     setState(() => _isSubmitting = false);
 
     if (resp['success'] == true) {
@@ -74,58 +79,125 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
     }
   }
 
+  Widget fieldLabel(String text) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 2.h, top: 12.h),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w600,
+          color: AllColors.buttonColor,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: MediaQuery.of(context).viewInsets,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white, // ✅ bottom sheet white
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(16.r),
+            topRight: Radius.circular(16.r),
+          ),
+        ),
+        padding: EdgeInsets.all(16.w),
         child: SingleChildScrollView(
           child: Form(
             key: _formKey,
             child: Column(
               mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Add Address',
-                  style: Theme.of(context).textTheme.titleLarge,
+                Center(
+                  child: Text(
+                    'Add New Address',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
+                      color: AllColors.buttonColor,
+                    ),
+                  ),
                 ),
-                const SizedBox(height: 12),
-                TextFormField(
+                SizedBox(height: 12.h),
+
+                fieldLabel("Full Address"),
+                CommonTextField(
                   controller: _fullAddress,
-                  decoration: const InputDecoration(labelText: 'Full Address'),
+                  label: "Full Address",
                   validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Required' : null,
+                      (v == null || v.trim().isEmpty) ? "Required" : null,
+                  radius: 10,
+                  padding: EdgeInsets.symmetric(
+                    vertical: 9.h,
+                    horizontal: 12.w,
+                  ),
                 ),
-                TextFormField(
+
+                fieldLabel("City"),
+                CommonTextField(
                   controller: _city,
-                  decoration: const InputDecoration(labelText: 'City'),
+                  label: "City",
                   validator: (v) =>
-                      (v == null || v.trim().isEmpty) ? 'Required' : null,
+                      (v == null || v.trim().isEmpty) ? "Required" : null,
+                  radius: 10,
+                  padding: EdgeInsets.symmetric(
+                    vertical: 9.h,
+                    horizontal: 12.w,
+                  ),
                 ),
-                TextFormField(
+
+                fieldLabel("State"),
+                CommonTextField(
                   controller: _state,
-                  decoration: const InputDecoration(labelText: 'State'),
+                  label: "State",
+                  radius: 10,
+                  padding: EdgeInsets.symmetric(
+                    vertical: 9.h,
+                    horizontal: 12.w,
+                  ),
                 ),
-                TextFormField(
+
+                fieldLabel("Country"),
+                CommonTextField(
                   controller: _country,
-                  decoration: const InputDecoration(labelText: 'Country'),
+                  label: "Country",
+                  radius: 10,
+                  padding: EdgeInsets.symmetric(
+                    vertical: 9.h,
+                    horizontal: 12.w,
+                  ),
                 ),
-                TextFormField(
+
+                fieldLabel("Postal Code"),
+                CommonTextField(
                   controller: _postalCode,
-                  decoration: const InputDecoration(labelText: 'Postal Code'),
+                  label: "Postal Code",
+                  keyboardType: TextInputType.number,
+                  radius: 10,
+                  padding: EdgeInsets.symmetric(
+                    vertical: 9.h,
+                    horizontal: 12.w,
+                  ),
                 ),
-                const SizedBox(height: 8),
+
+                SizedBox(height: 8.h),
                 Row(
                   children: [
                     Checkbox(
                       value: _isDefault,
                       onChanged: (v) => setState(() => _isDefault = v ?? false),
+                      activeColor: AllColors.buttonColor,
                     ),
-                    const Text('Set as default'),
+                    Text('Set as default', style: TextStyle(fontSize: 13.sp)),
                   ],
                 ),
-                const SizedBox(height: 8),
+
+                SizedBox(height: 8.h),
                 Row(
                   children: [
                     Expanded(
@@ -133,10 +205,28 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
                         _pickedLatLng == null
                             ? 'No location selected'
                             : 'Lat: ${_pickedLatLng!.latitude.toStringAsFixed(6)}, Lng: ${_pickedLatLng!.longitude.toStringAsFixed(6)}',
+                        style: TextStyle(fontSize: 13.sp),
                       ),
                     ),
-                    ElevatedButton(
-                      onPressed: () async {
+                    CommonButton(
+                      buttonValue: 'Pick on map',
+                      isFullWidth: false,
+                      selfconstraints: BoxConstraints(
+                        maxWidth: 140.w,
+                        minHeight: 40.h,
+                      ),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 6.h,
+                        horizontal: 10.w,
+                      ),
+                      radius: 10.r,
+                      backgroundColor: AllColors.tabBarline,
+                      textStyle: TextStyle(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                      onTap: () async {
                         final res = await Navigator.of(context).push<LatLng?>(
                           MaterialPageRoute(
                             builder: (_) =>
@@ -147,18 +237,31 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
                           setState(() => _pickedLatLng = res);
                         }
                       },
-                      child: const Text('Pick on map'),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
-                ElevatedButton(
-                  onPressed: _isSubmitting ? null : _submit,
-                  child: _isSubmitting
-                      ? const CircularProgressIndicator()
-                      : const Text('Save Address'),
+
+                SizedBox(height: 12.h),
+                CommonButton(
+                  padding: EdgeInsets.symmetric(vertical: 7.h, horizontal: 5.w),
+                  buttonValue: 'Save Address',
+                  isFullWidth: false,
+                  selfconstraints: BoxConstraints(
+                    maxWidth: 160.w,
+                    minHeight: 40.h,
+                  ),
+                  isLoading: _isSubmitting,
+                  onTap: _isSubmitting ? null : _submit,
+                  backgroundColor: AllColors.tabBarline,
+                  radius: 10.r,
+                  textStyle: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.white,
+                  ),
                 ),
-                const SizedBox(height: 12),
+
+                SizedBox(height: 12.h),
               ],
             ),
           ),

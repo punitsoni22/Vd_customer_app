@@ -28,12 +28,9 @@ class _ProductScreenState extends State<ProductScreen> {
         children: [
           const CommonAppBar(
             title: 'Products',
-            titleAlignment: BarTitleAlignment.left,
+            titleAlignment: BarTitleAlignment.center,
             showBack: false,
-            actions: [
-              BarIcon(icon: Icons.search),
-              SizedBox(width: 6),
-            ],
+
             showBottomLine: false,
           ),
           Expanded(
