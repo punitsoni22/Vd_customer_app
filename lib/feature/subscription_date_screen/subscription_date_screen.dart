@@ -15,6 +15,7 @@ class SubscriptionDateScreen extends StatelessWidget {
       appBar: CommonAppBar(
         title: 'Subscription',
         titleAlignment: BarTitleAlignment.center,
+        showBack: true,
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(horizontal: 15.0.w, vertical: 12.h),

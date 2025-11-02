@@ -154,21 +154,36 @@ class _SubscriptionProductScreenState extends State<SubscriptionProductScreen> {
                         );
                       },
                     ),
-              SizedBox(height: 15.h),
-              CommonButton(
-                onTap: _selectedProducts.isEmpty
-                    ? null
-                    : () {
-                        context.push(
-                          AppRoutes.subscriptionDateScreen,
-                          extra: {'selectedProducts': _selectedProducts},
-                        );
-                      },
-                buttonValue: 'Confirm Selection (${_selectedProducts.length})',
-                color: AllColors.tabBarline,
-              ),
-              SizedBox(height: 15.h),
             ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: Container(
+        height: 100.h, // Fixed height constraint
+        padding: EdgeInsets.all(20.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              spreadRadius: 1,
+              blurRadius: 5,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          child: CommonButton(
+            onTap: _selectedProducts.isEmpty
+                ? null
+                : () {
+                    context.push(
+                      AppRoutes.subscriptionDateScreen,
+                      extra: {'selectedProducts': _selectedProducts},
+                    );
+                  },
+            buttonValue: 'Confirm Selection (${_selectedProducts.length})',
+            color: AllColors.tabBarline,
           ),
         ),
       ),

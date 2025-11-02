@@ -5,6 +5,9 @@ import 'package:vd_customer_app/core/models/address.model.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
 import 'package:vd_customer_app/feature/checkout_screen/provider/checkout_provider.dart';
+import 'package:vd_customer_app/feature/subscription_date_screen/widgets/address_bottom_sheet.dart';
+import 'package:vd_customer_app/feature/subscription_date_screen/provider/subscription_provider.dart'
+    as subscription;
 
 class AddressContainer extends StatelessWidget {
   final AddressModel? selectedAddress;
@@ -49,100 +52,132 @@ class AddressContainer extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              Container(
-                padding: EdgeInsets.all(4.r),
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  border: Border.all(color: AllColors.textfieldborderColor),
-                  borderRadius: BorderRadius.circular(8.r),
-                ),
-                child: CommonButton(
-                  padding: EdgeInsets.all(0),
-                  selfconstraints: BoxConstraints(
-                    maxHeight: 25.h,
-                    maxWidth: 60.w,
-                  ),
-                  color: Colors.transparent,
-                  buttonValue: 'Change',
-                  textStyle: TextStyle(
-                    fontSize: 14.sp,
-                    color: Colors.grey[600],
-                    fontWeight: FontWeight.w500,
-                  ),
-                  onTap: () {
-                    showModalBottomSheet(
-                      context: context,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(20),
-                        ),
+              Row(
+                children: [
+                  GestureDetector(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AllColors.buttonColor,
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.circular(5.r),
+                        boxShadow: const [],
                       ),
-                      builder: (context) {
-                        final addresses = checkoutProvider.addresses;
+                      width: 40.w,
+                      height: 40.h,
+                      child: Icon(Icons.add, size: 20.sp, color: Colors.white),
+                    ),
+                    onTap: () async {
+                      final added = await showModalBottomSheet<bool>(
+                        context: context,
+                        isScrollControlled: true,
+                        builder: (_) => const AddressBottomSheet(),
+                      );
+                      if (added == true) {
+                        Provider.of<subscription.SubscriptionProvider>(
+                          context,
+                          listen: false,
+                        ).getAllAddresses();
+                      }
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: EdgeInsets.all(4.r),
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      border: Border.all(color: AllColors.textfieldborderColor),
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: CommonButton(
+                      padding: EdgeInsets.all(0),
+                      selfconstraints: BoxConstraints(
+                        maxHeight: 25.h,
+                        maxWidth: 60.w,
+                      ),
+                      color: Colors.transparent,
+                      buttonValue: 'Change',
+                      textStyle: TextStyle(
+                        fontSize: 14.sp,
+                        color: Colors.grey[600],
+                        fontWeight: FontWeight.w500,
+                      ),
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                              top: Radius.circular(20),
+                            ),
+                          ),
+                          builder: (context) {
+                            final addresses = checkoutProvider.addresses;
 
-                        if (addresses.isEmpty) {
-                          return const Padding(
-                            padding: EdgeInsets.all(20),
-                            child: Center(
-                              child: Text("No addresses available"),
-                            ),
-                          );
-                        }
+                            if (addresses.isEmpty) {
+                              return const Padding(
+                                padding: EdgeInsets.all(20),
+                                child: Center(
+                                  child: Text("No addresses available"),
+                                ),
+                              );
+                            }
 
-                        return Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const SizedBox(height: 10),
-                            Container(
-                              width: 50,
-                              height: 5,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[300],
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                            const Text(
-                              "Select Address",
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const Divider(),
-                            Flexible(
-                              child: ListView.separated(
-                                shrinkWrap: true,
-                                itemCount: addresses.length,
-                                separatorBuilder: (_, __) => const Divider(),
-                                itemBuilder: (context, index) {
-                                  final addr = addresses[index];
-                                  return ListTile(
-                                    title: Text(addr.fullAddress),
-                                    subtitle: Text(
-                                      '${addr.city}, ${addr.state}',
-                                    ),
-                                    trailing: addr.isDefault
-                                        ? const Icon(
-                                            Icons.check,
-                                            color: Colors.green,
-                                          )
-                                        : null,
-                                    onTap: () {
-                                      checkoutProvider.selectAddress(addr);
-                                      Navigator.pop(context);
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const SizedBox(height: 10),
+                                Container(
+                                  width: 50,
+                                  height: 5,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[300],
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                const Text(
+                                  "Select Address",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                const Divider(),
+                                Flexible(
+                                  child: ListView.separated(
+                                    shrinkWrap: true,
+                                    itemCount: addresses.length,
+                                    separatorBuilder: (_, __) =>
+                                        const Divider(),
+                                    itemBuilder: (context, index) {
+                                      final addr = addresses[index];
+                                      return ListTile(
+                                        title: Text(addr.fullAddress),
+                                        subtitle: Text(
+                                          '${addr.city}, ${addr.state}',
+                                        ),
+                                        trailing: addr.isDefault
+                                            ? const Icon(
+                                                Icons.check,
+                                                color: Colors.green,
+                                              )
+                                            : null,
+                                        onTap: () {
+                                          checkoutProvider.selectAddress(addr);
+                                          Navigator.pop(context);
+                                        },
+                                      );
                                     },
-                                  );
-                                },
-                              ),
-                            ),
-                            const SizedBox(height: 10),
-                          ],
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                              ],
+                            );
+                          },
                         );
                       },
-                    );
-                  },
-                ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

@@ -422,60 +422,63 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
           ),
         ),
         SizedBox(height: 6.h),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(
-              color: AllColors.olivegreenColor.withOpacity(0.3),
+        GestureDetector(
+          onTap: () async {
+            DateTime initialDate = value ?? DateTime.now();
+            final picked = await showDatePicker(
+              context: context,
+              initialDate: initialDate,
+              firstDate: DateTime(2020),
+              lastDate: DateTime(2100),
+            );
+            if (picked != null) {
+              setState(() {
+                if (isStart) {
+                  startDate = picked;
+                  if (endDate != null && endDate!.isBefore(startDate!)) {
+                    endDate = null;
+                  }
+                } else {
+                  endDate = picked;
+                }
+              });
+            }
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(
+                color: AllColors.olivegreenColor.withOpacity(0.3),
+              ),
+              borderRadius: BorderRadius.circular(8.r),
             ),
-            borderRadius: BorderRadius.circular(8.r),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 10,
-                  ),
-                  child: Text(
-                    value != null ? _formatDate(value) : 'Select Date',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: AllColors.buttonColor,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                    child: Text(
+                      value != null ? _formatDate(value) : 'Select Date',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: AllColors.buttonColor,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              IconButton(
-                icon: Icon(
-                  Icons.calendar_today_outlined,
-                  size: 20,
-                  color: AllColors.olivegreenColor,
+                Padding(
+                  padding: const EdgeInsets.only(right: 12.0),
+                  child: Icon(
+                    Icons.calendar_today_outlined,
+                    size: 20,
+                    color: AllColors.olivegreenColor,
+                  ),
                 ),
-                onPressed: () async {
-                  DateTime initialDate = value ?? DateTime.now();
-                  final picked = await showDatePicker(
-                    context: context,
-                    initialDate: initialDate,
-                    firstDate: DateTime(2020),
-                    lastDate: DateTime(2100),
-                  );
-                  if (picked != null) {
-                    setState(() {
-                      if (isStart) {
-                        startDate = picked;
-                        if (endDate != null && endDate!.isBefore(startDate!)) {
-                          endDate = null;
-                        }
-                      } else {
-                        endDate = picked;
-                      }
-                    });
-                  }
-                },
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ],
@@ -494,8 +497,6 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
     switch (value) {
       case "Weekly":
         return _weeklyWidget();
-      case "Alternate Day":
-        return _alternateDayWidget();
       case "Custom Date":
         return _customWidget();
       default:

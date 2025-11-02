@@ -54,58 +54,57 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             AddressContainer(selectedAddress: defaultAddress),
             const SizedBox(height: 10),
 
-            const Padding(
-              padding: EdgeInsets.only(left: 16.0),
-              child: Text(
-                "Delivery Time",
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
-              ),
-            ),
-            const SizedBox(height: 7),
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 10),
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                border: Border.all(color: AllColors.textfieldborderColor),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                childAspectRatio: 1.5,
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                children: [
-                  DeliveryTimeCards(
-                    title: "Today",
-                    time: "9 AM - 12 PM",
-                    selected: _selectedDeliveryIndex == 0,
-                    onTap: () => setState(() => _selectedDeliveryIndex = 0),
-                  ),
-                  DeliveryTimeCards(
-                    title: "Today",
-                    time: "1 PM - 4 PM",
-                    selected: _selectedDeliveryIndex == 1,
-                    onTap: () => setState(() => _selectedDeliveryIndex = 1),
-                  ),
-                  DeliveryTimeCards(
-                    title: "Tomorrow",
-                    time: "9 AM - 12 PM",
-                    selected: _selectedDeliveryIndex == 2,
-                    onTap: () => setState(() => _selectedDeliveryIndex = 2),
-                  ),
-                  DeliveryTimeCards(
-                    title: "Tomorrow",
-                    time: "1 PM - 4 PM",
-                    selected: _selectedDeliveryIndex == 3,
-                    onTap: () => setState(() => _selectedDeliveryIndex = 3),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-
+            // const Padding(
+            //   padding: EdgeInsets.only(left: 16.0),
+            //   child: Text(
+            //     "Delivery Time",
+            //     style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
+            //   ),
+            // ),
+            // const SizedBox(height: 7),
+            // Container(
+            //   margin: const EdgeInsets.symmetric(horizontal: 10),
+            //   padding: const EdgeInsets.all(10),
+            //   decoration: BoxDecoration(
+            //     border: Border.all(color: AllColors.textfieldborderColor),
+            //     borderRadius: BorderRadius.circular(12),
+            //   ),
+            //   child: GridView.count(
+            //     crossAxisCount: 2,
+            //     crossAxisSpacing: 10,
+            //     mainAxisSpacing: 10,
+            //     childAspectRatio: 1.5,
+            //     shrinkWrap: true,
+            //     physics: NeverScrollableScrollPhysics(),
+            //     children: [
+            //       DeliveryTimeCards(
+            //         title: "Today",
+            //         time: "9 AM - 12 PM",
+            //         selected: _selectedDeliveryIndex == 0,
+            //         onTap: () => setState(() => _selectedDeliveryIndex = 0),
+            //       ),
+            //       DeliveryTimeCards(
+            //         title: "Today",
+            //         time: "1 PM - 4 PM",
+            //         selected: _selectedDeliveryIndex == 1,
+            //         onTap: () => setState(() => _selectedDeliveryIndex = 1),
+            //       ),
+            //       DeliveryTimeCards(
+            //         title: "Tomorrow",
+            //         time: "9 AM - 12 PM",
+            //         selected: _selectedDeliveryIndex == 2,
+            //         onTap: () => setState(() => _selectedDeliveryIndex = 2),
+            //       ),
+            //       DeliveryTimeCards(
+            //         title: "Tomorrow",
+            //         time: "1 PM - 4 PM",
+            //         selected: _selectedDeliveryIndex == 3,
+            //         onTap: () => setState(() => _selectedDeliveryIndex = 3),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+            // const SizedBox(height: 24),
             const Padding(
               padding: EdgeInsets.only(left: 16.0),
               child: Text(
