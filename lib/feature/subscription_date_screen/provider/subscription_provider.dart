@@ -34,7 +34,9 @@ class AddressModel {
 }
 
 class SubscriptionProvider extends ChangeNotifier {
-  Future<Map<String, dynamic>> createOrEditSubscription(Map<String, dynamic> payload) async {
+  Future<Map<String, dynamic>> createOrEditSubscription(
+    Map<String, dynamic> payload,
+  ) async {
     try {
       final response = await Api.post('addEditSubscription', payload);
       return response;
@@ -42,6 +44,7 @@ class SubscriptionProvider extends ChangeNotifier {
       return {"success": false, "message": "Exception: $e"};
     }
   }
+
   bool isLoading = false;
   List<AddressModel> addresses = [];
   String? message;

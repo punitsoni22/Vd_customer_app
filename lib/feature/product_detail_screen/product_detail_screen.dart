@@ -11,6 +11,7 @@ import 'package:vd_customer_app/core/models/product_model.dart';
 import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
+import 'package:vd_customer_app/feature/product_detail_screen/widget/productimagecontainer.dart';
 import '../../core/utils/common_widgets/common_add_subt_button.dart';
 import '../../core/utils/common_widgets/common_appbar.dart';
 import '../../core/utils/common_widgets/common_button.dart';
@@ -187,9 +188,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               // add bottom padding equal to the bottom bar height so content
               // is not hidden behind the fixed action bar
               padding: EdgeInsets.only(
-                left: 22.w,
+                left: 20.w,
                 top: 2.h,
-                right: 12.w,
+                right: 18.w,
                 // bottom: bottomBarHeight + 8.h,
               ),
               child: SingleChildScrollView(
@@ -198,7 +199,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   children: [
                     Padding(
                       padding: EdgeInsets.only(bottom: 5.0),
-                      child: SubscriptionContainer(),
+                      child: ProductImageContainer(),
                     ),
                     SizedBox(height: 10.h),
                     Text(

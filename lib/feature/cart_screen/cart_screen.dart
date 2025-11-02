@@ -84,13 +84,7 @@ class _CartScreenState extends State<CartScreen> {
                       ),
               ),
             ),
-            const SizedBox(height: 10),
-            CustomInfoContainer(
-              borderColor: AllColors.outlineColor,
-              icon: Icons.location_on_outlined,
-              text: 'Delivery Update: Standard Delivery (2-3 Days)',
-              textColor: const Color.fromARGB(255, 81, 81, 81),
-            ),
+
             const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.all(7),

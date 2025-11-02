@@ -18,12 +18,19 @@ class ProductCard extends StatelessWidget {
     super.key,
     required this.product,
     this.width = 160,
-    this.height = 300,
+    this.height = 280,
   });
   String _title(Product p) {
     final name = (p.productName.isNotEmpty ? p.productName : 'ALKALINE WATER')
         .toUpperCase();
     return name;
+  }
+
+  String _quantityinMl(Product p) {
+    final quantityInml = (p.variants.first.quantityInMl)
+        .toString()
+        .toUpperCase();
+    return '$quantityInml ';
   }
 
   String _price(Product p) {
@@ -161,6 +168,36 @@ class ProductCard extends StatelessWidget {
                           text: TextSpan(
                             children: [
                               TextSpan(
+                                text: _quantityinMl(product),
+                                style: TextStyle(
+                                  fontSize: 11.sp,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 0.2,
+                                  color: AllColors.buttonColor,
+                                ),
+                              ),
+
+                              TextSpan(
+                                text: 'Litre',
+                                style: TextStyle(
+                                  fontSize: 11.sp,
+                                  fontWeight: FontWeight.w500,
+
+                                  color: AllColors.buttonColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      Expanded(
+                        child: RichText(
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
                                 text: _price(product),
                                 style: TextStyle(
                                   fontSize: 12.sp,
@@ -180,59 +217,6 @@ class ProductCard extends StatelessWidget {
                             ],
                           ),
                         ),
-                      ),
-                      SizedBox(height: 4.h),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Expanded(
-                            child: CommonButton(
-                              buttonValue: 'Add to Cart',
-                              borderRadius: BorderRadius.circular(3.78.r),
-                              variant: ButtonVariant.outlined,
-                              color: AllColors.tabBarline,
-                              borderColor: AllColors.tabBarline,
-                              foregroundColor: AllColors.tabBarline,
-                              selfconstraints: BoxConstraints(minHeight: 20),
-                              borderWidth: 2,
-                              fontSize: 9.sp,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 4.h,
-                              ),
-
-                              onTap: () {
-                                context.push(
-                                  AppRoutes.productDetailScreen,
-                                  extra: {'productId': product.id},
-                                );
-                              },
-                            ),
-                          ),
-                          SizedBox(width: 8.w),
-                          Expanded(
-                            child: CommonButton(
-                              buttonValue: 'Buy Now',
-                              borderRadius: BorderRadius.circular(3.78.r),
-                              variant: ButtonVariant.filled,
-                              color: AllColors.buttonColor,
-                              foregroundColor: Colors.white,
-                              selfconstraints: BoxConstraints(minHeight: 20),
-                              elevation: 6,
-                              fontSize: 10.sp,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 0,
-                                vertical: 5.h,
-                              ),
-                              onTap: () {
-                                context.push(
-                                  AppRoutes.productDetailScreen,
-                                  extra: {'productId': product.id},
-                                );
-                              },
-                            ),
-                          ),
-                        ],
                       ),
                     ],
                   ),
