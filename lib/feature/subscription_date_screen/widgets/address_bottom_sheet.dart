@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -27,10 +28,8 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
   bool _isDefault = false;
   LatLng? _pickedLatLng;
   bool _isSubmitting = false;
-  bool _hasPickedLocation = false; // Track if location has been picked
-  // NOTE: API key is stored here for the reverse geocoding request.
-  // For production keep keys out of source code (use secure storage or env).
-  static const String _googleApiKey = 'AIzaSyDS1a7YKzXMn1K8B1G0rtRg8dgISRyAlDo';
+  bool _hasPickedLocation = false;
+  String get _googleApiKey => dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '';
 
   @override
   void dispose() {
@@ -44,8 +43,16 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
 
   Future<void> _reverseGeocodeAndFill(LatLng pos) async {
     try {
+      final key = _googleApiKey;
+      if (key.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Google API key not configured')),
+        );
+        return;
+      }
+
       final url = Uri.parse(
-        'https://maps.googleapis.com/maps/api/geocode/json?latlng=${pos.latitude},${pos.longitude}&key=$_googleApiKey',
+        'https://maps.googleapis.com/maps/api/geocode/json?latlng=${pos.latitude},${pos.longitude}&key=$key',
       );
       final resp = await http.get(url);
       if (resp.statusCode != 200) {
