@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_appbar.dart';
+import 'package:vd_customer_app/widget/snack_bar.dart';
 
 class MapPickerPage extends StatefulWidget {
   final LatLng? initialPosition;
@@ -36,13 +37,9 @@ class _MapPickerPageState extends State<MapPickerPage> {
         if (permission == LocationPermission.denied) {
           // Permission denied, show message and use default location
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(
-                  'Location permission denied. Using default location.',
-                ),
-                duration: Duration(seconds: 3),
-              ),
+            MySnackBar.showSnackBar(
+              context,
+              'Location permission denied. Using default location.',
             );
             setState(() => _isLoadingLocation = false);
           }
@@ -53,13 +50,9 @@ class _MapPickerPageState extends State<MapPickerPage> {
       if (permission == LocationPermission.deniedForever) {
         // Permission permanently denied
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'Location permission permanently denied. Please enable in settings.',
-              ),
-              duration: Duration(seconds: 4),
-            ),
+          MySnackBar.showSnackBar(
+            context,
+            'Location permission permanently denied. Using default location.',
           );
           setState(() => _isLoadingLocation = false);
         }
@@ -98,23 +91,15 @@ class _MapPickerPageState extends State<MapPickerPage> {
         }
 
         // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('📍 Current location selected'),
-            duration: Duration(seconds: 2),
-            backgroundColor: Colors.green,
-          ),
-        );
+        MySnackBar.showSnackBar(context, '📍 Current location selected');
       }
     } catch (e) {
       debugPrint('Get current location error: $e');
       if (mounted) {
         setState(() => _isLoadingLocation = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to get current location. Using default.'),
-            duration: Duration(seconds: 3),
-          ),
+        MySnackBar.showSnackBar(
+          context,
+          'Error getting location. Please select manually.',
         );
       }
     }

@@ -94,7 +94,7 @@ class LoginProvider extends ChangeNotifier {
               await Prefs.saveString("user_id", userId.toString());
               print("DEBUG: User ID extracted from token → $userId");
 
-              context.read<CartProvider>().fetchLatestCart();
+              context.read<CartProvider>().fetchLatestCart(context);
             }
           } catch (e) {
             print("DEBUG: Failed to decode token: $e");
@@ -175,7 +175,7 @@ class LoginProvider extends ChangeNotifier {
           await Prefs.saveString("user_id", userId);
           print("DEBUG: User ID saved → $userId");
 
-          context.read<CartProvider>().fetchLatestCart();
+          context.read<CartProvider>().fetchLatestCart(context);
         }
 
         _result(

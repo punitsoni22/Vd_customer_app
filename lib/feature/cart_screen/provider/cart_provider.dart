@@ -1,8 +1,8 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:vd_customer_app/core/models/cart_model.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
+import 'package:vd_customer_app/widget/snack_bar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vd_customer_app/core/routing/routes.dart';
 
@@ -16,29 +16,107 @@ class CartProvider extends ChangeNotifier {
 
   bool get isEmpty => cartItems.isEmpty;
 
-  void setCartFromApi(Map<String, dynamic> data) {
-    // 'data' is non-nullable Map coming from API; no null check needed
-    final cart = Cart.fromJson(data);
+  bool _isRemovingItem = false;
+  bool get isRemovingItem => _isRemovingItem;
 
-    if (!cart.isActive) return;
-    if (cart.cartDetails.isEmpty) return;
+  bool _isUpdatingQuantity = false;
+  bool get isUpdatingQuantity => _isUpdatingQuantity;
 
-    if (_cart == null) {
-      _cart = cart;
-    } else {
-      for (var item in cart.cartDetails) {
-        final i = _cart!.cartDetails.indexWhere(
-          (p) => p.productId == item.productId && p.variantId == item.variantId,
-        );
-        if (i >= 0) {
-          _cart!.cartDetails[i].quantity = max(
-            _cart!.cartDetails[i].quantity,
-            item.quantity,
-          );
-        } else {
-          _cart!.cartDetails.add(item);
+  //
+  Map<String, int> _pendingQuantityChanges = {};
+  Map<String, int> get pendingQuantityChanges => _pendingQuantityChanges;
+
+  bool get hasPendingChanges => _pendingQuantityChanges.isNotEmpty;
+
+  
+  int getDisplayQuantity(CartDetail item) {
+    final key = '${item.productId}_${item.variantId}';
+    return _pendingQuantityChanges[key] ?? item.quantity;
+  }
+
+  
+  void cancelQuantityChanges() {
+    _pendingQuantityChanges.clear();
+    notifyListeners();
+  }
+
+  
+  Future<void> saveQuantityChanges(BuildContext context) async {
+    if (!hasPendingChanges) return;
+
+    try {
+      _isUpdatingQuantity = true;
+      notifyListeners();
+
+      
+      final productsPayload = cartItems.map((item) {
+        final key = '${item.productId}_${item.variantId}';
+        final newQuantity = _pendingQuantityChanges[key] ?? item.quantity;
+
+        return {
+          "productId": item.productId,
+          "variantId": item.variantId,
+          "quantity": newQuantity,
+          "price": item.price,
+        };
+      }).toList();
+
+      
+      double total = 0;
+      for (final p in productsPayload) {
+        final q = (p['quantity'] is int)
+            ? (p['quantity'] as int)
+            : int.tryParse(p['quantity'].toString()) ?? 0;
+        final pr = double.tryParse(p['price'].toString()) ?? 0.0;
+        total += pr * q;
+      }
+
+      final payload = {
+        "data": {
+          if (cartId != null) 'id': cartId,
+          "products": productsPayload,
+          "totalPrice": total,
+        },
+      };
+
+      final response = await Api.post('addEditCart', payload);
+
+      if (response['success'] == true && response['data'] != null) {
+        
+        _pendingQuantityChanges.clear();
+        setCartFromApi(response['data']);
+        await fetchLatestCart(context);
+
+        if (context.mounted) {
+          MySnackBar.showSnackBar(context, "Cart updated successfully");
+        }
+      } else {
+        final message = response['message'] ?? 'Failed to update cart';
+
+        if (context.mounted) {
+          MySnackBar.showSnackBar(context, message);
         }
       }
+    } catch (e) {
+      if (context.mounted) {
+        MySnackBar.showSnackBar(context, "Failed to save changes");
+      }
+    } finally {
+      _isUpdatingQuantity = false;
+      notifyListeners();
+    }
+  }
+
+  void setCartFromApi(Map<String, dynamic> data) {
+    
+    final cart = Cart.fromJson(data);
+
+    
+    if (cart.isActive && cart.cartDetails.isNotEmpty) {
+      _cart = cart;
+    } else {
+      
+      _cart = null;
     }
     notifyListeners();
   }
@@ -54,7 +132,7 @@ class CartProvider extends ChangeNotifier {
     return id;
   }
 
-  Future<void> fetchLatestCart() async {
+  Future<void> fetchLatestCart(BuildContext context) async {
     try {
       final userId = await getCurrentUserId();
       print("DEBUG: Current userId = $userId");
@@ -70,9 +148,21 @@ class CartProvider extends ChangeNotifier {
       if (response['success'] == true && response['data'] != null) {
         setCartFromApi(response['data']);
       } else {
-        print(
-          "DEBUG: Fetch Latest Cart failed: ${response['message'] ?? 'No message'}",
-        );
+        final msg = response['message'] ?? 'Failed to add to cart';
+        print('addEditCart failed: $msg');
+
+        try {
+          final msgStr = msg.toString();
+          if (msgStr.contains('401')) {
+            await Prefs.clear(Prefs.keyAuthToken);
+            await Prefs.clear(Prefs.keyUserId);
+            await Prefs.clearAll();
+            clearCart();
+            context.goNamed(AppRoutes.loginScreen);
+          }
+        } catch (e) {
+          print('Error during logout handling: $e');
+        }
       }
     } catch (e) {
       print("DEBUG: Fetch Latest Cart Exception: $e");
@@ -155,6 +245,7 @@ class CartProvider extends ChangeNotifier {
       if (resp['success'] == true && resp['data'] != null) {
         // Update local cart from backend response
         setCartFromApi(resp['data']);
+        await fetchLatestCart(context!);
         return {'success': true, 'message': 'Added to cart successfully'};
       } else {
         // API returned failure - print/log and return message
@@ -191,13 +282,11 @@ class CartProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> removeItem(CartDetail item) async {
+  Future<void> removeItem(BuildContext context, CartDetail item) async {
     try {
       final cartDetailId = item.id;
 
-      cartItems.removeWhere(
-        (p) => p.productId == item.productId && p.variantId == item.variantId,
-      );
+      _isRemovingItem = true;
       notifyListeners();
 
       final response = await Api.post("deleteCartItem", {
@@ -206,53 +295,65 @@ class CartProvider extends ChangeNotifier {
 
       print("Delete Response: $response");
 
-      final newTotal = response["data"]?["totalPrice"];
-      if (newTotal != null) {
-        if (double.tryParse(newTotal.toString()) == 0) {
-          clearCart();
-        } else {
-          _cart = _cart?.copyWith(
-            totalPrice: double.tryParse(newTotal.toString()),
-          );
-          notifyListeners();
+      if (response["success"] == true) {
+        final message = response["message"] ?? "Item removed successfully";
+
+        if (context.mounted) {
+          MySnackBar.showSnackBar(context, message);
         }
+
+        await fetchLatestCart(context);
+
+        final newTotal = response["data"]?["totalPrice"];
+        if (newTotal != null && double.tryParse(newTotal.toString()) == 0) {
+          clearCart();
+        }
+      } else {
+        final message = response["message"] ?? "Failed to remove item";
+
+        if (context.mounted) {
+          MySnackBar.showSnackBar(context, message);
+        }
+
+        print("Remove item failed: $message");
       }
     } catch (e) {
-      print(" removeItem error: $e");
-    }
-  }
+      print("RemoveItem error: $e");
 
-  Future<void> increaseQuantity(CartDetail item) async {
-    final index = cartItems.indexWhere(
-      (p) => p.productId == item.productId && p.variantId == item.variantId,
-    );
-    if (index >= 0) {
-      cartItems[index].quantity += 1;
-      notifyListeners();
-      await addEditCart();
-    }
-  }
-
-  Future<void> decreaseQuantity(CartDetail item) async {
-    final index = cartItems.indexWhere(
-      (p) => p.productId == item.productId && p.variantId == item.variantId,
-    );
-    if (index >= 0) {
-      if (cartItems[index].quantity > 1) {
-        cartItems[index].quantity -= 1;
-        notifyListeners();
-        await addEditCart();
-      } else {
-        await removeItem(item);
+      if (context.mounted) {
+        MySnackBar.showSnackBar(
+          context,
+          "An error occurred while removing item",
+        );
       }
+    } finally {
+      _isRemovingItem = false;
+      notifyListeners();
     }
   }
 
-  Future<void> refreshCartFromBackend() async {
-    await fetchLatestCart();
+  void increaseQuantity(CartDetail item) {
+    final key = '${item.productId}_${item.variantId}';
+    final currentQuantity = _pendingQuantityChanges[key] ?? item.quantity;
+    _pendingQuantityChanges[key] = currentQuantity + 1;
+    notifyListeners();
   }
 
-  Future<void> addEditCart() async {
+  void decreaseQuantity(CartDetail item) {
+    final key = '${item.productId}_${item.variantId}';
+    final currentQuantity = _pendingQuantityChanges[key] ?? item.quantity;
+
+    if (currentQuantity > 1) {
+      _pendingQuantityChanges[key] = currentQuantity - 1;
+      notifyListeners();
+    }
+  }
+
+  Future<void> refreshCartFromBackend(BuildContext context) async {
+    await fetchLatestCart(context);
+  }
+
+  Future<void> addEditCart(BuildContext context) async {
     try {
       final productsPayload = cartItems.map((p) {
         return {
@@ -271,7 +372,8 @@ class CartProvider extends ChangeNotifier {
       print('Add/Edit Cart Response: $response');
 
       if (response['success'] == true && response['data'] != null) {
-        _cart = _cart?.copyWith(id: response['data']['id'] ?? cartId);
+        setCartFromApi(response['data']);
+        await fetchLatestCart(context);
       } else {
         print('Cart API error: ${response['message'] ?? 'No message'}');
       }
@@ -290,7 +392,7 @@ class CartProvider extends ChangeNotifier {
 
   double get subtotal => cartItems.fold<double>(
     0,
-    (sum, item) => sum + ((item.price) * (item.quantity)),
+    (sum, item) => sum + ((item.price) * getDisplayQuantity(item)),
   );
 }
 

@@ -50,7 +50,7 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       if (_index == 3) {
-        context.read<CartProvider>().fetchLatestCart();
+        context.read<CartProvider>().fetchLatestCart(context);
       } else if (_index == 1) {
         context.read<ProductProvider>().getProducts({
           "filterModel": {},
@@ -81,7 +81,7 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
           // If page was just created, run its initial fetch centrally. If it
           // already existed, treat this as a refresh and call the provider too.
           if (i == 3) {
-            context.read<CartProvider>().fetchLatestCart();
+            context.read<CartProvider>().fetchLatestCart(context);
           } else if (i == 1) {
             context.read<ProductProvider>().getProducts({
               "filterModel": {},
