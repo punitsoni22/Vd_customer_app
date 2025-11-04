@@ -12,18 +12,18 @@ class Header extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         Container(
-          padding: const EdgeInsets.only(left: 12, bottom: 8),
+          padding: EdgeInsets.only(left: 12.w, bottom: 8.h),
           height: MediaQuery.of(context).size.height * 0.4,
           width: double.infinity,
           decoration: BoxDecoration(
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(25),
-              bottomRight: Radius.circular(25),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(25.r),
+              bottomRight: Radius.circular(25.r),
             ),
             color: AllColors.buttonColor,
             boxShadow: const [BoxShadow(spreadRadius: 0.5, blurRadius: 9)],
           ),
-          child: const Column(
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.end,
@@ -33,12 +33,12 @@ class Header extends StatelessWidget {
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: 25,
+                  fontSize: 25.sp,
                 ),
               ),
               Text(
                 'Welcome to Vedasip',
-                style: TextStyle(fontSize: 20, color: Colors.white),
+                style: TextStyle(fontSize: 20.sp, color: Colors.white),
               ),
             ],
           ),
@@ -46,7 +46,11 @@ class Header extends StatelessWidget {
         Positioned(
           top: 0,
           right: 0,
-          child: Image.asset('assets/images/Bottlee.png', width: 220.w, height: 420.h),
+          child: Image.asset(
+            'assets/images/Bottlee.png',
+            width: 220.w,
+            height: 420.h,
+          ),
         ),
       ],
     );

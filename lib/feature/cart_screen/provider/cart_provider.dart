@@ -192,11 +192,34 @@ class CartProvider extends ChangeNotifier {
   }
 
   Future<void> removeItem(CartDetail item) async {
-    cartItems.removeWhere(
-      (p) => p.productId == item.productId && p.variantId == item.variantId,
-    );
-    notifyListeners();
-    await addEditCart();
+    try {
+      final cartDetailId = item.id;
+
+      cartItems.removeWhere(
+        (p) => p.productId == item.productId && p.variantId == item.variantId,
+      );
+      notifyListeners();
+
+      final response = await Api.post("deleteCartItem", {
+        "data": {"cartDetailId": cartDetailId},
+      });
+
+      print("Delete Response: $response");
+
+      final newTotal = response["data"]?["totalPrice"];
+      if (newTotal != null) {
+        if (double.tryParse(newTotal.toString()) == 0) {
+          clearCart();
+        } else {
+          _cart = _cart?.copyWith(
+            totalPrice: double.tryParse(newTotal.toString()),
+          );
+          notifyListeners();
+        }
+      }
+    } catch (e) {
+      print(" removeItem error: $e");
+    }
   }
 
   Future<void> increaseQuantity(CartDetail item) async {

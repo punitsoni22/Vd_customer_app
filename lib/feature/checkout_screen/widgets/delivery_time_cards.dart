@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 
 class DeliveryTimeCards extends StatelessWidget {
@@ -19,12 +20,12 @@ class DeliveryTimeCards extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(12.r),
       child: Container(
-        padding: const EdgeInsets.all(12),
+        padding: EdgeInsets.all(12.r),
         decoration: BoxDecoration(
           color: selected ? AllColors.iconColor : Colors.transparent,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12.r),
           border: Border.all(color: Colors.grey.shade300),
         ),
         child: Column(
@@ -34,7 +35,7 @@ class DeliveryTimeCards extends StatelessWidget {
               Icons.access_time,
               color: selected ? Colors.white : Colors.black,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8.h),
             Text(
               title,
               style: TextStyle(

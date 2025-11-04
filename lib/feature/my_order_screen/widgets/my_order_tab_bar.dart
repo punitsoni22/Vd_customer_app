@@ -94,7 +94,9 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                             child: MyOrderCard(
                               id: '${item.type == "subscription" ? "Subscription ID" : "Order ID"}: ${item.id}',
                               date: item.date,
-                              status: item.status,
+                              status: item.type == "subscription"
+                                  ? null
+                                  : item.status,
                               productName: item.productName,
                               imageUrl:
                                   item.signedUrl ??
@@ -130,7 +132,7 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                               id: 'Subscription ID: ${sub.id}',
                               date:
                                   "Starts:${sub.startDate.toString().split(' ').first}",
-                              status: sub.subscriptionType,
+
                               productName:
                                   product?.productName ??
                                   "Subscription Product",

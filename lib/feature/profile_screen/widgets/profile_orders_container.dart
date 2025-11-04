@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
@@ -9,10 +10,10 @@ class OrdersCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: AllColors.outlineColor),
       ),
       child: Column(
@@ -21,12 +22,12 @@ class OrdersCard extends StatelessWidget {
           Text(
             "Orders",
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 16.sp,
               fontWeight: FontWeight.bold,
               color: AllColors.buttonColor,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: 12.h),
           GestureDetector(
             onTap: () {
               GoRouter.of(context).push(AppRoutes.myOrderScreen);
@@ -71,26 +72,26 @@ class BuildmenuCont extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: EdgeInsets.symmetric(vertical: 8.h),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: EdgeInsets.all(8.r),
             decoration: BoxDecoration(
               color: AllColors.profileBackColor,
               shape: BoxShape.circle,
             ),
             child: Icon(
               icon,
-              size: 20,
+              size: 20.r,
               color: iconColor ?? AllColors.profileIconColor,
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           Text(
             title,
             style: TextStyle(
-              fontSize: 15,
+              fontSize: 15.sp,
               fontWeight: FontWeight.w500,
               color: textcolor ?? AllColors.buttonColor,
             ),

@@ -2,7 +2,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:vd_customer_app/core/models/product_model.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
-import 'package:vd_customer_app/core/services/xd.dart';
+import 'package:vd_customer_app/core/services/signedurl.dart';
 
 class ProductProvider extends ChangeNotifier {
   bool isLoading = false;

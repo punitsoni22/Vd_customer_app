@@ -42,11 +42,11 @@ class _SubscriptionPriceDropdownState extends State<SubscriptionPriceDropdown> {
   Widget build(BuildContext context) {
     return Container(
       height: 35.h,
-      padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
+      padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
       decoration: BoxDecoration(
         color: Colors.grey[50],
         borderRadius: BorderRadius.circular(6.r),
-        border: Border.all(color: AllColors.olivegreenColor, width: 1),
+        border: Border.all(color: AllColors.olivegreenColor, width: 1.w),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton2<int>(
@@ -59,11 +59,11 @@ class _SubscriptionPriceDropdownState extends State<SubscriptionPriceDropdown> {
 
           dropdownStyleData: DropdownStyleData(
             offset: const Offset(-5, 27),
-            width: 180,
+            width: 180.w,
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.white, width: 1),
+              borderRadius: BorderRadius.circular(10.r),
+              border: Border.all(color: Colors.white, width: 1.w),
             ),
             elevation: 4,
             maxHeight: 180,
