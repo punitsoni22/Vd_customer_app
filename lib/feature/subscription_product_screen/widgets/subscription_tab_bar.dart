@@ -46,12 +46,12 @@ class SubscriptionList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(12.r),
       itemCount: 6,
       itemBuilder: (context, index) {
         return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(16),
+          margin: EdgeInsets.only(bottom: 12.h),
+          padding: EdgeInsets.all(16.r),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
@@ -68,16 +68,16 @@ class SubscriptionList extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const CircleAvatar(radius: 24, backgroundColor: Colors.amber),
-                  const SizedBox(width: 12),
+                  CircleAvatar(radius: 24.r, backgroundColor: Colors.amber),
+                  SizedBox(width: 12.w),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
+                      Text(
                         "AquaFlow 20L Purified Water",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontSize: 16.sp,
                         ),
                       ),
                       Text(
@@ -94,31 +94,35 @@ class SubscriptionList extends StatelessWidget {
               SizedBox(height: 12.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
+                children: [
                   Row(
                     children: [
-                      Icon(Icons.loop, size: 16, color: Colors.grey),
-                      SizedBox(width: 4),
-                      Text("Frequency: Weekly"),
+                      Icon(Icons.loop, size: 16.sp, color: Colors.grey),
+                      SizedBox(width: 4.w),
+                      const Text("Frequency: Weekly"),
                     ],
                   ),
                   Row(
                     children: [
                       Icon(Icons.local_drink, size: 16, color: Colors.grey),
-                      SizedBox(width: 4),
-                      Text("Quantity: 2 Cans"),
+                      SizedBox(width: 4.w),
+                      const Text("Quantity: 2 Cans"),
                     ],
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8.h),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
+                children: [
                   Row(
                     children: [
-                      Icon(Icons.calendar_today, size: 16, color: Colors.grey),
-                      SizedBox(width: 4),
+                      Icon(
+                        Icons.calendar_today,
+                        size: 16.sp,
+                        color: Colors.grey,
+                      ),
+                      SizedBox(width: 4.w),
                       Text("Next: June 25, 2024"),
                     ],
                   ),
@@ -139,7 +143,7 @@ class SubscriptionList extends StatelessWidget {
                     backgroundColor: AllColors.backgroundColor,
                     textStyle: TextStyle(
                       color: const Color.fromARGB(255, 62, 62, 62),
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -147,7 +151,7 @@ class SubscriptionList extends StatelessWidget {
                     buttonValue: 'Change Quality',
                     textStyle: TextStyle(
                       color: const Color.fromARGB(255, 62, 62, 62),
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
                     ),
                     backgroundColor: AllColors.backgroundColor,
@@ -157,7 +161,7 @@ class SubscriptionList extends StatelessWidget {
                     backgroundColor: AllColors.backgroundColor,
                     textStyle: TextStyle(
                       color: const Color.fromARGB(255, 62, 62, 62),
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -166,7 +170,7 @@ class SubscriptionList extends StatelessWidget {
                     backgroundColor: AllColors.backgroundColor,
                     textStyle: TextStyle(
                       color: const Color.fromARGB(255, 62, 62, 62),
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

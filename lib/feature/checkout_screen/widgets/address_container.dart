@@ -20,23 +20,23 @@ class AddressContainer extends StatelessWidget {
 
     if (selectedAddress == null) {
       return Container(
-        margin: EdgeInsets.all(10),
-        padding: EdgeInsets.all(10),
+        margin: EdgeInsets.all(10.r),
+        padding: EdgeInsets.all(10.r),
         decoration: BoxDecoration(
           border: Border.all(color: AllColors.textfieldborderColor),
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(10.r),
         ),
         child: const Center(child: Text("No address found")),
       );
     }
 
     return Container(
-      margin: EdgeInsets.all(10),
-      padding: EdgeInsets.all(10),
+      margin: EdgeInsets.all(10.r),
+      padding: EdgeInsets.all(10.r),
       decoration: BoxDecoration(
         color: Colors.transparent,
         border: Border.all(color: AllColors.textfieldborderColor),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10.r),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,11 +44,11 @@ class AddressContainer extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
+              Text(
                 'Delivery Address',
                 style: TextStyle(
                   color: Colors.black,
-                  fontSize: 20,
+                  fontSize: 20.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -80,7 +80,7 @@ class AddressContainer extends StatelessWidget {
                       }
                     },
                   ),
-                  const SizedBox(width: 8),
+                  SizedBox(width: 8.w),
                   Container(
                     padding: EdgeInsets.all(4.r),
                     decoration: BoxDecoration(
@@ -104,17 +104,17 @@ class AddressContainer extends StatelessWidget {
                       onTap: () {
                         showModalBottomSheet(
                           context: context,
-                          shape: const RoundedRectangleBorder(
+                          shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(20),
+                              top: Radius.circular(20.r),
                             ),
                           ),
                           builder: (context) {
                             final addresses = checkoutProvider.addresses;
 
                             if (addresses.isEmpty) {
-                              return const Padding(
-                                padding: EdgeInsets.all(20),
+                              return Padding(
+                                padding: EdgeInsets.all(20.r),
                                 child: Center(
                                   child: Text("No addresses available"),
                                 ),
@@ -124,20 +124,20 @@ class AddressContainer extends StatelessWidget {
                             return Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const SizedBox(height: 10),
+                                SizedBox(height: 10.h),
                                 Container(
-                                  width: 50,
-                                  height: 5,
+                                  width: 50.w,
+                                  height: 5.h,
                                   decoration: BoxDecoration(
                                     color: Colors.grey[300],
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
-                                const SizedBox(height: 10),
-                                const Text(
+                                SizedBox(height: 10.h),
+                                Text(
                                   "Select Address",
                                   style: TextStyle(
-                                    fontSize: 18,
+                                    fontSize: 18.sp,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -169,7 +169,7 @@ class AddressContainer extends StatelessWidget {
                                     },
                                   ),
                                 ),
-                                const SizedBox(height: 10),
+                                SizedBox(height: 10.h),
                               ],
                             );
                           },
@@ -181,10 +181,10 @@ class AddressContainer extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Text(
             selectedAddress!.fullAddress,
-            style: const TextStyle(fontSize: 17, color: Colors.black),
+            style: TextStyle(fontSize: 17.sp, color: Colors.black),
           ),
           const SizedBox(height: 0),
           Row(
@@ -192,8 +192,8 @@ class AddressContainer extends StatelessWidget {
               Expanded(
                 child: Text(
                   '${selectedAddress!.city}, ${selectedAddress!.state}, ${selectedAddress!.country}',
-                  style: const TextStyle(
-                    fontSize: 15,
+                  style: TextStyle(
+                    fontSize: 15.sp,
                     color: Color.fromARGB(255, 106, 106, 106),
                   ),
                   maxLines: 3,
@@ -201,11 +201,11 @@ class AddressContainer extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 3),
+          SizedBox(height: 3.h),
           Text(
             'Postal code: ${selectedAddress!.postalCode}',
-            style: const TextStyle(
-              fontSize: 14,
+            style: TextStyle(
+              fontSize: 14.sp,
               color: Color.fromARGB(255, 106, 106, 106),
             ),
           ),

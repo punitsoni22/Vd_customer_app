@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:vd_customer_app/core/models/product_model.dart';
 import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
-import 'package:vd_customer_app/core/services/xd.dart';
+import 'package:vd_customer_app/core/services/signedurl.dart';
 
 class ProductDetailProvider extends ChangeNotifier {
   bool isLoading = false;

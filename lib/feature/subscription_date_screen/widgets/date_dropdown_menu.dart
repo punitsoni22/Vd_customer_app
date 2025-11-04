@@ -55,11 +55,11 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
       children: [
         Container(
           height: 48.h,
-          padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
+          padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
           decoration: BoxDecoration(
             color: Colors.grey[50],
             borderRadius: BorderRadius.circular(10.r),
-            border: Border.all(color: AllColors.olivegreenColor, width: 1),
+            border: Border.all(color: AllColors.olivegreenColor, width: 1.w),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
@@ -106,7 +106,10 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                   value: value,
                   child: Container(
                     width: double.infinity,
-                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+                    padding: EdgeInsets.symmetric(
+                      vertical: 12.h,
+                      horizontal: 10.w,
+                    ),
                     decoration: BoxDecoration(
                       color: isSelected
                           ? Color(0xFFE8FFF9)
@@ -169,8 +172,8 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                         child: Container(
                           height: 50.h,
                           padding: EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 2,
+                            horizontal: 8.w,
+                            vertical: 2.h,
                           ),
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -197,7 +200,7 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                                 color: AllColors.buttonColor,
                               ),
                               dropdownColor: Colors.white,
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius: BorderRadius.circular(14.r),
                               menuMaxHeight: 250,
 
                               selectedItemBuilder: (context) {
@@ -226,8 +229,8 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                                   child: Container(
                                     width: double.infinity,
                                     padding: EdgeInsets.symmetric(
-                                      vertical: 12,
-                                      horizontal: 10,
+                                      vertical: 12.h,
+                                      horizontal: 10.w,
                                     ),
                                     decoration: BoxDecoration(
                                       color: isSelected
@@ -456,9 +459,9 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
               children: [
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 10,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12.w,
+                      vertical: 10.h,
                     ),
                     child: Text(
                       value != null ? _formatDate(value) : 'Select Date',
@@ -470,7 +473,7 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(right: 12.0),
+                  padding: EdgeInsets.only(right: 12..w),
                   child: Icon(
                     Icons.calendar_today_outlined,
                     size: 20,

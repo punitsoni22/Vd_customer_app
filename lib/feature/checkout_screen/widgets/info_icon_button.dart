@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:vd_customer_app/feature/checkout_screen/provider/checkout_provider.dart';
 
@@ -15,13 +16,13 @@ class InfoIconButton extends StatelessWidget {
 
         showModalBottomSheet(
           context: context,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
           ),
           builder: (context) {
             if (coupons.isEmpty) {
-              return const Padding(
-                padding: EdgeInsets.all(20),
+              return Padding(
+                padding: EdgeInsets.all(20.r),
                 child: Center(child: Text("No coupons available")),
               );
             }
@@ -29,19 +30,22 @@ class InfoIconButton extends StatelessWidget {
             return Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(height: 10),
+                SizedBox(height: 10.h),
                 Container(
-                  width: 50,
-                  height: 5,
+                  width: 50.w,
+                  height: 5.h,
                   decoration: BoxDecoration(
                     color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                 ),
-                const SizedBox(height: 10),
-                const Text(
+                SizedBox(height: 10.h),
+                Text(
                   "Available Coupons",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const Divider(),
                 Flexible(
@@ -63,7 +67,7 @@ class InfoIconButton extends StatelessWidget {
                     },
                   ),
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10.h),
               ],
             );
           },

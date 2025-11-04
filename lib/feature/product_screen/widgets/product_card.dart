@@ -78,7 +78,7 @@ class ProductCard extends StatelessWidget {
                     color: Colors.teal.withValues(alpha: 0.10),
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(15.r),
                     child: SizedBox(
                       width: double.infinity,
                       height: double.infinity,
@@ -131,7 +131,7 @@ class ProductCard extends StatelessWidget {
                                   height: 2.h,
                                   decoration: BoxDecoration(
                                     color: AllColors.tabBarline,
-                                    borderRadius: BorderRadius.circular(3),
+                                    borderRadius: BorderRadius.circular(3.r),
                                   ),
                                 ),
                               ],

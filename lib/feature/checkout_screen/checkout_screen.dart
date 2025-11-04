@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_appbar.dart';
@@ -47,77 +48,26 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       backgroundColor: Colors.white,
       appBar: const CommonAppBar(title: 'Checkout', showBack: true),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+        padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 5.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AddressContainer(selectedAddress: defaultAddress),
-            const SizedBox(height: 10),
+            SizedBox(height: 10.h),
 
-            // const Padding(
-            //   padding: EdgeInsets.only(left: 16.0),
-            //   child: Text(
-            //     "Delivery Time",
-            //     style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
-            //   ),
-            // ),
-            // const SizedBox(height: 7),
-            // Container(
-            //   margin: const EdgeInsets.symmetric(horizontal: 10),
-            //   padding: const EdgeInsets.all(10),
-            //   decoration: BoxDecoration(
-            //     border: Border.all(color: AllColors.textfieldborderColor),
-            //     borderRadius: BorderRadius.circular(12),
-            //   ),
-            //   child: GridView.count(
-            //     crossAxisCount: 2,
-            //     crossAxisSpacing: 10,
-            //     mainAxisSpacing: 10,
-            //     childAspectRatio: 1.5,
-            //     shrinkWrap: true,
-            //     physics: NeverScrollableScrollPhysics(),
-            //     children: [
-            //       DeliveryTimeCards(
-            //         title: "Today",
-            //         time: "9 AM - 12 PM",
-            //         selected: _selectedDeliveryIndex == 0,
-            //         onTap: () => setState(() => _selectedDeliveryIndex = 0),
-            //       ),
-            //       DeliveryTimeCards(
-            //         title: "Today",
-            //         time: "1 PM - 4 PM",
-            //         selected: _selectedDeliveryIndex == 1,
-            //         onTap: () => setState(() => _selectedDeliveryIndex = 1),
-            //       ),
-            //       DeliveryTimeCards(
-            //         title: "Tomorrow",
-            //         time: "9 AM - 12 PM",
-            //         selected: _selectedDeliveryIndex == 2,
-            //         onTap: () => setState(() => _selectedDeliveryIndex = 2),
-            //       ),
-            //       DeliveryTimeCards(
-            //         title: "Tomorrow",
-            //         time: "1 PM - 4 PM",
-            //         selected: _selectedDeliveryIndex == 3,
-            //         onTap: () => setState(() => _selectedDeliveryIndex = 3),
-            //       ),
-            //     ],
-            //   ),
-            // ),
-            // const SizedBox(height: 24),
-            const Padding(
-              padding: EdgeInsets.only(left: 16.0),
+            Padding(
+              padding: EdgeInsets.only(left: 16.w),
               child: Text(
                 "Payment Options",
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w500),
+                style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w500),
               ),
             ),
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-              padding: const EdgeInsets.all(10),
+              margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 2.h),
+              padding: EdgeInsets.all(10.r),
               decoration: BoxDecoration(
                 border: Border.all(color: AllColors.textfieldborderColor),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
               ),
               child: Column(
                 children: [
@@ -152,33 +102,33 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 5),
+            SizedBox(height: 5.h),
 
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
               child: SizedBox(
-                height: 40,
+                height: 40.h,
                 child: Row(
                   children: [
                     InfoIconButton(),
 
                     Expanded(
                       flex: 3,
-                      child: const CommonTextField(
+                      child: CommonTextField(
                         label: 'Enter Coupon Code',
                         padding: EdgeInsets.symmetric(
-                          vertical: 8,
-                          horizontal: 12,
+                          vertical: 8.h,
+                          horizontal: 12.w,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: 8.w),
                     Expanded(
                       flex: 2,
                       child: CommonButton(
                         padding: EdgeInsets.symmetric(
-                          vertical: 8,
-                          horizontal: 12,
+                          vertical: 8.h,
+                          horizontal: 12.w,
                         ),
                         buttonValue: 'Apply',
                         backgroundColor: AllColors.iconColor,
@@ -189,26 +139,23 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 5),
+            SizedBox(height: 5.h),
 
             Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 10.0,
-                vertical: 5,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
               child: Container(
-                padding: const EdgeInsets.all(8),
+                padding: EdgeInsets.all(8.r),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10.r),
                   border: Border.all(color: AllColors.textfieldborderColor),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Order Summary',
                       style: TextStyle(
-                        fontSize: 17,
+                        fontSize: 17.sp,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -238,15 +185,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                       value:
                           "₹${(subtotal - discount + deliveryCharge - estimatedTax).toStringAsFixed(2)}",
                       isBold: true,
-                      color: Colors.blue[600],
+                      color: Colors.blue,
                     ),
                   ],
                 ),
               ),
             ),
-            const Divider(indent: 20, endIndent: 20),
+            Divider(indent: 20.w, endIndent: 20.w),
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(8.r),
               child: checkoutProvider.isLoading
                   ? const CircularProgressIndicator()
                   : CommonButton(

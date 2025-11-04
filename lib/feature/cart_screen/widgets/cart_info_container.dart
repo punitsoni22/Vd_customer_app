@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 
 class CustomInfoContainer extends StatelessWidget {
@@ -28,26 +29,26 @@ class CustomInfoContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
         color: backgroundColor,
         border: Border.all(color: borderColor ?? AllColors.buttonColor),
-        borderRadius: BorderRadius.circular(borderRadius ?? 12),
+        borderRadius: BorderRadius.circular(borderRadius ?? 12.r),
       ),
       child: Row(
         crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.center,
         children: [
           Icon(
             icon,
-            size: iconSize ?? 20,
+            size: iconSize ?? 20.r,
             color: iconColor ?? AllColors.buttonColor,
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8.w),
           Expanded(
             child: Text(
               text,
               style: TextStyle(
-                fontSize: 15,
+                fontSize: 15.sp,
                 color: textColor ?? const Color(0xFF565D65),
                 fontWeight: FontWeight.w400,
               ),

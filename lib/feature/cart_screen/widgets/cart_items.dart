@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/models/cart_model.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
@@ -15,18 +16,18 @@ class CartItem extends StatelessWidget {
         : null;
     final cartProvider = context.read<CartProvider>();
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(11),
+      margin: EdgeInsets.only(bottom: 12.h),
+      padding: EdgeInsets.all(10.r),
       decoration: BoxDecoration(
         border: Border.all(color: AllColors.greyborderColor),
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
       ),
       child: Row(
         children: [
           Container(
-            width: 60,
-            height: 60,
+            width: 60.w,
+            height: 60.h,
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
             child: (imgUrl != null && imgUrl.isNotEmpty)
                 ? Image.network(
@@ -39,7 +40,7 @@ class CartItem extends StatelessWidget {
                   )
                 : Image.asset('assets/images/Bigbottle.png', fit: BoxFit.cover),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,8 +50,8 @@ class CartItem extends StatelessWidget {
                     Expanded(
                       child: Text(
                         item.product?.productName ?? '',
-                        style: const TextStyle(
-                          fontSize: 16,
+                        style: TextStyle(
+                          fontSize: 16.sp,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -61,12 +62,12 @@ class CartItem extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4.h),
                 Text(
                   "₹${(item.price)}",
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  style: TextStyle(fontSize: 14.sp, color: Colors.grey[600]),
                 ),
-                const SizedBox(height: 8),
+                SizedBox(height: 3.h),
                 AddSubtButton(
                   quantity: item.quantity,
                   onAdd: () => cartProvider.increaseQuantity(item),
