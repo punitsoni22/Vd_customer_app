@@ -5,7 +5,7 @@ import 'package:vd_customer_app/core/models/order_model.dart';
 import 'package:vd_customer_app/core/models/subscription_model.dart';
 import 'package:vd_customer_app/core/models/unified_order_model_.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
-import 'package:vd_customer_app/core/services/xd.dart';
+import 'package:vd_customer_app/core/services/signedurl.dart';
 import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
 
 class MyOrderProvider extends ChangeNotifier {

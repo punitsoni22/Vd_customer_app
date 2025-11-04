@@ -15,10 +15,10 @@ class ProfileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: AllColors.outlineColor),
       ),
       child: Row(
@@ -27,33 +27,35 @@ class ProfileHeader extends StatelessWidget {
             radius: 27.r,
             backgroundImage: AssetImage('assets/images/bottlerect.png'),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   name,
-                  style: const TextStyle(
-                    fontSize: 16,
+                  style: TextStyle(
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
                   phoneNumber,
-                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: Colors.grey.shade600,
+                  ),
                 ),
               ],
             ),
           ),
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: EdgeInsets.all(8.r),
             decoration: BoxDecoration(
               color: AllColors.profileBackColor,
-
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.edit, size: 23, color: AllColors.iconColor),
+            child: Icon(Icons.edit, size: 23.r, color: AllColors.iconColor),
           ),
         ],
       ),

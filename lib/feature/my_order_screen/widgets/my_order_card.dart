@@ -6,7 +6,7 @@ import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
 class MyOrderCard extends StatelessWidget {
   final String id;
   final String date;
-  final String status;
+  final String? status;
   final String imageUrl;
   final String productName;
   final String detail;
@@ -22,7 +22,7 @@ class MyOrderCard extends StatelessWidget {
     super.key,
     required this.id,
     required this.date,
-    required this.status,
+    this.status,
     required this.imageUrl,
     required this.productName,
     required this.detail,
@@ -68,6 +68,26 @@ class MyOrderCard extends StatelessWidget {
                 id,
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14.sp),
               ),
+              (status != null && status!.isNotEmpty)
+                  ? Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 5.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: getStatusColor(status!),
+                        borderRadius: BorderRadius.circular(20.r),
+                      ),
+                      child: Text(
+                        status!,
+                        style: TextStyle(
+                          color: statusFontColor(status!),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12.sp,
+                        ),
+                      ),
+                    )
+                  : const SizedBox(),
             ],
           ),
           Text(

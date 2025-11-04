@@ -4,7 +4,7 @@ import 'dart:developer';
 import 'package:flutter/foundation.dart';
 import 'package:vd_customer_app/core/models/product_model.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
-import 'package:vd_customer_app/core/services/xd.dart';
+import 'package:vd_customer_app/core/services/signedurl.dart';
 
 class HomeProvider extends ChangeNotifier {
   bool _isLoading = false;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 
 class RatingSection extends StatelessWidget {
@@ -6,10 +7,10 @@ class RatingSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 12.h),
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12.r),
       ),
       child: Column(
         children: [
@@ -18,35 +19,32 @@ class RatingSection extends StatelessWidget {
               Icon(
                 Icons.inventory_2_outlined,
                 color: AllColors.myOrderTextColor,
-                size: 22,
+                size: 22.r,
               ),
-              const SizedBox(width: 8),
+              SizedBox(width: 8.w),
               Text(
                 'Rate the product',
                 style: TextStyle(
                   color: AllColors.myOrderTextColor,
-                  fontSize: 14,
+                  fontSize: 14.sp,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8.h),
           Center(
             child: Container(
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(8.r),
               ),
               child: Center(
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: List.generate(
                     5,
-                    (index) => const Icon(
-                      Icons.star_border,
-                      color: Colors.grey,
-                      size: 22,
-                    ),
+                    (index) =>
+                        Icon(Icons.star_border, color: Colors.grey, size: 22.r),
                   ),
                 ),
               ),

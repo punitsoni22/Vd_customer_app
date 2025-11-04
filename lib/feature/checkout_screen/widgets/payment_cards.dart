@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 
 class PaymentOptionCard extends StatelessWidget {
@@ -21,19 +22,19 @@ class PaymentOptionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(12.r),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+        margin: EdgeInsets.only(bottom: 12.h),
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 16.h),
         decoration: BoxDecoration(
           color: selected ? AllColors.iconColor : Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12.r),
           border: Border.all(color: Colors.grey.shade300),
         ),
         child: Row(
           children: [
             Icon(icon, color: selected ? Colors.white : Colors.black),
-            const SizedBox(width: 12),
+            SizedBox(width: 12.w),
             Expanded(
               child: Text(
                 title,
@@ -44,17 +45,17 @@ class PaymentOptionCard extends StatelessWidget {
               ),
             ),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
               decoration: BoxDecoration(
                 color: selected
                     ? AllColors.badgeSelectedColor
                     : AllColors.badgeUnselectedColor,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(12.r),
               ),
               child: Text(
                 badge,
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 12.sp,
                   color: selected ? AllColors.iconColor : Colors.black54,
                 ),
               ),

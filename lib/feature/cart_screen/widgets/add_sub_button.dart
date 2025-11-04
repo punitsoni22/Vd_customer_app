@@ -27,7 +27,8 @@ class AddSubtButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: padding ?? EdgeInsets.all(5.r),
+      width: 100.w,
+      padding: padding ?? EdgeInsets.all(2.r),
       constraints: selfconstraints ?? const BoxConstraints(),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(radius ?? 10.r),
