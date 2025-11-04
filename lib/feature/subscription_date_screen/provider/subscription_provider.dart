@@ -34,11 +34,23 @@ class AddressModel {
 }
 
 class SubscriptionProvider extends ChangeNotifier {
+  bool _subscriptionCreatedSuccessfully = false;
+  bool get subscriptionCreatedSuccessfully => _subscriptionCreatedSuccessfully;
+
+  void clearSuccessFlag() {
+    _subscriptionCreatedSuccessfully = false;
+    notifyListeners();
+  }
+
   Future<Map<String, dynamic>> createOrEditSubscription(
     Map<String, dynamic> payload,
   ) async {
     try {
       final response = await Api.post('addEditSubscription', payload);
+      if (response["success"] == true) {
+        _subscriptionCreatedSuccessfully = true;
+        notifyListeners();
+      }
       return response;
     } catch (e) {
       return {"success": false, "message": "Exception: $e"};

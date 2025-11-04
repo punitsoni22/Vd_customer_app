@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vd_customer_app/widget/snack_bar.dart';
 
 import '../../../core/routing/routes.dart';
 import '../../../core/services/api_services.dart';
@@ -42,9 +43,7 @@ class SignupProvider extends ChangeNotifier {
       if (!context.mounted) return;
 
       if (success) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(msg)));
+        MySnackBar.showSnackBar(context, msg);
         final token = data['token'];
         await Prefs.saveString(Prefs.keyAuthToken, token);
         context.goNamed(AppRoutes.bottomBarScreen);
@@ -69,8 +68,6 @@ class SignupProvider extends ChangeNotifier {
   }
 
   void _showError(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
-    );
+    MySnackBar.showSnackBar(context, message);
   }
 }

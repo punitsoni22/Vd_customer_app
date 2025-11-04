@@ -11,9 +11,11 @@ import 'package:provider/provider.dart';
 import 'package:vd_customer_app/feature/subscription_product_screen/widgets/subscription_product_card.dart';
 // import 'package:vd_customer_app/feature/subscription_product_screen/widgets/subscription_tab_bar.dart';
 import 'package:vd_customer_app/feature/product_screen/provider/product_provider.dart';
+import 'package:vd_customer_app/feature/subscription_date_screen/provider/subscription_provider.dart';
 
 class SubscriptionProductScreen extends StatefulWidget {
-  const SubscriptionProductScreen({super.key});
+  final List<Map<String, dynamic>>? preSelectedProducts;
+  const SubscriptionProductScreen({super.key, this.preSelectedProducts});
 
   @override
   State<SubscriptionProductScreen> createState() =>
@@ -23,6 +25,11 @@ class SubscriptionProductScreen extends StatefulWidget {
 class _SubscriptionProductScreenState extends State<SubscriptionProductScreen> {
   // Track selected products with their variant and quantity
   final List<Map<String, dynamic>> _selectedProducts = [];
+
+  void _clearSelectedProducts() {
+    _selectedProducts.clear();
+    setState(() {});
+  }
 
   void _onProductSelected(Map<String, dynamic> selection) {
     // Check if already selected (by productId and variantId)
@@ -63,6 +70,11 @@ class _SubscriptionProductScreenState extends State<SubscriptionProductScreen> {
   @override
   void initState() {
     super.initState();
+
+    if (widget.preSelectedProducts != null) {
+      _selectedProducts.addAll(widget.preSelectedProducts!);
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ProductProvider>().getProducts({
         "filterModel": {},
@@ -78,6 +90,22 @@ class _SubscriptionProductScreenState extends State<SubscriptionProductScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ProductProvider>();
+
+    return Consumer<SubscriptionProvider>(
+      builder: (context, subscriptionProvider, child) {
+        if (subscriptionProvider.subscriptionCreatedSuccessfully) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            subscriptionProvider.clearSuccessFlag();
+            _clearSelectedProducts();
+          });
+        }
+
+        return _buildScaffold(provider);
+      },
+    );
+  }
+
+  Widget _buildScaffold(ProductProvider provider) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CommonAppBar(

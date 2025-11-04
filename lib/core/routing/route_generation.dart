@@ -83,7 +83,14 @@ GoRouter buildRouter() {
       GoRoute(
         path: '/subscription_product_screen',
         name: AppRoutes.subscriptionProductScreen,
-        builder: (context, state) => const SubscriptionProductScreen(),
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final preSelectedProducts =
+              extra?['preSelectedProducts'] as List<Map<String, dynamic>>?;
+          return SubscriptionProductScreen(
+            preSelectedProducts: preSelectedProducts,
+          );
+        },
       ),
       GoRoute(
         path: '/subscription_date_screen',

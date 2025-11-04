@@ -6,6 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
+import 'package:vd_customer_app/widget/snack_bar.dart';
 import '../../shared/map_picker.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_textfield.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
@@ -45,8 +46,9 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
     try {
       final key = _googleApiKey;
       if (key.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Google API key not configured')),
+        MySnackBar.showSnackBar(
+          context,
+          'Google Maps API key is not set',
         );
         return;
       }
@@ -56,16 +58,18 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
       );
       final resp = await http.get(url);
       if (resp.statusCode != 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to fetch address info')),
+        MySnackBar.showSnackBar(
+          context,
+          'Failed to fetch address info',
         );
         return;
       }
 
       final Map<String, dynamic> data = json.decode(resp.body);
       if (data['status'] != 'OK' || (data['results'] as List).isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No address found: ${data['status']}')),
+        MySnackBar.showSnackBar(
+          context,
+          'No address found: ${data['status']}',
         );
         return;
       }
@@ -105,19 +109,18 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
       });
     } catch (e) {
       debugPrint('Reverse geocode error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to get address from location')),
+      MySnackBar.showSnackBar(
+        context,
+        'Error fetching address info',
       );
     }
   }
 
   Future<void> _submit() async {
     if (!_hasPickedLocation || _pickedLatLng == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please pick a location on the map first'),
-          backgroundColor: Colors.orange,
-        ),
+      MySnackBar.showSnackBar(
+        context,
+        'Please pick a location on the map first',
       );
       return;
     }
@@ -145,14 +148,16 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
 
     if (resp['success'] == true) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(resp['message'] ?? 'Address added')),
+        MySnackBar.showSnackBar(
+          context,
+          resp['message'] ?? 'Address added',
         );
         Navigator.of(context).pop(true);
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(resp['message'] ?? 'Failed to add address')),
+      MySnackBar.showSnackBar(
+        context,
+        resp['message'] ?? 'Failed to add address',
       );
     }
   }

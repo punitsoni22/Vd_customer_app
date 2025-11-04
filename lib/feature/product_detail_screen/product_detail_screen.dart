@@ -2,20 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/models/cart_model.dart';
 import 'package:vd_customer_app/core/models/product_model.dart';
 import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
 import 'package:vd_customer_app/feature/product_detail_screen/widget/productimagecontainer.dart';
+import 'package:vd_customer_app/widget/snack_bar.dart';
 import '../../core/utils/common_widgets/common_add_subt_button.dart';
 import '../../core/utils/common_widgets/common_appbar.dart';
 import '../../core/utils/common_widgets/common_button.dart';
-import '../../core/utils/common_widgets/common_subscription_container.dart';
 import '../home_screen/widgets/home_product_card.dart';
 import 'provider/product_detail_provider.dart';
 
@@ -97,6 +93,43 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   padding: EdgeInsets.all(5.r),
                   backgroundColor: Colors.transparent,
                   selfconstraints: BoxConstraints(minHeight: 50.h),
+                  onTap: () {
+                    final productProvider = context
+                        .read<ProductDetailProvider>();
+                    final selectedProduct = productProvider.selectedProduct;
+
+                    if (selectedProduct == null ||
+                        selectedProduct.variants.isEmpty) {
+                      MySnackBar.showSnackBar(
+                        context,
+                        'No product selected for subscription',
+                      );
+                      return;
+                    }
+
+                    final variant =
+                        selectedVariant ?? selectedProduct.variants.first;
+
+                    final preSelectedProduct = {
+                      'productId': selectedProduct.id,
+                      'variantId': variant.id,
+                      'quantity': selectedQuantity,
+                      'productName': selectedProduct.productName,
+                      'price': variant.price,
+                      'quantityInMl': variant.quantityInMl,
+                      'images': selectedProduct.images
+                          .map((img) => img.signedUrl ?? '')
+                          .where((url) => url.isNotEmpty)
+                          .toList(),
+                    };
+
+                    context.goNamed(
+                      AppRoutes.subscriptionProductScreen,
+                      extra: {
+                        'preSelectedProducts': [preSelectedProduct],
+                      },
+                    );
+                  },
                 ),
               ),
               SizedBox(width: 10.w),
@@ -120,10 +153,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               productProvider.selectedProduct;
                           if (selectedProduct == null ||
                               selectedProduct.variants.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Product not available'),
-                              ),
+                            MySnackBar.showSnackBar(
+                              context,
+                              'No product selected to add to cart',
                             );
                             return;
                           }
@@ -172,9 +204,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             );
                           }
 
-                          ScaffoldMessenger.of(
-                            context,
-                          ).showSnackBar(SnackBar(content: Text(message)));
+                          MySnackBar.showSnackBar(context, message);
                         },
                 ),
               ),

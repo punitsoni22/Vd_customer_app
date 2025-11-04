@@ -7,6 +7,7 @@ import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_textfield.dart';
 import 'package:vd_customer_app/feature/login_screen/provider/login_provider.dart';
+import 'package:vd_customer_app/widget/snack_bar.dart';
 
 import '../../core/routing/routes.dart';
 import '../signup_screen/widget/header.dart';
@@ -82,24 +83,15 @@ class _LoginScreenState extends State<LoginScreen> {
                               onOtpRequested: () {
                                 if (provider.success) {
                                   setState(() => _stage = _Stage.otp);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        provider.message ??
-                                            'OTP sent successfully',
-                                      ),
-                                      backgroundColor: Colors.green,
-                                    ),
+                                  MySnackBar.showSnackBar(
+                                    context,
+                                    'OTP sent to ${provider.number}',
                                   );
                                 } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        provider.message ??
-                                            'OTP request failed',
-                                      ),
-                                      backgroundColor: Colors.red,
-                                    ),
+                                  MySnackBar.showSnackBar(
+                                    context,
+                                    provider.message ??
+                                        'Failed to send OTP. Try again.',
                                   );
                                 }
                               },
@@ -270,13 +262,9 @@ class _LoginStep extends StatelessWidget {
                           if (!context.mounted) return;
                           final msg = provider.message;
                           if (msg != null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(msg),
-                                backgroundColor: provider.success
-                                    ? Colors.green
-                                    : Colors.red,
-                              ),
+                            MySnackBar.showSnackBar(
+                              context,
+                              msg,
                             );
                           }
                         },
@@ -417,11 +405,9 @@ class _OtpStep extends StatelessWidget {
                   (provider.success
                       ? "OTP verified successfully"
                       : "OTP verification failed");
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(msg),
-                  backgroundColor: provider.success ? Colors.green : Colors.red,
-                ),
+              MySnackBar.showSnackBar(
+                context,
+                msg,
               );
               // If you want to allow retry without leaving page:
               // if (!provider.success) onBackToLogin();

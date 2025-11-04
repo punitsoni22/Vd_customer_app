@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 
 import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_calendar.dart';
+import 'package:vd_customer_app/widget/snack_bar.dart';
 import '../provider/subscription_provider.dart';
 import 'address_bottom_sheet.dart';
 
@@ -44,7 +46,7 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
   final List<String> items = [
     "Daily",
     "Weekly",
-    "Alternate Day",
+    "Alternate Days",
     "Custom Date",
   ];
 
@@ -312,12 +314,9 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                             if (selectedAddressId == null ||
                                 startDate == null ||
                                 endDate == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Please select address, start date, and end date.',
-                                  ),
-                                ),
+                              MySnackBar.showSnackBar(
+                                context,
+                                'Please select address, start date, and end date.',
                               );
                               return;
                             }
@@ -339,12 +338,9 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                             };
                             if (freq == "Weekly") {
                               if (selectedDeliveryDays.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Please select at least one delivery day.',
-                                    ),
-                                  ),
+                                MySnackBar.showSnackBar(
+                                  context,
+                                  'Please select at least one delivery day.',
                                 );
                                 setState(() {
                                   isLoading = false;
@@ -355,12 +351,9 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                               payload["subscription_type"] = "1_week";
                             } else if (freq == "Custom Date") {
                               if (selectedCustomDates.isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Please select at least one delivery date.',
-                                    ),
-                                  ),
+                                MySnackBar.showSnackBar(
+                                  context,
+                                  'Please select at least one delivery date.',
                                 );
                                 setState(() {
                                   isLoading = false;
@@ -382,16 +375,16 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                             });
                             if (response["success"] == true) {
                               if (mounted) {
-                                context.go('/bottom_bar_screen');
+                                context.go(
+                                  AppRoutes.bottomBarScreen,
+                                  extra: {'index': 2},
+                                );
                               }
                             } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    response["message"] ??
-                                        "Failed to create subscription",
-                                  ),
-                                ),
+                              MySnackBar.showSnackBar(
+                                context,
+                                response["message"] ??
+                                    'Failed to create subscription.',
                               );
                             }
                           },
@@ -599,7 +592,7 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
     );
   }
 
-  Widget _alternateDayWidget() => _simpleBox("Alternate Day");
+  // Widget _alternateDayWidget() => _simpleBox("Alternate Day");
   Widget _customWidget() {
     return Container(
       padding: EdgeInsets.all(8.r),
@@ -662,15 +655,15 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
     );
   }
 
-  Widget _simpleBox(String text) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(10.r),
-      decoration: BoxDecoration(
-        border: Border.all(color: AllColors.olivegreenColor),
-        borderRadius: BorderRadius.circular(10.r),
-      ),
-      child: Text(text),
-    );
-  }
+  // Widget _simpleBox(String text) {
+  //   return Container(
+  //     width: double.infinity,
+  //     padding: EdgeInsets.all(10.r),
+  //     decoration: BoxDecoration(
+  //       border: Border.all(color: AllColors.olivegreenColor),
+  //       borderRadius: BorderRadius.circular(10.r),
+  //     ),
+  //     child: Text(text),
+  //   );
+  // }
 }

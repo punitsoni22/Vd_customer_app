@@ -5,6 +5,7 @@ import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
 import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
+import 'package:vd_customer_app/widget/snack_bar.dart';
 
 class CheckoutProvider extends ChangeNotifier {
   List<AddressModel> _addresses = [];
@@ -94,20 +95,32 @@ class CheckoutProvider extends ChangeNotifier {
         "data": {"page": 1, "pageSize": 10},
       });
 
-      if (response['success'] == true && response['data'] != null) {
-        final couponsList = response['data']['coupons'] as List? ?? [];
-        _coupons = List<Map<String, dynamic>>.from(couponsList);
+      print("Coupons API Response: $response");
 
-        if (_coupons.isNotEmpty) {
-          final firstCoupon = _coupons.first;
-          _couponDiscount =
-              (firstCoupon['discountAmount'] ??
-                      firstCoupon['discountValue'] ??
-                      0.0)
-                  .toDouble();
-        } else {
-          _couponDiscount = 0.0;
-        }
+      // Handle both success formats
+      bool isSuccess = false;
+      Map<String, dynamic>? dataResponse;
+
+      if (response['success'] == true) {
+        isSuccess = true;
+        dataResponse = response['data'];
+      } else if (response['dataResponse']?['returnCode'] == 0) {
+        isSuccess = true;
+        dataResponse = response['data'];
+      }
+
+      if (isSuccess && dataResponse != null) {
+        final couponsList = dataResponse['coupons'] as List? ?? [];
+
+        // Filter out deleted coupons and inactive ones
+        _coupons = couponsList
+            .cast<Map<String, dynamic>>()
+            .where(
+              (coupon) =>
+                  (coupon['isdeleted'] == 0 || coupon['isdeleted'] == null) &&
+                  (coupon['isActive'] == true),
+            )
+            .toList();
       } else {
         _coupons = [];
         _couponDiscount = 0.0;
@@ -122,15 +135,45 @@ class CheckoutProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void applyCoupon(String code) {
+  void applyCoupon(String code, double subtotal) {
     final matched = _coupons.firstWhere(
-      (c) => c['code'] == code,
+      (c) => c['couponCode'] == code,
       orElse: () => {},
     );
 
-    _couponDiscount =
-        (matched['discountAmount'] ?? matched['discountValue'] ?? 0.0)
-            .toDouble();
+    if (matched.isNotEmpty) {
+      final couponValue =
+          double.tryParse(matched['couponValue'].toString()) ?? 0.0;
+      final couponType = matched['couponType'] ?? 'PERCENTAGE';
+
+      if (couponType == 'PERCENTAGE') {
+        _couponDiscount = (subtotal * couponValue) / 100;
+      } else {
+        // Fixed amount discount
+        _couponDiscount = couponValue;
+      }
+
+      // Ensure discount doesn't exceed subtotal
+      if (_couponDiscount > subtotal) {
+        _couponDiscount = subtotal;
+      }
+    } else {
+      _couponDiscount = 0.0;
+    }
+    notifyListeners();
+  }
+
+  String? _appliedCouponCode;
+  String? get appliedCouponCode => _appliedCouponCode;
+
+  void setAppliedCoupon(String? code) {
+    _appliedCouponCode = code;
+    notifyListeners();
+  }
+
+  void clearCoupon() {
+    _couponDiscount = 0.0;
+    _appliedCouponCode = null;
     notifyListeners();
   }
 
@@ -140,16 +183,12 @@ class CheckoutProvider extends ChangeNotifier {
     String couponCode = "",
   }) async {
     if (_selectedAddress == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please select an address.")),
-      );
+      MySnackBar.showSnackBar(context, "Please select an address.");
       return;
     }
 
     if (cartProvider.cartId == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("No active cart found.")));
+      MySnackBar.showSnackBar(context, "No active cart found.");
       return;
     }
 
@@ -178,28 +217,23 @@ class CheckoutProvider extends ChangeNotifier {
       if (isSuccess) {
         cartProvider.clearCart();
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Order placed successfully!")),
-        );
+        clearCoupon();
+        MySnackBar.showSnackBar(context, "Order placed successfully!");
 
-        context.go(AppRoutes.bottomBarScreen);
+        context.pushReplacement(AppRoutes.myOrderScreen);
       } else {
         final description =
             response['dataResponse']?['description'] ??
             response['message'] ??
             "Order failed.";
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(description)));
+        MySnackBar.showSnackBar(context, "Error: $description");
       }
     } catch (e, st) {
       _isLoading = false;
       notifyListeners();
       debugPrint("placeOrder Exception = $e");
       debugPrint("placeOrder StackTrace = $st");
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Error: $e")));
+      MySnackBar.showSnackBar(context, "Error: $e");
     }
   }
 }

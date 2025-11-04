@@ -10,6 +10,7 @@ import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_appbar.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
 import 'package:vd_customer_app/feature/cart_screen/widgets/cart_items.dart';
+import 'package:vd_customer_app/widget/snack_bar.dart';
 
 class CartScreen extends StatefulWidget {
   const CartScreen({super.key});
@@ -62,7 +63,7 @@ class _CartScreenState extends State<CartScreen> {
                   final provider = context.read<CartProvider>();
                   final userIdString = await Prefs.getString(Prefs.keyUserId);
                   if (userIdString != null) {
-                    await provider.fetchLatestCart();
+                    await provider.fetchLatestCart(context);
                   }
                 },
                 child: items.isEmpty
@@ -93,29 +94,97 @@ class _CartScreenState extends State<CartScreen> {
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(color: AllColors.outlineColor),
               ),
-              child: Column(
-                children: [
-                  Summary(
-                    label: "Subtotal",
-                    value: "₹${subtotal.toStringAsFixed(2)}",
-                  ),
-                  const Summary(label: "Savings", value: "-₹0.00"),
-                  const Divider(),
-                  Summary(
-                    label: "Total",
-                    value: "₹${subtotal.toStringAsFixed(2)}",
-                    isBold: true,
-                  ),
-                ],
+              child: Consumer<CartProvider>(
+                builder: (context, cartProvider, child) {
+                  return Column(
+                    children: [
+                      Summary(
+                        label:
+                            "Subtotal${cartProvider.hasPendingChanges ? ' (Updated)' : ''}",
+                        value: "₹${subtotal.toStringAsFixed(2)}",
+                      ),
+                      const Summary(label: "Savings", value: "-₹0.00"),
+                      const Divider(),
+                      Summary(
+                        label:
+                            "Total${cartProvider.hasPendingChanges ? ' (Updated)' : ''}",
+                        value: "₹${subtotal.toStringAsFixed(2)}",
+                        isBold: true,
+                      ),
+                      if (cartProvider.hasPendingChanges)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            "* Total reflects unsaved changes",
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.orange[700],
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ),
+                    ],
+                  );
+                },
               ),
             ),
             const SizedBox(height: 10),
+
+            Consumer<CartProvider>(
+              builder: (context, cartProvider, child) {
+                if (cartProvider.hasPendingChanges) {
+                  return Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: CommonButton(
+                              onTap: cartProvider.isUpdatingQuantity
+                                  ? null
+                                  : () => cartProvider.cancelQuantityChanges(),
+                              buttonValue: 'Cancel',
+                              backgroundColor: Colors.grey[400]!,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: CommonButton(
+                              onTap: cartProvider.isUpdatingQuantity
+                                  ? null
+                                  : () => cartProvider.saveQuantityChanges(
+                                      context,
+                                    ),
+                              buttonValue: cartProvider.isUpdatingQuantity
+                                  ? 'Saving...'
+                                  : 'Save Changes',
+                              backgroundColor: AllColors.iconColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                    ],
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+
             CommonButton(
               onTap: () {
                 final cartProvider = context.read<CartProvider>();
+                if (cartProvider.hasPendingChanges) {
+                  MySnackBar.showSnackBar(
+                    context,
+                    'Please save or cancel your changes first',
+                  );
+                  return;
+                }
                 if (cartProvider.cartId == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('No products added to cart')),
+                  MySnackBar.showSnackBar(
+                    context,
+                    'No products added to cart',
+                  
                   );
                   return;
                 }
