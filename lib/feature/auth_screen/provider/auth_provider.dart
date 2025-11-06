@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
 
@@ -16,7 +14,6 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     token = await Prefs.getString(Prefs.keyAuthToken);
-    log('Auth Token: $token');
 
     isLoading = false;
     notifyListeners();
