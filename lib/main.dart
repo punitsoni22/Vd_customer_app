@@ -14,6 +14,7 @@ import 'feature/login_screen/provider/login_provider.dart';
 import 'feature/product_detail_screen/provider/product_detail_provider.dart';
 import 'feature/product_screen/provider/product_provider.dart';
 import 'feature/signup_screen/provider/signup_provider.dart';
+final router = buildRouter();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +30,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final router = buildRouter();
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),

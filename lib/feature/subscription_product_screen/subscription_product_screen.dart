@@ -23,7 +23,6 @@ class SubscriptionProductScreen extends StatefulWidget {
 }
 
 class _SubscriptionProductScreenState extends State<SubscriptionProductScreen> {
-  // Track selected products with their variant and quantity
   final List<Map<String, dynamic>> _selectedProducts = [];
 
   void _clearSelectedProducts() {
@@ -32,7 +31,6 @@ class _SubscriptionProductScreenState extends State<SubscriptionProductScreen> {
   }
 
   void _onProductSelected(Map<String, dynamic> selection) {
-    // Check if already selected (by productId and variantId)
     final idx = _selectedProducts.indexWhere(
       (e) =>
           e['productId'] == selection['productId'] &&
@@ -108,30 +106,22 @@ class _SubscriptionProductScreenState extends State<SubscriptionProductScreen> {
   Widget _buildScaffold(ProductProvider provider) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: CommonAppBar(
-        title: 'Subscription',
-        actions: [
-          Icon(Icons.calendar_month_outlined, color: AllColors.olivegreenColor),
-          SizedBox(width: 5),
-          Icon(Icons.search_rounded, color: AllColors.olivegreenColor),
-        ],
-      ),
+      appBar: CommonAppBar(title: 'Subscription'),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20.0.w, vertical: 5.h),
+          padding: EdgeInsets.symmetric(horizontal: 12.0.w, vertical: 10.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 25.h),
               Text(
                 'Select Products',
                 style: TextStyle(
                   color: AllColors.olivegreenColor,
-                  fontSize: 18.sp,
+                  fontSize: 20.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 20.h),
+              SizedBox(height: 10.h),
               provider.isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : (provider.products.isEmpty)
@@ -141,22 +131,19 @@ class _SubscriptionProductScreenState extends State<SubscriptionProductScreen> {
                       padding: EdgeInsets.only(bottom: 18.h),
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: provider.products.length,
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            childAspectRatio: 0.6,
-                            crossAxisSpacing: 18,
-                            mainAxisSpacing: 14,
-                          ),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 0.64,
+                        crossAxisSpacing: 18,
+                        mainAxisSpacing: 17,
+                      ),
+
                       itemBuilder: (context, index) {
                         final product = provider.products[index];
-                        // Check if any variant of this product is selected
                         final hasSelectedVariant = product.variants.any(
                           (variant) =>
                               _isProductVariantSelected(product.id, variant.id),
                         );
-
-                        // Get the current quantity for the first selected variant (if any)
                         int currentQuantity = 0;
                         if (hasSelectedVariant) {
                           final selectedVariant = product.variants.firstWhere(
@@ -186,33 +173,19 @@ class _SubscriptionProductScreenState extends State<SubscriptionProductScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        height: 100.h, // Fixed height constraint
-        padding: EdgeInsets.all(20.w),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 1,
-              blurRadius: 5,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: CommonButton(
-            onTap: _selectedProducts.isEmpty
-                ? null
-                : () {
-                    context.push(
-                      AppRoutes.subscriptionDateScreen,
-                      extra: {'selectedProducts': _selectedProducts},
-                    );
-                  },
-            buttonValue: 'Confirm Selection (${_selectedProducts.length})',
-            color: AllColors.tabBarline,
-          ),
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.white,
+        child: CommonButton(
+          onTap: _selectedProducts.isEmpty
+              ? null
+              : () {
+                  context.push(
+                    AppRoutes.subscriptionDateScreen,
+                    extra: {'selectedProducts': _selectedProducts},
+                  );
+                },
+          buttonValue: 'Confirm Selection (${_selectedProducts.length})',
+          color: AllColors.tabBarline,
         ),
       ),
     );

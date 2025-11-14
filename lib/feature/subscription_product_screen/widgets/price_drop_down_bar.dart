@@ -2,13 +2,13 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
-
 import 'package:vd_customer_app/core/models/product_model.dart';
 
 class SubscriptionPriceDropdown extends StatefulWidget {
   final List<Variant> variants;
   final void Function(Variant variant, int index)? onVariantSelected;
   final int selectedIndex;
+
   const SubscriptionPriceDropdown({
     super.key,
     required this.variants,
@@ -31,7 +31,7 @@ class _SubscriptionPriceDropdownState extends State<SubscriptionPriceDropdown> {
   }
 
   @override
-  void didUpdateWidget(SubscriptionPriceDropdown oldWidget) {
+  void didUpdateWidget(covariant SubscriptionPriceDropdown oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.selectedIndex != oldWidget.selectedIndex) {
       selectedIndex = widget.variants.isNotEmpty ? widget.selectedIndex : null;
@@ -40,36 +40,59 @@ class _SubscriptionPriceDropdownState extends State<SubscriptionPriceDropdown> {
 
   @override
   Widget build(BuildContext context) {
+    final primary = AllColors.olivegreenColor;
+
     return Container(
-      height: 35.h,
-      padding: EdgeInsets.symmetric(horizontal: 3.w, vertical: 1.h),
+      height: 32.h,
+      padding: EdgeInsets.symmetric(horizontal: 6.w),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: Colors.white,
         borderRadius: BorderRadius.circular(6.r),
-        border: Border.all(color: AllColors.olivegreenColor, width: 1.w),
+        border: Border.all(color: primary.withOpacity(0.6), width: 0.9),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton2<int>(
           value: selectedIndex,
           isExpanded: true,
 
+          // text style inside button
+          style: TextStyle(
+            color: Colors.grey.shade800,
+            fontSize: 11.sp,
+            fontWeight: FontWeight.w500,
+          ),
+
           iconStyleData: IconStyleData(
-            icon: const Icon(Icons.keyboard_arrow_down, color: Colors.teal),
+            icon: Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: primary,
+              size: 18.sp,
+            ),
           ),
 
           dropdownStyleData: DropdownStyleData(
-            offset: const Offset(-5, 27),
-            width: 180.w,
+            // null width -> match button width (simpler)
+            width: null,
+            offset: const Offset(0, 4),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(10.r),
-              border: Border.all(color: Colors.white, width: 1.w),
+              borderRadius: BorderRadius.circular(8.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.06),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
-            elevation: 4,
-            maxHeight: 180,
+            elevation: 0,
+            maxHeight: 200.h,
           ),
 
-          style: TextStyle(color: Colors.grey.shade700, fontSize: 16.sp),
+          menuItemStyleData: MenuItemStyleData(
+            height: 34.h,
+            padding: EdgeInsets.symmetric(horizontal: 10.w),
+          ),
 
           onChanged: (int? newIndex) {
             setState(() {
@@ -85,32 +108,31 @@ class _SubscriptionPriceDropdownState extends State<SubscriptionPriceDropdown> {
             final idx = entry.key;
             final variant = entry.value;
             final quantity = variant.quantityInMl;
-            final price = variant.price;
+            final priceRaw = double.tryParse(variant.price ?? '');
+            final priceText =
+            priceRaw != null ? priceRaw.toStringAsFixed(0) : variant.price;
 
             return DropdownMenuItem<int>(
               value: idx,
-              child: RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: "${quantity}ml at ",
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w400,
-                      ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${quantity} ml',
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      color: Colors.grey.shade700,
                     ),
-                    TextSpan(
-                      text:
-                          "₹${double.tryParse(price)?.toStringAsFixed(0) ?? price}",
-                      style: TextStyle(
-                        color: Colors.teal,
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w500,
-                      ),
+                  ),
+                  Text(
+                    '₹$priceText',
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.w600,
+                      color: primary,
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             );
           }).toList(),

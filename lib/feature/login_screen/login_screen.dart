@@ -74,39 +74,39 @@ class _LoginScreenState extends State<LoginScreen> {
                       switchOutCurve: Curves.easeIn,
                       child: _stage == _Stage.login
                           ? _LoginStep(
-                              key: const ValueKey('_login'),
-                              formKey: _formKey,
-                              emailCtrl: _emailCtrl,
-                              passwordCtrl: _passwordCtrl,
-                              phoneCtrl: _phoneCtrl,
-                              provider: provider,
-                              onOtpRequested: () {
-                                if (provider.success) {
-                                  setState(() => _stage = _Stage.otp);
-                                  MySnackBar.showSnackBar(
-                                    context,
-                                    'OTP sent to ${provider.number}',
-                                  );
-                                } else {
-                                  MySnackBar.showSnackBar(
-                                    context,
-                                    provider.message ??
-                                        'Failed to send OTP. Try again.',
-                                  );
-                                }
-                              },
-                            )
+                        key: const ValueKey('_login'),
+                        formKey: _formKey,
+                        emailCtrl: _emailCtrl,
+                        passwordCtrl: _passwordCtrl,
+                        phoneCtrl: _phoneCtrl,
+                        provider: provider,
+                        onOtpRequested: () {
+                          if (provider.success) {
+                            setState(() => _stage = _Stage.otp);
+                            MySnackBar.showSnackBar(
+                              context,
+                              'OTP sent to ${provider.number}',
+                            );
+                          } else {
+                            MySnackBar.showSnackBar(
+                              context,
+                              provider.message ??
+                                  'Failed to send OTP. Try again.',
+                            );
+                          }
+                        },
+                      )
                           : _OtpStep(
-                              key: const ValueKey('_otp'),
-                              formKey: _otpFormKey,
-                              otpCtrl: _otpCtrl,
-                              provider: provider,
-                              onBackToLogin: () =>
-                                  setState(() => _stage = _Stage.login),
-                              onResentOtp: () {
-                                setState(() => _stage = _Stage.login);
-                              },
-                            ),
+                        key: const ValueKey('_otp'),
+                        formKey: _otpFormKey,
+                        otpCtrl: _otpCtrl,
+                        provider: provider,
+                        onBackToLogin: () =>
+                            setState(() => _stage = _Stage.login),
+                        onResentOtp: () {
+                          setState(() => _stage = _Stage.login);
+                        },
+                      ),
                     ),
                   ),
                   SizedBox(height: 20.h),
@@ -158,7 +158,8 @@ class _LoginStep extends StatelessWidget {
   Widget build(BuildContext context) {
     return Form(
       key: formKey,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      // ❗ Validation only on submit, not on every keystroke
+      autovalidateMode: AutovalidateMode.disabled,
       child: DefaultTabController(
         length: 2,
         child: Column(
@@ -190,7 +191,7 @@ class _LoginStep extends StatelessWidget {
                       vertical: 6.h,
                       horizontal: 10.w,
                     ),
-                    child: Text('Email'),
+                    child: const Text('Email'),
                   ),
                 ),
                 Tab(
@@ -199,7 +200,7 @@ class _LoginStep extends StatelessWidget {
                       vertical: 6.h,
                       horizontal: 10.w,
                     ),
-                    child: Text('Phone Number'),
+                    child: const Text('Phone Number'),
                   ),
                 ),
               ],
@@ -209,6 +210,7 @@ class _LoginStep extends StatelessWidget {
               height: 320.h,
               child: TabBarView(
                 children: [
+                  // EMAIL LOGIN
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -217,10 +219,8 @@ class _LoginStep extends StatelessWidget {
                         label: "Email",
                         keyboardType: TextInputType.emailAddress,
                         onChanged: (v) {
-                          print("bigi");
                           provider.setEmail(v);
-                          formKey.currentState
-                              ?.validate(); // 👈 re-check on typing
+                          // ❌ removed immediate formKey.currentState?.validate()
                         },
                         validator: (v) {
                           final s = v?.trim() ?? '';
@@ -241,7 +241,7 @@ class _LoginStep extends StatelessWidget {
                           final s = v ?? '';
                           if (s.isEmpty) return "Password is required";
                           final re = RegExp(
-                            r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#\$&*~]).{8,}$',
+                            r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$&*~]).{8,}$',
                           );
                           if (!re.hasMatch(s)) {
                             return "Upper, lower, number & special char, 8+ chars";
@@ -255,6 +255,7 @@ class _LoginStep extends StatelessWidget {
                         isFullWidth: true,
                         isLoading: provider.isLoading,
                         onTap: () async {
+                          // ✅ validate only on button tap
                           if (!(formKey.currentState?.validate() ?? false)) {
                             return;
                           }
@@ -290,6 +291,7 @@ class _LoginStep extends StatelessWidget {
                     ],
                   ),
 
+                  // PHONE LOGIN (OTP)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -374,7 +376,8 @@ class _OtpStep extends StatelessWidget {
   Widget build(BuildContext context) {
     return Form(
       key: formKey,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
+      // To keep behavior consistent, also validate on submit only here
+      autovalidateMode: AutovalidateMode.disabled,
       child: Column(
         key: const ValueKey('otpForm'),
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -400,8 +403,7 @@ class _OtpStep extends StatelessWidget {
               if (!(formKey.currentState?.validate() ?? false)) return;
               await provider.verifyOtp(context, otpCtrl.text);
               if (!context.mounted) return;
-              final msg =
-                  provider.message ??
+              final msg = provider.message ??
                   (provider.success
                       ? "OTP verified successfully"
                       : "OTP verification failed");
@@ -409,8 +411,6 @@ class _OtpStep extends StatelessWidget {
                 context,
                 msg,
               );
-              // If you want to allow retry without leaving page:
-              // if (!provider.success) onBackToLogin();
             },
           ),
           TextButton(
@@ -435,10 +435,11 @@ class _OtpStep extends StatelessWidget {
             ),
             onPressed: () async {
               await provider.loginViaOtp(context);
+              onResentOtp();
             },
-            child: Text(
+            child: const Text(
               'Didn’t get the code? Resend',
-              style: TextStyle(fontSize: 14.sp, color: Colors.grey),
+              style: TextStyle(fontSize: 14, color: Colors.grey),
             ),
           ),
         ],

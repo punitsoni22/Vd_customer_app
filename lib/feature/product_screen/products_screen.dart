@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:vd_customer_app/core/utils/common_widgets/common_empty_state.dart';
 import '../../core/utils/common_widgets/common_appbar.dart';
 import 'provider/product_provider.dart';
 import 'widgets/product_card.dart';
@@ -15,8 +16,6 @@ class _ProductScreenState extends State<ProductScreen> {
   @override
   void initState() {
     super.initState();
-    // initial fetch is handled centrally by BottomBarScreen when this tab
-    // is created. Avoid doing network calls here to prevent duplicate calls.
   }
 
   @override
@@ -24,25 +23,20 @@ class _ProductScreenState extends State<ProductScreen> {
     final provider = context.watch<ProductProvider>();
     return Scaffold(
       body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const CommonAppBar(
             title: 'Products',
-            titleAlignment: BarTitleAlignment.center,
-            showBack: false,
-
-            showBottomLine: false,
           ),
           Expanded(
             child: provider.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : (provider.products.isEmpty)
-                ? const _EmptyState()
+                ? const CommonEmptyState(title: "No products found")
                 : GridView.builder(
                     shrinkWrap: true,
                     padding: EdgeInsets.symmetric(
-                      vertical: 20.h,
-                      horizontal: 22.w,
+                      vertical: 10.h,
+                      horizontal: 12.w,
                     ),
                     physics: const AlwaysScrollableScrollPhysics(),
                     itemCount: provider.products.length,
@@ -59,25 +53,6 @@ class _ProductScreenState extends State<ProductScreen> {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _EmptyState extends StatelessWidget {
-  const _EmptyState();
-  @override
-  Widget build(BuildContext context) {
-    return ListView(
-      physics: const AlwaysScrollableScrollPhysics(),
-      children: [
-        SizedBox(height: 80.h),
-        Center(
-          child: const Text(
-            "No products found",
-            style: TextStyle(fontSize: 16),
-          ),
-        ),
-      ],
     );
   }
 }

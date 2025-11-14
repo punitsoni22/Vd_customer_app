@@ -28,6 +28,9 @@ class _SignUpScreenState extends State<SignupScreen> {
   late final TextEditingController _phoneCtrl;
   late final TextEditingController _passwordCtrl;
 
+  /// Used to control when to start showing validation errors
+  bool _submitted = false;
+
   @override
   void initState() {
     super.initState();
@@ -48,6 +51,10 @@ class _SignUpScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final autovalidateMode = _submitted
+        ? AutovalidateMode.onUserInteraction
+        : AutovalidateMode.disabled;
+
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
@@ -62,7 +69,7 @@ class _SignUpScreenState extends State<SignupScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 20.h),
                 child: Form(
                   key: _formKey,
-                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  autovalidateMode: autovalidateMode,
                   child: Column(
                     children: [
                       Text(
@@ -116,6 +123,13 @@ class _SignUpScreenState extends State<SignupScreen> {
                             isFullWidth: true,
                             isLoading: isLoading,
                             onTap: () async {
+                              // First submit → turn on autovalidation
+                              if (!_submitted) {
+                                setState(() {
+                                  _submitted = true;
+                                });
+                              }
+
                               final valid =
                                   _formKey.currentState?.validate() ?? false;
                               if (!valid) return;

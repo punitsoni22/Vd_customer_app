@@ -18,8 +18,8 @@ class SubscriptionContainer extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
       child: Container(
-        height: height ?? 205,
-        padding: EdgeInsets.only(right: 12.w),
+        height: height ?? 180,
+        padding: EdgeInsets.only(right: 8.w),
         child: Image.asset(
           assetPath,
           fit: BoxFit.cover,
