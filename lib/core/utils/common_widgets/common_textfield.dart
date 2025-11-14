@@ -46,58 +46,83 @@ class CommonTextField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isEnabled = enabled ?? true;
+    final bool floating = useFloatingLabel == true;
+
+    final baseTextStyle =
+        textStyle ??
+        TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: isEnabled
+              ? AllColors.textfieldinputColor
+              : Colors.grey.shade500,
+        );
+
+    final hintTextStyle = TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
+      color: Colors.grey.shade500,
+    );
+    final bgColor = isEnabled
+        ? (color ?? AllColors.backgroundColor)
+        : Colors.grey.shade100;
+    final borderRadius = BorderRadius.circular(radius ?? 10);
+    final borderColor = AllColors.textfieldborderColor;
+
     return SizedBox(
       width: width ?? double.infinity,
       child: TextFormField(
         controller: controller,
         obscureText: obscureText ?? false,
-        enabled: enabled,
+        enabled: isEnabled,
         validator: validator,
         onChanged: onChanged,
         textInputAction: textInputAction,
         keyboardType: keyboardType,
         inputFormatters: inputFormatters,
-        style:
-            textStyle ??
-            TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: AllColors.textfieldinputColor,
-            ),
+        style: baseTextStyle,
+        cursorColor: AllColors.buttonColor,
         decoration: InputDecoration(
           isDense: true,
           contentPadding:
-              padding ?? EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+              padding ??
+              const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
           filled: true,
-          fillColor: color ?? AllColors.backgroundColor,
+          fillColor: bgColor,
 
           prefixIcon: preFixIcon,
           suffixIcon: suFFixIcon,
           errorText: errorText,
-          hintText: label,
-          hintStyle:
-              textStyle ??
-              TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: color ?? AllColors.textfieldhintColor,
-              ),
-
+          labelText: floating ? label : null,
+          labelStyle: floating ? hintTextStyle.copyWith(fontSize: 14) : null,
+          floatingLabelBehavior: floating
+              ? FloatingLabelBehavior.auto
+              : FloatingLabelBehavior.never,
+          hintText: floating ? null : label,
+          hintStyle: hintTextStyle,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(radius ?? 10),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(radius ?? 10),
-            borderSide: BorderSide(color: AllColors.textfieldborderColor),
+            borderRadius: borderRadius,
+            borderSide: BorderSide(color: borderColor),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(radius ?? 10),
-            borderSide: BorderSide(color: AllColors.textfieldborderColor),
+            borderRadius: borderRadius,
+            borderSide: BorderSide(color: borderColor),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: borderRadius,
+            borderSide: BorderSide(color: AllColors.buttonColor, width: 1.4),
           ),
           errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: borderRadius,
             borderSide: const BorderSide(color: Colors.red),
           ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: borderRadius,
+            borderSide: const BorderSide(color: Colors.red),
+          ),
+
+          errorStyle: const TextStyle(fontSize: 12, color: Colors.red),
         ),
       ),
     );

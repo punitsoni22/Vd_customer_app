@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
-
 
 class CustomCalendar extends StatefulWidget {
   final DateTime? startDate;
   final DateTime? endDate;
   final List<DateTime>? initiallySelectedDates;
   final ValueChanged<List<DateTime>>? onSelectionChanged;
-  const CustomCalendar({super.key, this.startDate, this.endDate, this.initiallySelectedDates, this.onSelectionChanged});
+
+  const CustomCalendar({
+    super.key,
+    this.startDate,
+    this.endDate,
+    this.initiallySelectedDates,
+    this.onSelectionChanged,
+  });
 
   @override
   CustomCalendarState createState() => CustomCalendarState();
@@ -22,151 +29,208 @@ class CustomCalendarState extends State<CustomCalendar> {
   void initState() {
     super.initState();
     if (widget.initiallySelectedDates != null) {
-      _selectedDates = widget.initiallySelectedDates!.map((d) => DateTime(d.year, d.month, d.day)).toSet();
+      _selectedDates = widget.initiallySelectedDates!
+          .map((d) => DateTime(d.year, d.month, d.day))
+          .toSet();
     }
   }
 
+  DateTime _normalize(DateTime d) => DateTime(d.year, d.month, d.day);
+
   bool _isWithinRange(DateTime day) {
     if (widget.startDate == null || widget.endDate == null) return false;
-    final d = DateTime(day.year, day.month, day.day);
-    return !d.isBefore(widget.startDate!) && !d.isAfter(widget.endDate!);
+    final d = _normalize(day);
+    final start = _normalize(widget.startDate!);
+    final end = _normalize(widget.endDate!);
+    return !d.isBefore(start) && !d.isAfter(end);
   }
 
   @override
   Widget build(BuildContext context) {
+    final primary = AllColors.olivegreenColor;
+
     if (widget.startDate == null || widget.endDate == null) {
       return Container(
         padding: const EdgeInsets.all(16),
         alignment: Alignment.center,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: Colors.grey.shade50,
+          border: Border.all(
+            color: Colors.grey.shade300,
+          ),
+        ),
         child: Text(
           "Please select the start and end date first",
+          textAlign: TextAlign.center,
           style: TextStyle(
-            color: AllColors.olivegreenColor,
+            color: primary,
             fontWeight: FontWeight.w600,
-            fontSize: 16,
+            fontSize: 14,
           ),
         ),
       );
     }
+
+    final firstDay = _normalize(widget.startDate!);
+    final lastDay = _normalize(widget.endDate!);
+    final initialFocused = _focusedDay.isBefore(firstDay) ? firstDay : _focusedDay;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: EdgeInsets.only(bottom: 8.0),
-          child: Text(
-            "Select Dates",
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AllColors.olivegreenColor,
-            ),
+        Text(
+          "Select Dates",
+          style: TextStyle(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w600,
+            color: primary,
           ),
         ),
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: const Color.fromARGB(255, 184, 184, 184),
-              width: 1.5,
-            ),
-          ),
-          child: Column(
-            children: [
-              TableCalendar(
-                firstDay: widget.startDate!,
-                lastDay: widget.endDate!,
-                focusedDay: _focusedDay.isBefore(widget.startDate!) ? widget.startDate! : _focusedDay,
-                selectedDayPredicate: (day) => _selectedDates.contains(DateTime(day.year, day.month, day.day)),
-                onDaySelected: (selectedDay, focusedDay) {
-                  if (!_isWithinRange(selectedDay)) return;
-                  setState(() {
-                    final d = DateTime(selectedDay.year, selectedDay.month, selectedDay.day);
-                    if (_selectedDates.contains(d)) {
-                      _selectedDates.remove(d);
-                    } else {
-                      _selectedDates.add(d);
-                    }
-                    _focusedDay = focusedDay;
-                  });
-                  if (widget.onSelectionChanged != null) {
-                    widget.onSelectionChanged!(_selectedDates.toList()..sort((a, b) => a.compareTo(b)));
-                  }
-                },
-                headerStyle: HeaderStyle(
-                  formatButtonVisible: false,
-                  titleCentered: true,
-                  titleTextStyle: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
-                  leftChevronIcon: Icon(Icons.chevron_left),
-                  rightChevronIcon: Icon(Icons.chevron_right),
+        Column(
+          children: [
+            TableCalendar(
+              firstDay: firstDay,
+              lastDay: lastDay,
+              focusedDay: initialFocused,
+              headerStyle: HeaderStyle(
+                formatButtonVisible: false,
+                titleCentered: true,
+                titleTextStyle: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 16.sp,
                 ),
-                calendarStyle: CalendarStyle(
-                  todayDecoration: BoxDecoration(
-                    color: AllColors.iconColor,
-                    shape: BoxShape.circle,
-                  ),
-                  selectedDecoration: BoxDecoration(
-                    color: Colors.teal,
-                    shape: BoxShape.circle,
-                  ),
-                  weekendTextStyle: TextStyle(color: Colors.black),
-                  defaultTextStyle: TextStyle(color: Colors.black87),
-                  markerDecoration: BoxDecoration(
-                    color: Colors.orange,
-                    shape: BoxShape.circle,
-                  ),
+                leftChevronIcon: Icon(
+                  Icons.chevron_left_rounded,
+                  color: primary,
+                  size: 30.sp,
                 ),
-                daysOfWeekStyle: DaysOfWeekStyle(
-                  weekdayStyle: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey[600],
-                  ),
-                  weekendStyle: TextStyle(
-                    fontWeight: FontWeight.w500,
-                    color: Colors.grey[600],
-                  ),
+                rightChevronIcon: Icon(
+                  Icons.chevron_right_rounded,
+                  color: primary,
+                  size: 30.sp,
                 ),
-                enabledDayPredicate: (day) => _isWithinRange(day),
               ),
-              if (_selectedDates.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 12),
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 4,
-                    children: [
-                      ..._selectedDates
-                          .toList()
-                          .cast<DateTime>()
-                          .map((d) => Chip(
-                                label: Text("${d.day.toString().padLeft(2, '0')}-${d.month.toString().padLeft(2, '0')}-${d.year}"),
-                                backgroundColor: Colors.teal.withOpacity(0.15),
-                              ))
-                          .toList()
-                        ..sort((a, b) => (a.label as Text).data!.compareTo((b.label as Text).data!)),
-                    ],
-                  ),
+              daysOfWeekStyle: DaysOfWeekStyle(
+                weekdayStyle: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 12.sp,
+                  color: Colors.grey.shade600,
                 ),
-            ],
-          ),
+                weekendStyle: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 12.sp,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+              calendarStyle: CalendarStyle(
+                outsideDaysVisible: false,
+                isTodayHighlighted: true,
+                todayDecoration: BoxDecoration(
+                  color: primary.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                todayTextStyle: TextStyle(
+                  color: primary,
+                  fontWeight: FontWeight.w700,
+                ),
+                selectedDecoration: BoxDecoration(
+                  color: primary,
+                  shape: BoxShape.circle,
+                ),
+                selectedTextStyle: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
+                defaultTextStyle: TextStyle(
+                  color: Colors.black87,
+                  fontSize: 14.sp,
+                ),
+                weekendTextStyle: TextStyle(
+                  color: Colors.black87,
+                  fontSize: 14.sp,
+                ),
+                disabledTextStyle: TextStyle(
+                  color: Colors.grey.shade400,
+                  fontSize: 14.sp,
+                ),
+                markerDecoration: BoxDecoration(
+                  color: Colors.orange,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              selectedDayPredicate: (day) =>
+                  _selectedDates.contains(_normalize(day)),
+              enabledDayPredicate: (day) => _isWithinRange(day),
+              onDaySelected: (selectedDay, focusedDay) {
+                if (!_isWithinRange(selectedDay)) return;
+                setState(() {
+                  final d = _normalize(selectedDay);
+                  if (_selectedDates.contains(d)) {
+                    _selectedDates.remove(d);
+                  } else {
+                    _selectedDates.add(d);
+                  }
+                  _focusedDay = focusedDay;
+                });
+                if (widget.onSelectionChanged != null) {
+                  final sortedDates = _selectedDates.toList()
+                    ..sort((a, b) => a.compareTo(b));
+                  widget.onSelectionChanged!(sortedDates);
+                }
+              },
+            ),
+
+            if (_selectedDates.isNotEmpty)
+              _buildSelectedChips(primary),
+          ],
         ),
       ],
     );
   }
 
-  // Optionally, you can keep this for legend if needed
-  Widget _buildrow(Color color, String text) {
-    return Row(
+  Widget _buildSelectedChips(Color primary) {
+    final sortedDates = _selectedDates.toList()..sort((a, b) => a.compareTo(b));
+
+    String format(DateTime d) {
+      return "${d.day.toString().padLeft(2, '0')}-"
+          "${d.month.toString().padLeft(2, '0')}-"
+          "${d.year}";
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 10,
-          height: 10,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        Text(
+          "Selected dates (${sortedDates.length}):",
+          style: TextStyle(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w600,
+            color: primary,
+          ),
         ),
-        const SizedBox(width: 4),
-        Text(text, style: TextStyle(fontSize: 12)),
+        Wrap(
+          spacing: 8,
+          runSpacing: 2,
+          children: sortedDates.map((d) {
+            return Chip(
+              label: Text(
+                format(d),
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w500,
+                  color: primary,
+                ),
+              ),
+              backgroundColor: primary.withValues(alpha: 0.08),
+              side: BorderSide(
+                color: primary.withValues(alpha: 0.3),
+              ),
+              padding: EdgeInsets.symmetric(horizontal: 8.w),
+            );
+          }).toList(),
+        ),
+        SizedBox(height: 2.h,),
       ],
     );
   }
