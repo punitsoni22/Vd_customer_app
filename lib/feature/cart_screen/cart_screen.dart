@@ -61,10 +61,10 @@ class _CartScreenState extends State<CartScreen> {
               child: RefreshIndicator(
                 onRefresh: () async {
                   final provider = context.read<CartProvider>();
-                  final userIdString = await Prefs.getString(Prefs.keyUserId);
-                  if (userIdString != null) {
+                  // final userIdString = await Prefs.getString(Prefs.keyUserId);
+                  // if (userIdString != null) {
                     await provider.fetchLatestCart(context);
-                  }
+                  // }
                 },
                 child: items.isEmpty
                     ? ListView(
