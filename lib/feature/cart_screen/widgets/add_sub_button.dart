@@ -26,30 +26,80 @@ class AddSubtButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Color primaryColor = iconColor ?? AllColors.buttonColor;
+
     return Container(
-      width: 100.w,
-      padding: padding ?? EdgeInsets.all(2.r),
+      height: 34.h,
+      width: 112.w,
+      padding: padding ?? EdgeInsets.symmetric(horizontal: 4.w),
       constraints: selfconstraints ?? const BoxConstraints(),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(radius ?? 10.r),
-        border: Border.all(color: bordercolor ?? AllColors.buttonColor),
-        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(radius ?? 20.r),
+        border: Border.all(color: bordercolor ?? primaryColor),
+        color: Colors.white,
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          GestureDetector(
+          /// MINUS
+          _CircleIconButton(
+            icon: Icons.remove,
             onTap: onSubtract,
-            child: Icon(Icons.remove, color: Colors.blue),
+            color: primaryColor,
           ),
-          SizedBox(width: 5.w),
-          Text('$quantity', style: TextStyle(color: Colors.black)),
-          SizedBox(width: 5.w),
-          GestureDetector(
+
+          Expanded(
+            child: Center(
+              child: Text(
+                '$quantity',
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+            ),
+          ),
+
+          /// PLUS
+          _CircleIconButton(
+            icon: Icons.add,
             onTap: onAdd,
-            child: Icon(Icons.add, color: Colors.blue),
+            color: primaryColor,
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _CircleIconButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  final Color color;
+
+  const _CircleIconButton({
+    required this.icon,
+    required this.onTap,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18.r),
+      child: Container(
+        width: 28.w,
+        height: 28.w,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: color.withOpacity(0.08),
+        ),
+        child: Icon(
+          icon,
+          size: 16.sp,
+          color: color,
+        ),
       ),
     );
   }

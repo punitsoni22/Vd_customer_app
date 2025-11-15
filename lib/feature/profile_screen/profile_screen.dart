@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:vd_customer_app/core/utils/common_widgets/common_appbar.dart';
-import 'package:vd_customer_app/feature/profile_screen/provider/profileProvider.dart';
-import 'package:vd_customer_app/feature/profile_screen/widgets/logout_button.dart';
-import 'package:vd_customer_app/feature/profile_screen/widgets/profile_orders_container.dart';
-import 'package:vd_customer_app/feature/profile_screen/widgets/profile_header_cont.dart' hide LogoutButton;
+
+import '../../core/utils/common_widgets/common_appbar.dart';
+import 'provider/profileProvider.dart';
+import 'widgets/logout_button.dart';
+import 'widgets/profile_header_cont.dart';
+import 'widgets/profile_orders_container.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -46,7 +47,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       backgroundColor: Colors.white,
       body: Padding(
-        padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 15.w),
+        padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 12.w),
         child: Column(
           children: [
             ProfileHeader(

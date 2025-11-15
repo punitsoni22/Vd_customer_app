@@ -65,7 +65,7 @@ class CommonTextField extends StatelessWidget {
       color: Colors.grey.shade500,
     );
     final bgColor = isEnabled
-        ? (color ?? AllColors.backgroundColor)
+        ? (color ?? Colors.white)
         : Colors.grey.shade100;
     final borderRadius = BorderRadius.circular(radius ?? 10);
     final borderColor = AllColors.textfieldborderColor;
