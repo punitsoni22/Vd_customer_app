@@ -114,12 +114,12 @@ class MyOrderProvider extends ChangeNotifier {
     log("Fetching orders, page: $page, requestId: $rid");
 
     try {
-      final token = await Prefs.getString(Prefs.keyAuthToken) ?? '';
+      // final token = await Prefs.getString(Prefs.keyAuthToken) ?? '';
 
       final response = await Api.post('getAllOrders', {
         "page": page,
         "pageSize": 10,
-        "token": token,
+        // "token": token,
       });
 
       log("API Response: $response");
@@ -189,13 +189,13 @@ class MyOrderProvider extends ChangeNotifier {
     _safeNotify();
 
     try {
-      final token = await Prefs.getString(Prefs.keyAuthToken) ?? "";
+      // final token = await Prefs.getString(Prefs.keyAuthToken) ?? "";
 
       final response = await Api.post("getAllSubscription", {
         "page": page,
         "pageSize": 10,
         "searchText": "",
-        "token": token,
+        // "token": token,
       });
 
       log("Subscription API Response: $response");

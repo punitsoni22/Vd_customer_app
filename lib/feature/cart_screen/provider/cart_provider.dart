@@ -134,13 +134,13 @@ class CartProvider extends ChangeNotifier {
 
   Future<void> fetchLatestCart(BuildContext context) async {
     try {
-      final userId = await getCurrentUserId();
-      print("DEBUG: Current userId = $userId");
+      // final userId = await getCurrentUserId();
+      // print("DEBUG: Current userId = $userId");
 
-      if (userId == null) return;
+      // if (userId == null) return;
 
       final response = await Api.post('getLatestCartByUserId', {
-        "data": {"userId": userId},
+        "data": {},
       });
 
       print("DEBUG: API Response = $response");
