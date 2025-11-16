@@ -17,28 +17,11 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   @override
-  void initState() {
-    super.initState();
-
-    Future.microtask(
-      () => Provider.of<ProfileProvider>(
-        context,
-        listen: false,
-      ).fetchSpecificUser(),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
     final provider = Provider.of<ProfileProvider>(context);
 
     String displayName = provider.fullName ?? 'Your name';
     String displayPhone = provider.mobileNumber ?? '';
-
-    if (provider.isLoading) {
-      displayName = 'Loading...';
-      displayPhone = '';
-    }
 
     return Scaffold(
       appBar: CommonAppBar(
@@ -56,18 +39,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ontouch: () {},
             ),
             SizedBox(height: 15.h),
-
-            if (!provider.isLoading &&
-                provider.id == null &&
-                provider.message != null)
-              Padding(
-                padding: EdgeInsets.only(bottom: 12.h),
-                child: Text(
-                  provider.message!,
-                  style: TextStyle(fontSize: 14.sp, color: Colors.red),
-                ),
-              ),
-
             OrdersCard(),
             SizedBox(height: 15.h),
             LogoutButton(),
