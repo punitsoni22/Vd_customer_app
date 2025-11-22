@@ -17,6 +17,10 @@ class MyOrderCard extends StatelessWidget {
   final String? button3;
   final IconData? icon2;
   final IconData? icon3;
+  final String? invoiceUrl;
+  final String? invoiceNumber;
+  final VoidCallback? onInvoiceTap;
+  final VoidCallback? onViewTap;
 
   const MyOrderCard({
     super.key,
@@ -33,6 +37,10 @@ class MyOrderCard extends StatelessWidget {
     this.button3,
     this.icon2,
     this.icon3,
+    this.invoiceUrl,
+    this.invoiceNumber,
+    this.onInvoiceTap,
+    this.onViewTap,
   });
 
   String capitalize(String s) {
@@ -187,24 +195,24 @@ class MyOrderCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: CommonButton(
-                  buttonValue: button1 ?? "Reorder",
-                  onTap: () {},
-                  color: AllColors.tabBarline,
-                  selfconstraints: BoxConstraints(minHeight: 37.h),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 10.w,
-                    vertical: 6.h,
-                  ),
-                  fontSize: 12.sp,
-                ),
-              ),
+              // Expanded(
+              //   child: CommonButton(
+              //     buttonValue: button1 ?? "Reorder",
+              //     onTap: () {},
+              //     color: AllColors.tabBarline,
+              //     selfconstraints: BoxConstraints(minHeight: 37.h),
+              //     padding: EdgeInsets.symmetric(
+              //       horizontal: 10.w,
+              //       vertical: 6.h,
+              //     ),
+              //     fontSize: 12.sp,
+              //   ),
+              // ),
               SizedBox(width: 10.w),
               Expanded(
                 child: CommonButton(
                   buttonValue: button2 ?? "View",
-                  onTap: () {},
+                  onTap: onViewTap ?? () {},
                   color: AllColors.olivegreenColor,
                   selfconstraints: BoxConstraints(minHeight: 37.h),
                   padding: EdgeInsets.symmetric(
@@ -218,7 +226,7 @@ class MyOrderCard extends StatelessWidget {
               Expanded(
                 child: CommonButton(
                   buttonValue: button3 ?? "Invoice",
-                  onTap: () {},
+                  onTap: onInvoiceTap ?? () {},
                   icon: icon3 ?? Icons.download_done,
                   iconSize: 13.sp,
                   variant: ButtonVariant.outlined,

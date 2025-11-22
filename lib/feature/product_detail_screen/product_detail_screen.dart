@@ -14,6 +14,7 @@ import 'package:vd_customer_app/widget/snack_bar.dart';
 
 import '../../core/utils/common_widgets/common_add_subt_button.dart';
 import '../../core/utils/common_widgets/common_appbar.dart';
+import 'package:vd_customer_app/core/utils/formatters.dart';
 import '../../core/utils/common_widgets/common_button.dart';
 import '../home_screen/widgets/home_product_card.dart';
 import 'provider/product_detail_provider.dart';
@@ -267,7 +268,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          '₹${product.displayPrice}',
+                          '₹${selectedVariant?.price ?? product.displayPrice}',
                           style: TextStyle(
                             fontSize: 18.sp,
                             fontWeight: FontWeight.w700,
@@ -293,7 +294,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       child: Row(
                         children: product.variants.map((variant) {
                           // assuming quantityInMl is in ml; if it's litres, adjust label
-                          final displayQuantity = '${variant.quantityInMl} ml';
+                          final displayQuantity = formatVolume(
+                            variant.quantityInMl,
+                          );
                           final isSelected = selectedVariant?.id == variant.id;
 
                           return Padding(

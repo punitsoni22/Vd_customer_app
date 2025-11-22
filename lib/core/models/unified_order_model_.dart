@@ -9,6 +9,8 @@ class UnifiedOrderModel {
   final String? rawImageUrl;
   final String? nextDelivery;
   final String? deliveryFrequency;
+  final String? invoiceUrl;
+  final String? invoiceNumber;
 
   UnifiedOrderModel({
     required this.id,
@@ -21,5 +23,7 @@ class UnifiedOrderModel {
     this.rawImageUrl,
     this.nextDelivery,
     this.deliveryFrequency,
+    this.invoiceUrl,
+    this.invoiceNumber,
   });
 }

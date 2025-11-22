@@ -25,6 +25,12 @@ class _MapPickerPageState extends State<MapPickerPage> {
     _requestLocationPermission();
   }
 
+  @override
+  void dispose() {
+    _mapController?.dispose();
+    super.dispose();
+  }
+
   Future<void> _requestLocationPermission() async {
     try {
       // Check current permission status
@@ -118,29 +124,50 @@ class _MapPickerPageState extends State<MapPickerPage> {
           ),
         ],
       ),
-      body: GoogleMap(
-        liteModeEnabled: false, // Temporarily disable for testing
-        initialCameraPosition: CameraPosition(target: _picked, zoom: 15),
-        onTap: (position) {
-          setState(() {
-            _picked = position;
-          });
-        },
-        onMapCreated: (controller) {
-          _mapController = controller;
-          // If we already have current location, animate to it
-          if (!_isLoadingLocation) {
-            controller.animateCamera(CameraUpdate.newLatLngZoom(_picked, 16));
-          }
-        },
-        markers: {
-          Marker(
-            markerId: const MarkerId('selected'),
-            position: _picked,
-            infoWindow: const InfoWindow(title: 'Selected Location'),
+      body: Stack(
+        children: [
+          GoogleMap(
+            initialCameraPosition: CameraPosition(target: _picked, zoom: 15),
+            onTap: (position) {
+              setState(() {
+                _picked = position;
+              });
+            },
+            onMapCreated: (controller) {
+              _mapController = controller;
+              // If we already have current location, animate to it
+              if (!_isLoadingLocation) {
+                controller.animateCamera(
+                  CameraUpdate.newLatLngZoom(_picked, 16),
+                );
+              }
+            },
+            markers: {
+              Marker(
+                markerId: const MarkerId('selected'),
+                position: _picked,
+                icon: BitmapDescriptor.defaultMarkerWithHue(
+                  BitmapDescriptor.hueGreen,
+                ),
+                infoWindow: const InfoWindow(title: 'Selected Location'),
+              ),
+            },
+            myLocationEnabled: true,
+            myLocationButtonEnabled: false,
+            zoomControlsEnabled: false,
+            mapToolbarEnabled: false,
+            compassEnabled: true,
+            tiltGesturesEnabled: true,
+            rotateGesturesEnabled: true,
+            scrollGesturesEnabled: true,
+            zoomGesturesEnabled: true,
           ),
-        },
-        zoomControlsEnabled: false, // Reduce UI complexity
+          if (_isLoadingLocation)
+            Container(
+              color: Colors.black26,
+              child: const Center(child: CircularProgressIndicator()),
+            ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _isLoadingLocation ? null : _getCurrentLocation,

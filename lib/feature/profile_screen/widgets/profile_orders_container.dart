@@ -37,18 +37,18 @@ class OrdersCard extends StatelessWidget {
               title: 'All Order’s',
             ),
           ),
-          BuildmenuCont(
-            icon: Icons.calendar_today_outlined,
-            title: 'Order Calendar',
-          ),
-          BuildmenuCont(
-            icon: Icons.location_on_outlined,
-            title: 'Address Book',
-          ),
-          BuildmenuCont(
-            icon: Icons.local_drink_outlined,
-            title: 'Return Empty Bottle',
-          ),
+          // BuildmenuCont(
+          //   icon: Icons.calendar_today_outlined,
+          //   title: 'Order Calendar',
+          // ),
+          // BuildmenuCont(
+          //   icon: Icons.location_on_outlined,
+          //   title: 'Address Book',
+          // ),
+          // BuildmenuCont(
+          //   icon: Icons.local_drink_outlined,
+          //   title: 'Return Empty Bottle',
+          // ),
         ],
       ),
     );

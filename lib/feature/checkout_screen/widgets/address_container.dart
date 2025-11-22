@@ -66,6 +66,11 @@ class AddressContainer extends StatelessWidget {
                     context,
                     listen: false,
                   ).getAllAddresses();
+
+                  Provider.of<CheckoutProvider>(
+                    context,
+                    listen: false,
+                  ).fetchAddresses();
                 }
               },
             ),
@@ -198,6 +203,11 @@ class AddressContainer extends StatelessWidget {
                           context,
                           listen: false,
                         ).getAllAddresses();
+
+                        Provider.of<CheckoutProvider>(
+                          context,
+                          listen: false,
+                        ).fetchAddresses();
                       }
                     },
                     child: Container(

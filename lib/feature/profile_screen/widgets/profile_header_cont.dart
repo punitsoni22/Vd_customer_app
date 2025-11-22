@@ -24,8 +24,10 @@ class ProfileHeader extends StatelessWidget {
       child: Row(
         children: [
           CircleAvatar(
+            backgroundColor: AllColors.buttonColor,
             radius: 27.r,
-            backgroundImage: AssetImage('assets/images/bottlerect.png'),
+            child: Icon(Icons.person, size: 30.r, color: Colors.white),
+            // backgroundImage: AssetImage('assets/images/bottlerect.png'),
           ),
           SizedBox(width: 12.w),
           Expanded(
@@ -49,14 +51,14 @@ class ProfileHeader extends StatelessWidget {
               ],
             ),
           ),
-          Container(
-            padding: EdgeInsets.all(8.r),
-            decoration: BoxDecoration(
-              color: AllColors.profileBackColor,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(Icons.edit, size: 23.r, color: AllColors.iconColor),
-          ),
+          // Container(
+          //   padding: EdgeInsets.all(8.r),
+          //   decoration: BoxDecoration(
+          //     color: AllColors.profileBackColor,
+          //     shape: BoxShape.circle,
+          //   ),
+          //   child: Icon(Icons.edit, size: 23.r, color: AllColors.iconColor),
+          // ),
         ],
       ),
     );

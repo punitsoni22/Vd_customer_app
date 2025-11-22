@@ -5,6 +5,7 @@ import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 
 import 'package:provider/provider.dart';
+import 'package:vd_customer_app/feature/profile_screen/provider/profileProvider.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_calendar.dart';
 import 'package:vd_customer_app/widget/snack_bar.dart';
@@ -22,7 +23,6 @@ class SubscriptionDateDropdown extends StatefulWidget {
 
 class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
   bool isLoading = false;
-  String customerName = "John Doe";
   String subscriptionType = "1_week";
   int bottlesPerDelivery = 2;
   DateTime? startDate;
@@ -42,12 +42,21 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(
-          () => Provider.of<SubscriptionProvider>(
+    Future.microtask(() {
+      // Ensure profile is loaded so we can use the customer's full name
+      final profileProvider = Provider.of<ProfileProvider>(
         context,
         listen: false,
-      ).getAllAddresses(),
-    );
+      );
+      if (profileProvider.fullName == null) {
+        profileProvider.fetchSpecificUser(context);
+      }
+
+      Provider.of<SubscriptionProvider>(
+        context,
+        listen: false,
+      ).getAllAddresses();
+    });
   }
 
   @override
@@ -63,19 +72,13 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(8.r),
-            border: Border.all(
-              color: primary.withValues(alpha: 0.6),
-              width: 1,
-            ),
+            border: Border.all(color: primary.withValues(alpha: 0.6), width: 1),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
               value: selectedValue,
               isExpanded: true,
-              icon: Icon(
-                Icons.keyboard_arrow_down_rounded,
-                color: primary,
-              ),
+              icon: Icon(Icons.keyboard_arrow_down_rounded, color: primary),
               style: TextStyle(
                 fontSize: 13.sp,
                 fontWeight: FontWeight.w500,
@@ -121,20 +124,15 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                           value,
                           style: TextStyle(
                             fontSize: 13.sp,
-                            fontWeight:
-                            isSelected ? FontWeight.w600 : FontWeight.w500,
-                            color: isSelected
-                                ? primary
-                                : Colors.grey.shade700,
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.w500,
+                            color: isSelected ? primary : Colors.grey.shade700,
                           ),
                         ),
                       ),
                       if (isSelected)
-                        Icon(
-                          Icons.check_rounded,
-                          size: 18.sp,
-                          color: primary,
-                        ),
+                        Icon(Icons.check_rounded, size: 18.sp, color: primary),
                     ],
                   ),
                 );
@@ -219,8 +217,7 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
 
                             items: subProvider.addresses.map((address) {
                               final id = address.id.toString();
-                              final bool isSelected =
-                                  selectedAddressId == id;
+                              final bool isSelected = selectedAddressId == id;
 
                               return DropdownMenuItem<String>(
                                 value: id,
@@ -308,83 +305,90 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                   onTap: isLoading
                       ? null
                       : () async {
-                    if (selectedAddressId == null ||
-                        startDate == null ||
-                        endDate == null) {
-                      MySnackBar.showSnackBar(
-                        context,
-                        'Please select address, start date, and end date.',
-                      );
-                      return;
-                    }
-                    setState(() {
-                      isLoading = true;
-                    });
-                    final freq = selectedValue;
-                    final payload = <String, dynamic>{
-                      "customerName": customerName,
-                      "subscription_type": subscriptionType,
-                      "delivery_frequency_type": freq
-                          .toLowerCase()
-                          .replaceAll(' ', '_'),
-                      "start_date": _formatApiDate(startDate!),
-                      "end_date": _formatApiDate(endDate!),
-                      "bottles_per_delivery": bottlesPerDelivery,
-                      "products": widget.selectedProducts ?? [],
-                      "addressId": int.parse(selectedAddressId!),
-                    };
-                    if (freq == "Weekly") {
-                      if (selectedDeliveryDays.isEmpty) {
-                        MySnackBar.showSnackBar(
-                          context,
-                          'Please select at least one delivery day.',
-                        );
-                        setState(() {
-                          isLoading = false;
-                        });
-                        return;
-                      }
-                      payload["delivery_days"] = selectedDeliveryDays;
-                      payload["subscription_type"] = "1_week";
-                    } else if (freq == "Custom Date") {
-                      if (selectedCustomDates.isEmpty) {
-                        MySnackBar.showSnackBar(
-                          context,
-                          'Please select at least one delivery date.',
-                        );
-                        setState(() {
-                          isLoading = false;
-                        });
-                        return;
-                      }
-                      payload["delivery_dates"] = selectedCustomDates
-                          .map((date) => _formatApiDate(date))
-                          .toList();
-                    }
-                    final apiPayload = {"data": payload};
-                    final response =
-                    await Provider.of<SubscriptionProvider>(
-                      context,
-                      listen: false,
-                    ).createOrEditSubscription(apiPayload);
-                    setState(() {
-                      isLoading = false;
-                    });
-                    if (response["success"] == true) {
-                      if (mounted) {
-                        context.go(
-                          AppRoutes.bottomBarScreen,
-                          extra: {'index': 2},
-                        );
-                      }
-                    } else {
-                      MySnackBar.showSnackBar(
-                        context,
-                        response["message"] ??
-                            'Failed to create subscription.',
-                      );
-                    }
-                  },
+                          if (selectedAddressId == null ||
+                              startDate == null ||
+                              endDate == null) {
+                            MySnackBar.showSnackBar(
+                              context,
+                              'Please select address, start date, and end date.',
+                            );
+                            return;
+                          }
+                          setState(() {
+                            isLoading = true;
+                          });
+                          final freq = selectedValue;
+                          final profileProvider = Provider.of<ProfileProvider>(
+                            context,
+                            listen: false,
+                          );
+                          final customerNameStr =
+                              profileProvider.fullName ?? '';
+
+                          final payload = <String, dynamic>{
+                            "customerName": customerNameStr,
+                            "subscription_type": subscriptionType,
+                            "delivery_frequency_type": freq
+                                .toLowerCase()
+                                .replaceAll(' ', '_'),
+                            "start_date": _formatApiDate(startDate!),
+                            "end_date": _formatApiDate(endDate!),
+                            "bottles_per_delivery": bottlesPerDelivery,
+                            "products": widget.selectedProducts ?? [],
+                            "addressId": int.parse(selectedAddressId!),
+                          };
+                          if (freq == "Weekly") {
+                            if (selectedDeliveryDays.isEmpty) {
+                              MySnackBar.showSnackBar(
+                                context,
+                                'Please select at least one delivery day.',
+                              );
+                              setState(() {
+                                isLoading = false;
+                              });
+                              return;
+                            }
+                            payload["delivery_days"] = selectedDeliveryDays;
+                            payload["subscription_type"] = "1_week";
+                          } else if (freq == "Custom Date") {
+                            if (selectedCustomDates.isEmpty) {
+                              MySnackBar.showSnackBar(
+                                context,
+                                'Please select at least one delivery date.',
+                              );
+                              setState(() {
+                                isLoading = false;
+                              });
+                              return;
+                            }
+                            payload["delivery_dates"] = selectedCustomDates
+                                .map((date) => _formatApiDate(date))
+                                .toList();
+                          }
+                          final apiPayload = {"data": payload};
+                          final response =
+                              await Provider.of<SubscriptionProvider>(
+                                context,
+                                listen: false,
+                              ).createOrEditSubscription(apiPayload);
+                          setState(() {
+                            isLoading = false;
+                          });
+                          if (response["success"] == true) {
+                            if (mounted) {
+                              context.go(
+                                AppRoutes.bottomBarScreen,
+                                extra: {'index': 2},
+                              );
+                            }
+                          } else {
+                            MySnackBar.showSnackBar(
+                              context,
+                              response["message"] ??
+                                  'Failed to create subscription.',
+                            );
+                          }
+                        },
                   buttonValue: 'Create Subscription',
                   isLoading: isLoading,
                 ),
@@ -397,11 +401,11 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
   }
 
   Widget _dateField(
-      String label,
-      DateTime? value,
-      BuildContext context, {
-        required bool isStart,
-      }) {
+    String label,
+    DateTime? value,
+    BuildContext context, {
+    required bool isStart,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
