@@ -6,7 +6,6 @@ import 'package:vd_customer_app/core/models/subscription_model.dart';
 import 'package:vd_customer_app/core/models/unified_order_model_.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/core/services/signedurl.dart';
-import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
 
 class MyOrderProvider extends ChangeNotifier {
   bool _isLoading = false;
@@ -62,6 +61,8 @@ class MyOrderProvider extends ChangeNotifier {
             quantity: c.quantity,
             signedUrl: c.productImages.signedUrl,
             rawImageUrl: c.productImages.imageUrl,
+            invoiceUrl: order.invoice?.signedUrl,
+            invoiceNumber: order.invoice?.invoiceNumber,
           ),
         );
       }
@@ -81,6 +82,8 @@ class MyOrderProvider extends ChangeNotifier {
             rawImageUrl: p.imageUrl,
             nextDelivery: sub.startDate.toString().split(" ").first,
             deliveryFrequency: sub.deliveryFrequencyType,
+            invoiceUrl: sub.invoice?.signedUrl,
+            invoiceNumber: sub.invoice?.invoiceNumber,
           ),
         );
       }
@@ -158,6 +161,19 @@ class MyOrderProvider extends ChangeNotifier {
                 }
               }
             }
+
+            // Generate signed URL for invoice
+            if (order.invoice != null && order.invoice!.filePath.isNotEmpty) {
+              try {
+                order.invoice!.signedUrl = await generateSignedUrl(
+                  order.invoice!.filePath,
+                );
+                log("Invoice signed URL generated for Order ${order.orderId}");
+              } catch (e) {
+                if (kDebugMode) log("Invoice S3 URL failed: $e");
+                order.invoice!.signedUrl = null;
+              }
+            }
           }),
         );
 
@@ -207,6 +223,35 @@ class MyOrderProvider extends ChangeNotifier {
 
         _subscriptions.clear();
         _subscriptions.addAll(items.map((e) => SubscriptionModel.fromJson(e)));
+
+        await Future.wait(
+          _subscriptions.map((sub) async {
+            if (sub.invoice != null && sub.invoice!.invoiceUrl.isNotEmpty) {
+              try {
+                sub.invoice!.signedUrl = await generateSignedUrl(
+                  sub.invoice!.invoiceUrl,
+                );
+              } catch (e) {
+                if (kDebugMode) log("Subscription Invoice S3 URL failed: $e");
+                sub.invoice!.signedUrl = null;
+              }
+            }
+
+            for (var product in sub.products) {
+              if (product.imageUrl != null && product.imageUrl!.isNotEmpty) {
+                try {
+                  product.signedUrl = await generateSignedUrl(
+                    product.imageUrl!,
+                  );
+                 
+                } catch (e) {
+                  if (kDebugMode) log("Product image S3 URL failed: $e");
+                  product.signedUrl = null;
+                }
+              }
+            }
+          }),
+        );
 
         subscriptionsLoaded = true;
         _message = "Subscriptions fetched";

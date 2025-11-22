@@ -50,10 +50,7 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
     try {
       final key = _googleApiKey;
       if (key.isEmpty) {
-        MySnackBar.showSnackBar(
-          context,
-          'Google Maps API key is not set',
-        );
+        MySnackBar.showSnackBar(context, 'Google Maps API key is not set');
         return;
       }
 
@@ -62,19 +59,13 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
       );
       final resp = await http.get(url);
       if (resp.statusCode != 200) {
-        MySnackBar.showSnackBar(
-          context,
-          'Failed to fetch address info',
-        );
+        MySnackBar.showSnackBar(context, 'Failed to fetch address info');
         return;
       }
 
       final Map<String, dynamic> data = json.decode(resp.body);
       if (data['status'] != 'OK' || (data['results'] as List).isEmpty) {
-        MySnackBar.showSnackBar(
-          context,
-          'No address found: ${data['status']}',
-        );
+        MySnackBar.showSnackBar(context, 'No address found: ${data['status']}');
         return;
       }
 
@@ -86,7 +77,7 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
       String? getComp(String type) {
         try {
           final comp = components.firstWhere(
-                (c) => (c['types'] as List).contains(type),
+            (c) => (c['types'] as List).contains(type),
           );
           return comp['long_name'] as String?;
         } catch (_) {
@@ -96,9 +87,9 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
 
       final cityVal =
           getComp('locality') ??
-              getComp('postal_town') ??
-              getComp('sublocality') ??
-              getComp('administrative_area_level_2');
+          getComp('postal_town') ??
+          getComp('sublocality') ??
+          getComp('administrative_area_level_2');
       final stateVal = getComp('administrative_area_level_1');
       final countryVal = getComp('country');
       final postalVal = getComp('postal_code');
@@ -113,10 +104,7 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
       });
     } catch (e) {
       debugPrint('Reverse geocode error: $e');
-      MySnackBar.showSnackBar(
-        context,
-        'Error fetching address info',
-      );
+      MySnackBar.showSnackBar(context, 'Error fetching address info');
     }
   }
 
@@ -152,10 +140,7 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
 
     if (resp['success'] == true) {
       if (mounted) {
-        MySnackBar.showSnackBar(
-          context,
-          resp['message'] ?? 'Address added',
-        );
+        MySnackBar.showSnackBar(context, resp['message'] ?? 'Address added');
         Navigator.of(context).pop(true);
       }
     } else {
@@ -299,7 +284,7 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
                                     SizedBox(height: 2.h),
                                     Text(
                                       'Lat: ${_pickedLatLng!.latitude.toStringAsFixed(4)}, '
-                                          'Lng: ${_pickedLatLng!.longitude.toStringAsFixed(4)}',
+                                      'Lng: ${_pickedLatLng!.longitude.toStringAsFixed(4)}',
                                       style: TextStyle(
                                         fontSize: 11.sp,
                                         color: Colors.grey.shade700,
@@ -371,9 +356,7 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
                         decoration: BoxDecoration(
                           color: Colors.grey.shade50,
                           borderRadius: BorderRadius.circular(12.r),
-                          border: Border.all(
-                            color: Colors.grey.shade300,
-                          ),
+                          border: Border.all(color: Colors.grey.shade300),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

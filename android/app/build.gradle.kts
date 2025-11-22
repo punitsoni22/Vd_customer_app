@@ -13,6 +13,13 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
+// Load local.properties so we can read GOOGLE_MAPS_API_KEY defined there
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
+
 android {
     namespace = "com.veedasip.customer_app"
     compileSdk = flutter.compileSdkVersion
@@ -34,9 +41,12 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 
-        val googleMapsApiKey = project.findProperty("GOOGLE_MAPS_API_KEY") as String?
-            ?: System.getenv("GOOGLE_MAPS_API_KEY") 
-            ?: ""
+        // Prefer local.properties -> project properties -> environment variable
+        val googleMapsApiKey = (localProperties.getProperty("GOOGLE_MAPS_API_KEY")
+            ?: (project.findProperty("GOOGLE_MAPS_API_KEY") as String?)
+            ?: System.getenv("GOOGLE_MAPS_API_KEY")
+            ?: "")
+
         manifestPlaceholders["googleMapsApiKey"] = googleMapsApiKey
     }
 

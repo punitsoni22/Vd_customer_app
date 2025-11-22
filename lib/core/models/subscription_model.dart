@@ -6,6 +6,7 @@ class SubscriptionModel {
   final DateTime startDate;
   final DateTime endDate;
   final List<SubscriptionProduct> products;
+  final SubscriptionInvoice? invoice;
 
   SubscriptionModel({
     required this.id,
@@ -15,9 +16,13 @@ class SubscriptionModel {
     required this.startDate,
     required this.endDate,
     required this.products,
+    this.invoice,
   });
 
   factory SubscriptionModel.fromJson(Map<String, dynamic> json) {
+    final Map<String, dynamic>? invoiceJson =
+        (json['invoice'] as Map<String, dynamic>?);
+
     return SubscriptionModel(
       id: json['id'],
       customerName: json['customerName'] ?? '',
@@ -28,6 +33,9 @@ class SubscriptionModel {
       products: (json['products'] as List<dynamic>)
           .map((e) => SubscriptionProduct.fromJson(e))
           .toList(),
+      invoice: invoiceJson != null
+          ? SubscriptionInvoice.fromJson(invoiceJson)
+          : null,
     );
   }
 }
@@ -49,11 +57,39 @@ class SubscriptionProduct {
   });
 
   factory SubscriptionProduct.fromJson(Map<String, dynamic> json) {
+    // Extract image URL from the images array
+    String? imgUrl;
+    if (json['images'] != null && json['images'] is List) {
+      final images = json['images'] as List;
+      if (images.isNotEmpty) {
+        imgUrl = images[0]['imageUrl'] as String?;
+      }
+    }
+
     return SubscriptionProduct(
       productId: json['productId'],
       productName: json['productName'] ?? '',
       quantity: json['quantity'],
-      imageUrl: json['imageUrl'],
+      imageUrl: imgUrl,
+    );
+  }
+}
+
+class SubscriptionInvoice {
+  final String invoiceNumber;
+  final String invoiceUrl;
+  String? signedUrl;
+
+  SubscriptionInvoice({
+    required this.invoiceNumber,
+    required this.invoiceUrl,
+    this.signedUrl,
+  });
+
+  factory SubscriptionInvoice.fromJson(Map<String, dynamic> json) {
+    return SubscriptionInvoice(
+      invoiceNumber: json['invoiceNumber'] ?? '',
+      invoiceUrl: json['invoiceUrl'] ?? '',
     );
   }
 }

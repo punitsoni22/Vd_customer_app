@@ -2,15 +2,15 @@ class Order {
   final int orderId;
   final String status;
   final String orderConfirmedDate;
-
   final Cart cart;
+  final Invoice? invoice;
 
   Order({
     required this.orderId,
     required this.status,
     required this.orderConfirmedDate,
-
     required this.cart,
+    this.invoice,
   });
 
   factory Order.fromJson(Map<String, dynamic> json) {
@@ -26,12 +26,15 @@ class Order {
     final Map<String, dynamic> cartJson =
         (json['cart'] as Map<String, dynamic>?) ?? {};
 
+    final Map<String, dynamic>? invoiceJson =
+        (json['invoice'] as Map<String, dynamic>?);
+
     return Order(
       orderId: id,
       status: status,
       orderConfirmedDate: created,
-
       cart: Cart.fromJson(cartJson),
+      invoice: invoiceJson != null ? Invoice.fromJson(invoiceJson) : null,
     );
   }
 
@@ -40,6 +43,7 @@ class Order {
     "status": status,
     "orderConfirmedDate": orderConfirmedDate,
     "cart": cart.toJson(),
+    "invoice": invoice?.toJson(),
   };
 }
 
@@ -118,6 +122,35 @@ class ProductImages {
 
   Map<String, dynamic> toJson() => {
     "imageUrl": imageUrl,
+    "signedUrl": signedUrl,
+  };
+}
+
+class Invoice {
+  final int id;
+  final String invoiceNumber;
+  final String filePath;
+  String? signedUrl;
+
+  Invoice({
+    required this.id,
+    required this.invoiceNumber,
+    required this.filePath,
+    this.signedUrl,
+  });
+
+  factory Invoice.fromJson(Map<String, dynamic> json) {
+    return Invoice(
+      id: (json['id'] ?? 0) as int,
+      invoiceNumber: (json['invoiceNumber'] ?? '') as String,
+      filePath: (json['filePath'] ?? '') as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "invoiceNumber": invoiceNumber,
+    "filePath": filePath,
     "signedUrl": signedUrl,
   };
 }

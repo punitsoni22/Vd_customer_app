@@ -21,7 +21,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final provider = Provider.of<ProfileProvider>(context);
 
     String displayName = provider.fullName ?? 'Your name';
-    String displayPhone = provider.mobileNumber ?? '';
+    String displayPhone = provider.mobileNumber ?? 'xxxxx-xxxxx';
 
     return Scaffold(
       appBar: CommonAppBar(
