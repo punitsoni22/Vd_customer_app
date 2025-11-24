@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/core/models/product_model.dart';
+import 'package:vd_customer_app/core/utils/formatters.dart';
 
 class SubscriptionPriceDropdown extends StatefulWidget {
   final List<Variant> variants;
@@ -109,8 +110,9 @@ class _SubscriptionPriceDropdownState extends State<SubscriptionPriceDropdown> {
             final variant = entry.value;
             final quantity = variant.quantityInMl;
             final priceRaw = double.tryParse(variant.price ?? '');
-            final priceText =
-            priceRaw != null ? priceRaw.toStringAsFixed(0) : variant.price;
+            final priceText = priceRaw != null
+                ? priceRaw.toStringAsFixed(0)
+                : variant.price;
 
             return DropdownMenuItem<int>(
               value: idx,
@@ -118,7 +120,7 @@ class _SubscriptionPriceDropdownState extends State<SubscriptionPriceDropdown> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    '${quantity} ml',
+                    formatVolume(quantity).toUpperCase(),
                     style: TextStyle(
                       fontSize: 11.sp,
                       color: Colors.grey.shade700,

@@ -4,11 +4,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_appbar.dart';
 import 'package:vd_customer_app/widget/snack_bar.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:pdfx/pdfx.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:flutter/foundation.dart';
 
 class InvoiceViewerScreen extends StatefulWidget {
   final String invoiceUrl;
@@ -25,39 +24,57 @@ class InvoiceViewerScreen extends StatefulWidget {
 }
 
 class _InvoiceViewerScreenState extends State<InvoiceViewerScreen> {
-  late final WebViewController _controller;
+  File? _localPdfFile;
+  PdfController? _pdfController;
   bool _isLoading = true;
   bool _isDownloading = false;
 
   @override
   void initState() {
     super.initState();
-    _initializeWebView();
+    _preparePdf();
   }
 
-  void _initializeWebView() {
-    _controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onPageStarted: (String url) {
-            setState(() {
-              _isLoading = true;
-            });
-          },
-          onPageFinished: (String url) {
-            setState(() {
-              _isLoading = false;
-            });
-          },
-          onWebResourceError: (WebResourceError error) {
-            if (kDebugMode) {
-              print('WebView error: ${error.description}');
-            }
-          },
-        ),
-      )
-      ..loadRequest(Uri.parse(widget.invoiceUrl));
+  Future<void> _preparePdf() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final uri = Uri.parse(widget.invoiceUrl);
+      final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        final directory = await getTemporaryDirectory();
+        final fileName = '${widget.invoiceNumber}.pdf';
+        final filePath = '${directory.path}/$fileName';
+        final file = File(filePath);
+        await file.writeAsBytes(response.bodyBytes);
+        _localPdfFile = file;
+        try {
+          _pdfController = PdfController(
+            document: PdfDocument.openFile(filePath),
+          );
+        } catch (e) {
+          _pdfController = null;
+        }
+      } else {
+        if (mounted) {
+          MySnackBar.showSnackBar(
+            context,
+            'Failed to load invoice: ${response.statusCode}',
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted)
+        MySnackBar.showSnackBar(context, 'Error loading invoice: $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   Future<void> _shareInvoice() async {
@@ -66,22 +83,29 @@ class _InvoiceViewerScreenState extends State<InvoiceViewerScreen> {
     });
 
     try {
-      // Download the file to temporary directory
-      final response = await http.get(Uri.parse(widget.invoiceUrl));
+      File? fileToShare = _localPdfFile;
+      if (fileToShare == null) {
+        final response = await http.get(Uri.parse(widget.invoiceUrl));
+        if (response.statusCode == 200) {
+          final directory = await getTemporaryDirectory();
+          final fileName = '${widget.invoiceNumber}.pdf';
+          final filePath = '${directory.path}/$fileName';
+          final file = File(filePath);
+          await file.writeAsBytes(response.bodyBytes);
+          fileToShare = file;
+        } else {
+          if (mounted) {
+            MySnackBar.showSnackBar(
+              context,
+              'Failed to load invoice: ${response.statusCode}',
+            );
+          }
+        }
+      }
 
-      if (response.statusCode == 200) {
-        // Use temporary directory (no permissions needed)
-        final directory = await getTemporaryDirectory();
-        final fileName = '${widget.invoiceNumber}.html';
-        final filePath = '${directory.path}/$fileName';
-
-        // Write the file
-        final file = File(filePath);
-        await file.writeAsBytes(response.bodyBytes);
-
-        // Share the file using system share sheet
+      if (fileToShare != null) {
         final result = await Share.shareXFiles(
-          [XFile(filePath)],
+          [XFile(fileToShare.path)],
           text: 'Invoice ${widget.invoiceNumber}',
           subject: widget.invoiceNumber,
         );
@@ -90,13 +114,6 @@ class _InvoiceViewerScreenState extends State<InvoiceViewerScreen> {
           if (result.status == ShareResultStatus.success) {
             MySnackBar.showSnackBar(context, 'Invoice shared successfully');
           }
-        }
-      } else {
-        if (mounted) {
-          MySnackBar.showSnackBar(
-            context,
-            'Failed to load invoice: ${response.statusCode}',
-          );
         }
       }
     } catch (e) {
@@ -138,7 +155,6 @@ class _InvoiceViewerScreenState extends State<InvoiceViewerScreen> {
       ),
       body: Stack(
         children: [
-          WebViewWidget(controller: _controller),
           if (_isLoading)
             Center(
               child: CircularProgressIndicator(
@@ -146,9 +162,46 @@ class _InvoiceViewerScreenState extends State<InvoiceViewerScreen> {
                   AllColors.olivegreenColor,
                 ),
               ),
+            )
+          else if (_localPdfFile != null && _pdfController != null)
+            PdfView(controller: _pdfController!)
+          else if (_localPdfFile != null)
+            Center(
+              child: Text(
+                'Unable to open invoice file',
+                style: TextStyle(color: Colors.red.shade700),
+              ),
+            )
+          else
+            Center(
+              child: Text(
+                'Unable to load invoice',
+                style: TextStyle(color: Colors.red.shade700),
+              ),
+            ),
+          if (_isDownloading)
+            Positioned(
+              top: 12,
+              right: 12,
+              child: SizedBox(
+                width: 28.w,
+                height: 28.h,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    AllColors.olivegreenColor,
+                  ),
+                ),
+              ),
             ),
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _pdfController?.dispose();
+    super.dispose();
   }
 }

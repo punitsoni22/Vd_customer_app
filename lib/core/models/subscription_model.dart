@@ -7,6 +7,7 @@ class SubscriptionModel {
   final DateTime endDate;
   final List<SubscriptionProduct> products;
   final SubscriptionInvoice? invoice;
+  final int? status;
 
   SubscriptionModel({
     required this.id,
@@ -17,6 +18,7 @@ class SubscriptionModel {
     required this.endDate,
     required this.products,
     this.invoice,
+    this.status,
   });
 
   factory SubscriptionModel.fromJson(Map<String, dynamic> json) {
@@ -36,9 +38,13 @@ class SubscriptionModel {
       invoice: invoiceJson != null
           ? SubscriptionInvoice.fromJson(invoiceJson)
           : null,
+      status: json['status'] is int
+          ? json['status'] as int
+          : (json['status'] is String ? int.tryParse(json['status']) : null),
     );
   }
 }
+enum eSubscriptionStatus { PAUSED, RESUMED, CANCELLED }
 
 class SubscriptionProduct {
   final int productId;
