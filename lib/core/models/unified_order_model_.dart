@@ -3,6 +3,7 @@ class UnifiedOrderModel {
   final String type;
   final String date;
   final String status;
+  final int? currentStatus;
   final String productName;
   final int quantity;
   final String? signedUrl;
@@ -17,6 +18,7 @@ class UnifiedOrderModel {
     required this.type,
     required this.date,
     required this.status,
+    this.currentStatus,
     required this.productName,
     required this.quantity,
     this.signedUrl,

@@ -121,9 +121,8 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                               child: MyOrderCard(
                                 id: '${item.type == "subscription" ? "Subscription ID" : "Order ID"}: ${item.id}',
                                 date: item.date,
-                                status: item.type == "subscription"
-                                    ? null
-                                    : item.status,
+
+                                status: item.status,
                                 productName: item.productName,
                                 imageUrl:
                                     item.signedUrl ??
@@ -137,6 +136,9 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                                     : "PayPal",
                                 invoiceUrl: item.invoiceUrl,
                                 invoiceNumber: item.invoiceNumber,
+                                currentStatus: item.type == "subscription"
+                                    ? item.currentStatus
+                                    : null,
                                 onViewTap: () {
                                   if (item.type == "subscription") {
                                     Navigator.push(
@@ -243,6 +245,7 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                                     "Next Delivery : ${sub.startDate.toString().split(' ').first}",
                                 invoiceUrl: sub.invoice?.signedUrl,
                                 invoiceNumber: sub.invoice?.invoiceNumber,
+                                currentStatus: sub.status,
                                 onViewTap: () {
                                   Navigator.push(
                                     context,

@@ -9,6 +9,7 @@ import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
 import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
 import 'package:vd_customer_app/feature/product_detail_screen/provider/product_detail_provider.dart';
+import 'package:vd_customer_app/core/utils/formatters.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -27,10 +28,9 @@ class ProductCard extends StatelessWidget {
   }
 
   String _quantityinMl(Product p) {
-    final quantityInml = (p.variants.first.quantityInMl)
-        .toString()
-        .toUpperCase();
-    return '$quantityInml ';
+    // Use formatVolume to present ml or liters appropriately
+    final formatted = formatVolume(p.variants.first.quantityInMl);
+    return formatted.toUpperCase();
   }
 
   String _price(Product p) {
@@ -173,16 +173,6 @@ class ProductCard extends StatelessWidget {
                                   fontSize: 11.sp,
                                   fontWeight: FontWeight.w500,
                                   letterSpacing: 0.2,
-                                  color: AllColors.buttonColor,
-                                ),
-                              ),
-
-                              TextSpan(
-                                text: 'Litre',
-                                style: TextStyle(
-                                  fontSize: 11.sp,
-                                  fontWeight: FontWeight.w500,
-
                                   color: AllColors.buttonColor,
                                 ),
                               ),

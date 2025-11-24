@@ -21,6 +21,8 @@ class MyOrderCard extends StatelessWidget {
   final String? invoiceNumber;
   final VoidCallback? onInvoiceTap;
   final VoidCallback? onViewTap;
+  final Function(int)? onStatusChange;
+  final int? currentStatus;
 
   const MyOrderCard({
     super.key,
@@ -41,6 +43,8 @@ class MyOrderCard extends StatelessWidget {
     this.invoiceNumber,
     this.onInvoiceTap,
     this.onViewTap,
+    this.onStatusChange,
+    this.currentStatus,
   });
 
   String capitalize(String s) {
@@ -90,6 +94,25 @@ class MyOrderCard extends StatelessWidget {
                         status!,
                         style: TextStyle(
                           color: statusFontColor(status!),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12.sp,
+                        ),
+                      ),
+                    )
+                  : (currentStatus != null)
+                  ? Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12.w,
+                        vertical: 5.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(20.r),
+                      ),
+                      child: Text(
+                        _statusLabelFromNumeric(currentStatus),
+                        style: TextStyle(
+                          color: Colors.black87,
                           fontWeight: FontWeight.w500,
                           fontSize: 12.sp,
                         ),
@@ -195,19 +218,67 @@ class MyOrderCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              // Expanded(
-              //   child: CommonButton(
-              //     buttonValue: button1 ?? "Reorder",
-              //     onTap: () {},
-              //     color: AllColors.tabBarline,
-              //     selfconstraints: BoxConstraints(minHeight: 37.h),
-              //     padding: EdgeInsets.symmetric(
-              //       horizontal: 10.w,
-              //       vertical: 6.h,
-              //     ),
-              //     fontSize: 12.sp,
-              //   ),
-              // ),
+              if (onStatusChange != null)
+                Expanded(
+                  child: PopupMenuButton<int>(
+                    onSelected: (val) => onStatusChange!(val),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 8.h),
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: AllColors.tabBarline.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(6.r),
+                      ),
+                      child: Text(
+                        _statusLabelFromNumeric(currentStatus),
+                        style: TextStyle(fontSize: 13.sp),
+                      ),
+                    ),
+                    itemBuilder: (context) {
+                      final List<PopupMenuEntry<int>> items = [];
+                      if (currentStatus == null) {
+                        items.add(
+                          const PopupMenuItem(value: 0, child: Text('Pause')),
+                        ); // PAUSED
+                        items.add(
+                          const PopupMenuItem(value: 1, child: Text('Resume')),
+                        ); // RESUMED
+                        items.add(
+                          const PopupMenuItem(value: 2, child: Text('Cancel')),
+                        ); // CANCELLED
+                      } else {
+                        final st = currentStatus!;
+                        if (st == 1) {
+                          items.add(
+                            const PopupMenuItem(value: 0, child: Text('Pause')),
+                          );
+                          items.add(
+                            const PopupMenuItem(
+                              value: 2,
+                              child: Text('Cancel'),
+                            ),
+                          );
+                        } else if (st == 0) {
+                          items.add(
+                            const PopupMenuItem(
+                              value: 1,
+                              child: Text('Resume'),
+                            ),
+                          );
+                          items.add(
+                            const PopupMenuItem(
+                              value: 2,
+                              child: Text('Cancel'),
+                            ),
+                          );
+                        }
+                      }
+                      return items;
+                    },
+                  ),
+                )
+              else
+                SizedBox(width: 10.w),
               SizedBox(width: 10.w),
               Expanded(
                 child: CommonButton(
@@ -246,10 +317,29 @@ class MyOrderCard extends StatelessWidget {
       ),
     );
   }
+
+  String _statusLabelFromNumeric(int? st) {
+    switch (st) {
+      case 0:
+        return 'Paused';
+      case 1:
+        return 'Resumed';
+      case 2:
+        return 'Cancelled';
+      default:
+        return 'Status';
+    }
+  }
 }
 
 Color getStatusColor(String status) {
   switch (status) {
+    case 'Paused':
+      return Colors.orange.shade100;
+    case 'Resumed':
+      return Colors.green.shade100;
+    case 'Cancelled':
+      return Colors.red.shade100;
     case 'DELIVERED':
       return Colors.blue.shade50;
     case 'ACTIVE':
@@ -266,6 +356,12 @@ Color getStatusColor(String status) {
 
 Color statusFontColor(String status) {
   switch (status) {
+    case 'Paused':
+      return Colors.orange.shade700;
+    case 'Resumed':
+      return Colors.green.shade700;
+    case 'Cancelled':
+      return Colors.red.shade700;
     case 'DELIVERED':
       return Colors.blue;
     case 'ACTIVE':

@@ -69,24 +69,32 @@ class MyOrderProvider extends ChangeNotifier {
     }
 
     for (var sub in _subscriptions) {
-      for (var p in sub.products) {
-        _allOrdersUnified.add(
-          UnifiedOrderModel(
-            id: sub.id.toString(),
-            type: "subscription",
-            date: sub.startDate.toString().split(" ").first,
-            status: sub.subscriptionType,
-            productName: p.productName,
-            quantity: p.quantity,
-            signedUrl: p.signedUrl,
-            rawImageUrl: p.imageUrl,
-            nextDelivery: sub.startDate.toString().split(" ").first,
-            deliveryFrequency: sub.deliveryFrequencyType,
-            invoiceUrl: sub.invoice?.signedUrl,
-            invoiceNumber: sub.invoice?.invoiceNumber,
-          ),
-        );
-      }
+      final p = sub.products.isNotEmpty ? sub.products[0] : null;
+      final String computedStatus = sub.status != null
+          ? (sub.status == 0
+                ? 'Paused'
+                : (sub.status == 1
+                      ? 'Resumed'
+                      : (sub.status == 2 ? 'Cancelled' : sub.subscriptionType)))
+          : sub.subscriptionType;
+
+      _allOrdersUnified.add(
+        UnifiedOrderModel(
+          id: sub.id.toString(),
+          type: "subscription",
+          date: sub.startDate.toString().split(" ").first,
+          status: computedStatus,
+          currentStatus: sub.status,
+          productName: p?.productName ?? 'Subscription Product',
+          quantity: p?.quantity ?? 1,
+          signedUrl: p?.signedUrl,
+          rawImageUrl: p?.imageUrl,
+          nextDelivery: sub.startDate.toString().split(" ").first,
+          deliveryFrequency: sub.deliveryFrequencyType,
+          invoiceUrl: sub.invoice?.signedUrl,
+          invoiceNumber: sub.invoice?.invoiceNumber,
+        ),
+      );
     }
 
     _allOrdersUnified.sort((a, b) => b.date.compareTo(a.date));
@@ -243,7 +251,6 @@ class MyOrderProvider extends ChangeNotifier {
                   product.signedUrl = await generateSignedUrl(
                     product.imageUrl!,
                   );
-                 
                 } catch (e) {
                   if (kDebugMode) log("Product image S3 URL failed: $e");
                   product.signedUrl = null;
