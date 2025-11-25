@@ -27,7 +27,7 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
     _tabController = TabController(length: 3, vsync: this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<MyOrderProvider>().loadAllForTab1();
+      context.read<MyOrderProvider>().loadAllForTab1(force: true);
     });
 
     // Keep lazy-loading behavior on tab change
@@ -87,8 +87,9 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                 // Pull-to-refresh wrapper for the All Orders tab
                 RefreshIndicator(
                   onRefresh: () async {
-                    // call provider method to refresh data
-                    await context.read<MyOrderProvider>().loadAllForTab1();
+                    await context.read<MyOrderProvider>().loadAllForTab1(
+                      force: true,
+                    );
                   },
                   child: provider.isLoadingAll
                       ? SingleChildScrollView(
@@ -338,6 +339,16 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                                 paymentMethod: 'PayPal',
                                 invoiceUrl: order.invoice?.signedUrl,
                                 invoiceNumber: order.invoice?.invoiceNumber,
+                                onViewTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => OrderDetailScreen(
+                                        orderId: order.orderId,
+                                      ),
+                                    ),
+                                  );
+                                },
                                 onInvoiceTap:
                                     (order.invoice?.signedUrl != null &&
                                         order.invoice?.invoiceNumber != null)

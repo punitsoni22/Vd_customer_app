@@ -101,8 +101,18 @@ class MyOrderProvider extends ChangeNotifier {
     _safeNotify();
   }
 
-  Future<void> loadAllForTab1() async {
-    if (isLoadingAll || allDataLoaded) return;
+  Future<void> loadAllForTab1({bool force = false}) async {
+    if (isLoadingAll) return;
+    if (allDataLoaded && !force) return;
+
+    if (force) {
+      allDataLoaded = false;
+      subscriptionsLoaded = false;
+      ordersLoaded = false;
+      _subscriptions.clear();
+      _orders.clear();
+      _allOrdersUnified.clear();
+    }
 
     isLoadingAll = true;
     _safeNotify();
