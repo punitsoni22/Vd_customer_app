@@ -1,10 +1,8 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:vd_customer_app/core/models/product_model.dart';
-import 'package:vd_customer_app/core/routing/routes.dart';
-import 'package:vd_customer_app/core/services/api_services.dart';
-import 'package:vd_customer_app/core/services/signedurl.dart';
+
+import '../../../core/models/product_model.dart';
+import '../../../core/services/api_services.dart';
+import '../../../core/services/signedurl.dart';
 
 class ProductDetailProvider extends ChangeNotifier {
   bool isLoading = false;
@@ -53,8 +51,6 @@ class ProductDetailProvider extends ChangeNotifier {
       final response = await Api.post('getSpecificProducts', {
         "data": {"productId": productId},
       });
-      log("Specific Product API Response → $response");
-
       if (response['success'] == true && response['data'] != null) {
         selectedProduct = Product.fromJson(response['data']);
 

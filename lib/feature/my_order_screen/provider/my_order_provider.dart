@@ -152,17 +152,8 @@ class MyOrderProvider extends ChangeNotifier {
         final pagination = response['data']?['pagination'] ?? {};
         currentPage = pagination['page'] ?? 1;
         totalPages = pagination['totalPages'] ?? 1;
-
         _orders.clear();
         _orders.addAll(items.map((e) => Order.fromJson(e)));
-
-        log("Orders parsed: ${_orders.length}");
-        for (var order in _orders) {
-          log(
-            "OrderID: ${order.orderId}, CartDetails: ${order.cart.cartDetails.length}",
-          );
-        }
-
         await Future.wait(
           _orders.map((order) async {
             for (var cartDetail in order.cart.cartDetails) {
@@ -172,21 +163,17 @@ class MyOrderProvider extends ChangeNotifier {
                   cartDetail.productImages.signedUrl = await generateSignedUrl(
                     imageUrl,
                   );
-                  log("Signed URL generated for ${cartDetail.productName}");
                 } catch (e) {
                   if (kDebugMode) log("S3 URL failed for $imageUrl: $e");
                   cartDetail.productImages.signedUrl = null;
                 }
               }
             }
-
-            // Generate signed URL for invoice
             if (order.invoice != null && order.invoice!.filePath.isNotEmpty) {
               try {
                 order.invoice!.signedUrl = await generateSignedUrl(
                   order.invoice!.filePath,
                 );
-                log("Invoice signed URL generated for Order ${order.orderId}");
               } catch (e) {
                 if (kDebugMode) log("Invoice S3 URL failed: $e");
                 order.invoice!.signedUrl = null;
@@ -223,17 +210,11 @@ class MyOrderProvider extends ChangeNotifier {
     _safeNotify();
 
     try {
-      // final token = await Prefs.getString(Prefs.keyAuthToken) ?? "";
-
       final response = await Api.post("getAllSubscription", {
         "page": page,
         "pageSize": 10,
         "searchText": "",
-        // "token": token,
       });
-
-      log("Subscription API Response: $response");
-
       if (rid != _requestId) return;
 
       if (response["success"] == true) {

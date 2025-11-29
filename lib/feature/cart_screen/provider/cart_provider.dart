@@ -4,6 +4,7 @@ import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
 import 'package:vd_customer_app/widget/snack_bar.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vd_customer_app/core/services/signedurl.dart';
 import 'package:vd_customer_app/core/routing/routes.dart';
 
 class CartProvider extends ChangeNotifier {
@@ -28,19 +29,16 @@ class CartProvider extends ChangeNotifier {
 
   bool get hasPendingChanges => _pendingQuantityChanges.isNotEmpty;
 
-  
   int getDisplayQuantity(CartDetail item) {
     final key = '${item.productId}_${item.variantId}';
     return _pendingQuantityChanges[key] ?? item.quantity;
   }
 
-  
   void cancelQuantityChanges() {
     _pendingQuantityChanges.clear();
     notifyListeners();
   }
 
-  
   Future<void> saveQuantityChanges(BuildContext context) async {
     if (!hasPendingChanges) return;
 
@@ -48,7 +46,6 @@ class CartProvider extends ChangeNotifier {
       _isUpdatingQuantity = true;
       notifyListeners();
 
-      
       final productsPayload = cartItems.map((item) {
         final key = '${item.productId}_${item.variantId}';
         final newQuantity = _pendingQuantityChanges[key] ?? item.quantity;
@@ -61,30 +58,28 @@ class CartProvider extends ChangeNotifier {
         };
       }).toList();
 
-      
-      double total = 0;
-      for (final p in productsPayload) {
-        final q = (p['quantity'] is int)
-            ? (p['quantity'] as int)
-            : int.tryParse(p['quantity'].toString()) ?? 0;
-        final pr = double.tryParse(p['price'].toString()) ?? 0.0;
-        total += pr * q;
-      }
+      // double total = 0;
+      // for (final p in productsPayload) {
+      //   final q = (p['quantity'] is int)
+      //       ? (p['quantity'] as int)
+      //       : int.tryParse(p['quantity'].toString()) ?? 0;
+      //   final pr = double.tryParse(p['price'].toString()) ?? 0.0;
+      //   // total += pr * q;
+      // }
 
       final payload = {
         "data": {
           if (cartId != null) 'id': cartId,
           "products": productsPayload,
-          "totalPrice": total,
+          // "totalPrice": total,
         },
       };
 
       final response = await Api.post('addEditCart', payload);
 
       if (response['success'] == true && response['data'] != null) {
-        
         _pendingQuantityChanges.clear();
-        setCartFromApi(response['data']);
+        await setCartFromApi(response['data']);
         await fetchLatestCart(context);
 
         if (context.mounted) {
@@ -107,15 +102,26 @@ class CartProvider extends ChangeNotifier {
     }
   }
 
-  void setCartFromApi(Map<String, dynamic> data) {
-    
+  Future<void> setCartFromApi(Map<String, dynamic> data) async {
     final cart = Cart.fromJson(data);
 
-    
     if (cart.isActive && cart.cartDetails.isNotEmpty) {
+      for (var detail in cart.cartDetails) {
+        if (detail.product != null && detail.product!.images.isNotEmpty) {
+          List<String> signedImages = [];
+          for (var rawUrl in detail.product!.images) {
+            if (rawUrl.isNotEmpty) {
+              final signed = await generateSignedUrl(rawUrl);
+              signedImages.add(signed);
+            }
+          }
+          // Update the images list with signed URLs
+          detail.product!.images.clear();
+          detail.product!.images.addAll(signedImages);
+        }
+      }
       _cart = cart;
     } else {
-      
       _cart = null;
     }
     notifyListeners();
@@ -134,23 +140,12 @@ class CartProvider extends ChangeNotifier {
 
   Future<void> fetchLatestCart(BuildContext context) async {
     try {
-      // final userId = await getCurrentUserId();
-      // print("DEBUG: Current userId = $userId");
-
-      // if (userId == null) return;
-
-      final response = await Api.post('getLatestCartByUserId', {
-        "data": {},
-      });
-
-      print("DEBUG: API Response = $response");
-
+      final response = await Api.post('getLatestCartByUserId', {"data": {}});
       if (response['success'] == true && response['data'] != null) {
-        setCartFromApi(response['data']);
+        await setCartFromApi(response['data']);
       } else {
-        final msg = response['message'] ?? 'Failed to add to cart';
-        print('addEditCart failed: $msg');
-
+        clearCart();
+        final msg = response['message'] ?? 'Failed to fetch cart';
         try {
           final msgStr = msg.toString();
           if (msgStr.contains('401')) {
@@ -174,33 +169,25 @@ class CartProvider extends ChangeNotifier {
     BuildContext? context,
   }) async {
     try {
-      // Step 1: fetch latest cart from backend
       final latest = await Api.post('getLatestCartByUserId', {});
-
       int cartIdToUse = 0;
       List existingDetails = [];
 
       if (latest['success'] == true && latest['data'] != null) {
         final data = latest['data'] as Map<String, dynamic>;
-        // use existing cart id only if status is ACTIVE
         final status = (data['status'] ?? '').toString().toUpperCase();
         if (status == 'ACTIVE') {
           cartIdToUse = data['id'] ?? 0;
           existingDetails = (data['cartDetails'] as List<dynamic>?) ?? [];
         } else {
-          // non-active cart -> create new (id 0)
           cartIdToUse = 0;
           existingDetails = [];
         }
       } else {
-        // no cart exists -> create new with id = 0
         cartIdToUse = 0;
         existingDetails = [];
       }
-
-      // Step 2: build products payload from existing details + new item
       final List<Map<String, dynamic>> productsPayload = [];
-
       for (final d in existingDetails) {
         try {
           productsPayload.add({
@@ -211,48 +198,28 @@ class CartProvider extends ChangeNotifier {
           });
         } catch (_) {}
       }
-
-      // Append new item (backend will decide how to merge/update quantities)
       productsPayload.add({
         'productId': item.productId,
         'variantId': item.variantId,
         'quantity': item.quantity,
         'price': item.price,
       });
-
-      // Step 3: compute totalPrice (sum of price * quantity)
-      double total = 0;
-      for (final p in productsPayload) {
-        final q = (p['quantity'] is int)
-            ? (p['quantity'] as int)
-            : int.tryParse(p['quantity'].toString()) ?? 0;
-        final pr = double.tryParse(p['price'].toString()) ?? 0.0;
-        total += pr * q;
-      }
-
       final payload = {
         'data': {
           'id': cartIdToUse,
           'products': productsPayload,
-          'totalPrice': total,
         },
       };
-
-      // Step 4: call addEditCart API
       final resp = await Api.post('addEditCart', payload);
       print('addItem API Response: $resp');
 
       if (resp['success'] == true && resp['data'] != null) {
-        // Update local cart from backend response
         setCartFromApi(resp['data']);
         await fetchLatestCart(context!);
         return {'success': true, 'message': 'Added to cart successfully'};
       } else {
-        // API returned failure - print/log and return message
         final msg = resp['message'] ?? 'Failed to add to cart';
         print('addEditCart failed: $msg');
-
-        // If server returned 401 (unauthorized), clear prefs, clear cart and navigate to login
         try {
           final msgStr = msg.toString();
           if (msgStr.contains('401')) {
@@ -372,7 +339,7 @@ class CartProvider extends ChangeNotifier {
       print('Add/Edit Cart Response: $response');
 
       if (response['success'] == true && response['data'] != null) {
-        setCartFromApi(response['data']);
+        await setCartFromApi(response['data']);
         await fetchLatestCart(context);
       } else {
         print('Cart API error: ${response['message'] ?? 'No message'}');

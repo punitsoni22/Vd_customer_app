@@ -106,7 +106,11 @@ class _SubscriptionProductScreenState extends State<SubscriptionProductScreen> {
   Widget _buildScaffold(ProductProvider provider) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: CommonAppBar(title: 'Subscription'),
+      appBar: CommonAppBar(
+        title: 'Subscription',
+        showBack: widget.preSelectedProducts != null,
+        onBack: () => context.pop(),
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 12.0.w, vertical: 10.h),
@@ -174,6 +178,7 @@ class _SubscriptionProductScreenState extends State<SubscriptionProductScreen> {
         ),
       ),
       bottomNavigationBar: BottomAppBar(
+        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 12.w),
         color: Colors.white,
         child: CommonButton(
           onTap: _selectedProducts.isEmpty

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:vd_customer_app/feature/product_detail_screen/widget/productimagecontainer.dart';
 
 import '../../core/models/cart_model.dart';
 import '../../core/models/product_model.dart';
@@ -16,6 +15,7 @@ import '../../widget/snack_bar.dart';
 import '../cart_screen/provider/cart_provider.dart';
 import '../home_screen/widgets/home_product_card.dart';
 import 'provider/product_detail_provider.dart';
+import 'widget/productimagecontainer.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   const ProductDetailScreen({super.key});
@@ -79,6 +79,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         },
       ),
       bottomNavigationBar: BottomAppBar(
+        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 12.w),
         color: Colors.white,
         child: Row(
           children: [
@@ -121,7 +122,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         .toList(),
                   };
 
-                  context.goNamed(
+                  context.pushNamed(
                     AppRoutes.subscriptionProductScreen,
                     extra: {
                       'preSelectedProducts': [preSelectedProduct],

@@ -85,15 +85,11 @@ class LoginProvider extends ChangeNotifier {
         final token = res['data']?['token']?.toString();
         if (token != null) {
           await Prefs.saveString(Prefs.keyAuthToken, token);
-          print("DEBUG: Login response data = ${res['data']}");
-
           try {
             final payload = _decodeJwt(token);
             final userId = payload['id'];
             if (userId != null) {
               await Prefs.saveString("user_id", userId.toString());
-              print("DEBUG: User ID extracted from token → $userId");
-
               context.read<CartProvider>().fetchLatestCart(context);
             }
           } catch (e) {
@@ -173,8 +169,6 @@ class LoginProvider extends ChangeNotifier {
         final userId = res['dataResponse']?['userId']?.toString();
         if (userId != null) {
           await Prefs.saveString("user_id", userId);
-          print("DEBUG: User ID saved → $userId");
-
           context.read<CartProvider>().fetchLatestCart(context);
         }
 
