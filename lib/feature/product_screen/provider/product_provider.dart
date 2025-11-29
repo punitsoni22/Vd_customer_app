@@ -10,20 +10,15 @@ class ProductProvider extends ChangeNotifier {
   List<Product> products = [];
 
   Future<void> getProducts(Map<String, dynamic> requestData) async {
-    // log("Request Data → $requestData");
-    log("Products count: ${products.length}");
     isLoading = true;
     message = null;
     notifyListeners();
 
     try {
       final response = await Api.post('getAllProducts', requestData);
-
       if (response['success'] == true) {
         final List<dynamic> items = response['data']?['items'] ?? [];
         products = items.map((e) => Product.fromJson(e)).toList();
-
-        // Generate signed URLs for each product image , forloop
         for (var product in products) {
           for (var image in product.images) {
             if (image.rawImageUrl.isNotEmpty) {
@@ -31,7 +26,6 @@ class ProductProvider extends ChangeNotifier {
             }
           }
         }
-
         message = response['message'] ?? "Products fetched successfully";
       } else {
         products = [];

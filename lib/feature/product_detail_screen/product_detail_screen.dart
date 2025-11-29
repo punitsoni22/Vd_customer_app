@@ -1,21 +1,19 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:vd_customer_app/core/models/cart_model.dart';
-import 'package:vd_customer_app/core/models/product_model.dart';
-import 'package:vd_customer_app/core/routing/routes.dart';
-import 'package:vd_customer_app/core/theme/colors.dart';
-import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
 import 'package:vd_customer_app/feature/product_detail_screen/widget/productimagecontainer.dart';
-import 'package:vd_customer_app/widget/snack_bar.dart';
 
+import '../../core/models/cart_model.dart';
+import '../../core/models/product_model.dart';
+import '../../core/routing/routes.dart';
+import '../../core/theme/colors.dart';
 import '../../core/utils/common_widgets/common_add_subt_button.dart';
 import '../../core/utils/common_widgets/common_appbar.dart';
 import 'package:vd_customer_app/core/utils/formatters.dart';
 import '../../core/utils/common_widgets/common_button.dart';
+import '../../widget/snack_bar.dart';
+import '../cart_screen/provider/cart_provider.dart';
 import '../home_screen/widgets/home_product_card.dart';
 import 'provider/product_detail_provider.dart';
 
@@ -90,12 +88,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 borderColor: AllColors.tabBarline,
                 textStyle: TextStyle(
                   color: AllColors.iconColor,
-                  fontSize: 15.sp,
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.w500,
                 ),
-                padding: EdgeInsets.symmetric(vertical: 8.h),
                 backgroundColor: Colors.transparent,
-                selfconstraints: BoxConstraints(minHeight: 44.h),
                 onTap: () {
                   final productProvider = context.read<ProductDetailProvider>();
                   final selectedProduct = productProvider.selectedProduct;
@@ -141,10 +137,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 variant: ButtonVariant.filled,
                 color: AllColors.buttonColor,
                 foregroundColor: Colors.white,
-                selfconstraints: BoxConstraints(minHeight: 44.h),
-                fontSize: 15.sp,
+                fontSize: 16.sp,
                 isLoading: isAddingToCart,
-                padding: EdgeInsets.symmetric(vertical: 8.h),
                 onTap: isAddingToCart
                     ? null
                     : () async {
@@ -188,8 +182,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           cartDetail,
                           context: context,
                         );
-                        log("this messafe $result");
-
                         setState(() {
                           isAddingToCart = false;
                         });
@@ -229,22 +221,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade50,
-                        borderRadius: BorderRadius.circular(16.r),
-                        border: Border.all(color: Colors.grey.shade200),
-                      ),
-                      padding: EdgeInsets.all(10.r),
-                      child: SizedBox(
-                        height: 260.h,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12.r),
-                          child: const ProductImageContainer(),
-                        ),
-                      ),
-                    ),
+                    const ProductImageContainer(),
                     SizedBox(height: 14.h),
                     Text(
                       product.productName,
@@ -277,13 +254,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         ),
                       ],
                     ),
-                    const Divider(height: 24),
-
-                    // VOLUME
+                    Divider(height: 24.h),
                     Text(
                       'Volume',
                       style: TextStyle(
-                        fontSize: 15.sp,
+                        fontSize: 16.sp,
                         color: AllColors.iconColor,
                         fontWeight: FontWeight.w600,
                       ),
@@ -293,7 +268,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: product.variants.map((variant) {
-                          // assuming quantityInMl is in ml; if it's litres, adjust label
                           final displayQuantity = formatVolume(
                             variant.quantityInMl,
                           );
@@ -337,12 +311,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                     ),
                     SizedBox(height: 16.h),
-
-                    // QUANTITY
                     Text(
                       'Quantity',
                       style: TextStyle(
-                        fontSize: 15.sp,
+                        fontSize: 16.sp,
                         color: AllColors.iconColor,
                         fontWeight: FontWeight.w600,
                       ),
@@ -429,7 +401,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             gridDelegate:
                                 const SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 2,
-                                  childAspectRatio: 0.6,
+                                  childAspectRatio: 0.8,
                                   crossAxisSpacing: 14,
                                   mainAxisSpacing: 14,
                                 ),

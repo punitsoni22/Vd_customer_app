@@ -18,16 +18,12 @@ class ProfileProvider extends ChangeNotifier {
   String? roleName;
 
   Future<void> fetchSpecificUser(BuildContext context) async {
-    log("Fetching specific user started");
     isLoading = true;
     message = null;
     notifyListeners();
 
     try {
       final response = await Api.post("getSpecificUser", {"data": {}});
-
-      log("getSpecificUser API Response → $response");
-
       if (response["success"] == true && response["data"] != null) {
         final userData = response["data"];
         id = userData["id"];
@@ -38,10 +34,8 @@ class ProfileProvider extends ChangeNotifier {
         roleName = userData["role"]?["name"];
 
         message = response["message"] ?? "User details fetched successfully";
-        log("User fetched → $fullName | $mobileNumber | Role: $roleName");
       } else {
         message = response["message"] ?? "Failed to fetch user details";
-        log("Fetch failed → $message");
         final msgStr = message.toString();
         if (msgStr.contains('401')) {
           await Prefs.clear(Prefs.keyAuthToken);

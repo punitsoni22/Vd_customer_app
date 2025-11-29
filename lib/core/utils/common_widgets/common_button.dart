@@ -86,7 +86,7 @@ class CommonButton extends StatelessWidget {
                       blurRadius: elevation!,
                       spreadRadius: 0,
                       offset: const Offset(0, 2),
-                      color: Colors.black.withOpacity(0.12),
+                      color: Colors.black.withValues(alpha: 0.12),
                     ),
                   ]
                 : null,

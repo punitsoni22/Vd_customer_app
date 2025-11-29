@@ -7,7 +7,7 @@ String formatVolume(dynamic quantityInMl) {
     if (n % 1 == 0) {
       return '${n.toInt()} ml';
     }
-    return '${n} ml';
+    return '$n ml';
   }
   final liters = n / 1000;
   final formatted = double.parse(liters.toStringAsFixed(2)).toString();

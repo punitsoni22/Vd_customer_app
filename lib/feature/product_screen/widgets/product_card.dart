@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
-import 'package:vd_customer_app/core/models/cart_model.dart';
-import 'package:vd_customer_app/core/models/product_model.dart';
-import 'package:vd_customer_app/core/routing/routes.dart';
-import 'package:vd_customer_app/core/theme/colors.dart';
-import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
-import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
-import 'package:vd_customer_app/feature/product_detail_screen/provider/product_detail_provider.dart';
-import 'package:vd_customer_app/core/utils/formatters.dart';
+
+import '../../../core/models/product_model.dart';
+import '../../../core/routing/routes.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/utils/formatters.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -28,7 +24,6 @@ class ProductCard extends StatelessWidget {
   }
 
   String _quantityinMl(Product p) {
-    // Use formatVolume to present ml or liters appropriately
     final formatted = formatVolume(p.variants.first.quantityInMl);
     return formatted.toUpperCase();
   }
@@ -70,18 +65,14 @@ class ProductCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                flex: 5,
+              AspectRatio(
+                aspectRatio: 1,
                 child: Container(
                   alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: Colors.teal.withValues(alpha: 0.10),
-                  ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(15.r),
                     child: SizedBox(
                       width: double.infinity,
-                      height: double.infinity,
                       child: (imgUrl != null && imgUrl.isNotEmpty)
                           ? Image.network(
                               imgUrl,
@@ -160,7 +151,7 @@ class ProductCard extends StatelessWidget {
                           ),
                         ],
                       ),
-                      SizedBox(height: 8.h),
+                      SizedBox(height: 4.h),
                       Expanded(
                         child: RichText(
                           maxLines: 1,
@@ -170,7 +161,7 @@ class ProductCard extends StatelessWidget {
                               TextSpan(
                                 text: _quantityinMl(product),
                                 style: TextStyle(
-                                  fontSize: 11.sp,
+                                  fontSize: 12.sp,
                                   fontWeight: FontWeight.w500,
                                   letterSpacing: 0.2,
                                   color: AllColors.buttonColor,
@@ -180,7 +171,7 @@ class ProductCard extends StatelessWidget {
                           ),
                         ),
                       ),
-
+                      SizedBox(height: 4.h),
                       Expanded(
                         child: RichText(
                           maxLines: 1,

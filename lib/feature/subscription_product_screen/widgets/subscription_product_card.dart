@@ -52,11 +52,11 @@ class _SubscriptionProductCardState extends State<SubscriptionProductCard> {
     final primary = AllColors.olivegreenColor;
 
     final String? imgUrl =
-    (widget.product != null && widget.product!.images.isNotEmpty)
+        (widget.product != null && widget.product!.images.isNotEmpty)
         ? widget.product!.images.first.signedUrl
         : null;
     final String productName =
-    (widget.product != null && widget.product!.productName.isNotEmpty)
+        (widget.product != null && widget.product!.productName.isNotEmpty)
         ? widget.product!.productName.toUpperCase()
         : 'N/A';
 
@@ -86,26 +86,24 @@ class _SubscriptionProductCardState extends State<SubscriptionProductCard> {
             flex: 10,
             child: Container(
               alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: primary.withValues(alpha: 0.08),
-              ),
+              decoration: BoxDecoration(color: primary.withValues(alpha: 0.08)),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(15.r),
+                borderRadius: BorderRadius.circular(14.r),
                 child: SizedBox(
                   width: double.infinity,
                   child: (imgUrl != null && imgUrl.isNotEmpty)
                       ? Image.network(
-                    imgUrl,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Image.asset(
-                      'assets/images/Bigbottle.png',
-                      fit: BoxFit.cover,
-                    ),
-                  )
+                          imgUrl,
+                          fit: BoxFit.fill,
+                          errorBuilder: (_, __, ___) => Image.asset(
+                            'assets/images/Bigbottle.png',
+                            fit: BoxFit.cover,
+                          ),
+                        )
                       : Image.asset(
-                    'assets/images/Bigbottle.png',
-                    fit: BoxFit.cover,
-                  ),
+                          'assets/images/Bigbottle.png',
+                          fit: BoxFit.fill,
+                        ),
                 ),
               ),
             ),
@@ -123,7 +121,7 @@ class _SubscriptionProductCardState extends State<SubscriptionProductCard> {
                     children: [
                       Text(
                         productName,
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 14.sp,
@@ -276,18 +274,14 @@ class _SubscriptionProductCardState extends State<SubscriptionProductCard> {
                     widget.product != null &&
                     widget.product!.variants.isNotEmpty) {
                   final variant =
-                  widget.product!.variants[selectedVariantIndex];
+                      widget.product!.variants[selectedVariantIndex];
                   widget.onUnselect!(widget.product!.id, variant.id);
                 }
               }
             },
             child: Padding(
               padding: EdgeInsets.all(2.w),
-              child: Icon(
-                Icons.remove,
-                size: 14.sp,
-                color: Colors.white,
-              ),
+              child: Icon(Icons.remove, size: 14.sp, color: Colors.white),
             ),
           ),
           SizedBox(width: 6.w),
@@ -309,11 +303,7 @@ class _SubscriptionProductCardState extends State<SubscriptionProductCard> {
             },
             child: Padding(
               padding: EdgeInsets.all(2.w),
-              child: Icon(
-                Icons.add,
-                size: 14.sp,
-                color: Colors.white,
-              ),
+              child: Icon(Icons.add, size: 14.sp, color: Colors.white),
             ),
           ),
         ],

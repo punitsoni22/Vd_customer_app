@@ -56,15 +56,12 @@ class HomeProductCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                flex: 6,
+              AspectRatio(
+                aspectRatio: 1,
                 child: Container(
                   alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: Colors.teal.withValues(alpha: 0.10),
-                  ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(15),
+                    borderRadius: BorderRadius.circular(15.r),
                     child: SizedBox(
                       width: double.infinity,
 
@@ -87,6 +84,7 @@ class HomeProductCard extends StatelessWidget {
               ),
 
               Expanded(
+                flex: 2,
                 child: Padding(
                   padding: EdgeInsets.all(6.h),
                   child: Row(
@@ -99,7 +97,7 @@ class HomeProductCard extends StatelessWidget {
                           children: [
                             Text(
                               _title(product),
-                              maxLines: 2,
+                              maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 10.sp,
