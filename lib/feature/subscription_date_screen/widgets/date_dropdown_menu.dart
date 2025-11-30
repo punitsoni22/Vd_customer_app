@@ -380,6 +380,7 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                                 context,
                                 'Subscription created successfully for $selectedValue delivery starting ${_formatDate(startDate!)}',
                               );
+                              context.pop();
                               context.pushNamed(AppRoutes.myOrderScreen);
                             }
                           } else {
@@ -421,11 +422,31 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
         SizedBox(height: 6.h),
         GestureDetector(
           onTap: () async {
-            DateTime initialDate = value ?? DateTime.now();
+            DateTime initialDate;
+            DateTime firstDate;
+            final now = DateTime.now();
+            final tomorrow = DateTime(now.year, now.month, now.day + 1);
+
+            if (isStart) {
+              initialDate = value ?? tomorrow;
+              firstDate = tomorrow;
+            } else {
+              // For end date
+              if (startDate != null) {
+                firstDate = startDate!.add(const Duration(days: 1));
+              } else {
+                firstDate = tomorrow.add(const Duration(days: 1));
+              }
+              initialDate = value ?? firstDate;
+              if (initialDate.isBefore(firstDate)) {
+                initialDate = firstDate;
+              }
+            }
+
             final picked = await showDatePicker(
               context: context,
               initialDate: initialDate,
-              firstDate: DateTime(2020),
+              firstDate: firstDate,
               lastDate: DateTime(2100),
             );
             if (picked != null) {
