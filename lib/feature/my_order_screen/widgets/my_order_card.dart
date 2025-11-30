@@ -10,7 +10,7 @@ class MyOrderCard extends StatelessWidget {
   final String imageUrl;
   final String productName;
   final String detail;
-  final String paymentMethod;
+  final String? paymentMethod;
   final String? warning;
   final String? button1;
   final String? button2;
@@ -32,7 +32,7 @@ class MyOrderCard extends StatelessWidget {
     required this.imageUrl,
     required this.productName,
     required this.detail,
-    required this.paymentMethod,
+    this.paymentMethod,
     this.warning,
     this.button1,
     this.button2,
@@ -176,25 +176,26 @@ class MyOrderCard extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 6.h),
-                    Row(
-                      children: [
-                        Icon(
-                          icon2 ?? Icons.account_balance_wallet_outlined,
-                          size: 16.sp,
-                          color: Colors.grey,
-                        ),
-                        SizedBox(width: 4.w),
-                        Text(
-                          paymentMethod,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: AllColors.myOrderTextColor,
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w400,
+                    if (paymentMethod != '')
+                      Row(
+                        children: [
+                          Icon(
+                            icon2 ?? Icons.account_balance_wallet_outlined,
+                            size: 16.sp,
+                            color: Colors.grey,
                           ),
-                        ),
-                      ],
-                    ),
+                          SizedBox(width: 4.w),
+                          Text(
+                            paymentMethod!,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: AllColors.myOrderTextColor,
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
+                      ),
                   ],
                 ),
               ),
@@ -213,8 +214,6 @@ class MyOrderCard extends StatelessWidget {
                   ),
                 )
               : const SizedBox(),
-          SizedBox(height: 15.h),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -226,7 +225,7 @@ class MyOrderCard extends StatelessWidget {
                       padding: EdgeInsets.symmetric(vertical: 8.h),
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: AllColors.tabBarline.withOpacity(0.08),
+                        color: AllColors.tabBarline.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(6.r),
                       ),
                       child: Text(
@@ -239,13 +238,13 @@ class MyOrderCard extends StatelessWidget {
                       if (currentStatus == null) {
                         items.add(
                           const PopupMenuItem(value: 0, child: Text('Pause')),
-                        ); // PAUSED
+                        );
                         items.add(
                           const PopupMenuItem(value: 1, child: Text('Resume')),
-                        ); // RESUMED
+                        );
                         items.add(
                           const PopupMenuItem(value: 2, child: Text('Cancel')),
-                        ); // CANCELLED
+                        );
                       } else {
                         final st = currentStatus!;
                         if (st == 1) {

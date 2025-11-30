@@ -19,15 +19,43 @@ class MyOrderTabBar extends StatefulWidget {
 class _MyOrderTabBarState extends State<MyOrderTabBar>
     with TickerProviderStateMixin {
   late TabController _tabController;
+  final ScrollController _subscriptionScrollController = ScrollController();
+  final ScrollController _orderScrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
 
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<MyOrderProvider>().loadAllForTab1(force: true);
+      final p = context.read<MyOrderProvider>();
+      if (!p.subscriptionsLoaded) p.fetchSubscriptions();
+    });
+
+    _subscriptionScrollController.addListener(() {
+      if (_subscriptionScrollController.position.pixels >=
+          _subscriptionScrollController.position.maxScrollExtent) {
+        final provider = context.read<MyOrderProvider>();
+        if (!provider.isMoreSubscriptionsLoading &&
+            provider.currentSubscriptionPage <
+                provider.totalSubscriptionPages) {
+          provider.fetchSubscriptions(
+            page: provider.currentSubscriptionPage + 1,
+          );
+        }
+      }
+    });
+
+    _orderScrollController.addListener(() {
+      if (_orderScrollController.position.pixels >=
+          _orderScrollController.position.maxScrollExtent) {
+        final provider = context.read<MyOrderProvider>();
+        if (!provider.isMoreOrdersLoading &&
+            provider.currentOrderPage < provider.totalOrderPages) {
+          provider.fetchOrders(page: provider.currentOrderPage + 1);
+        }
+      }
     });
 
     // Keep lazy-loading behavior on tab change
@@ -36,12 +64,9 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
       final p = context.read<MyOrderProvider>();
 
       if (_tabController.index == 0) {
-        if (!p.allDataLoaded) p.loadAllForTab1();
-      }
-      if (_tabController.index == 1) {
         if (!p.subscriptionsLoaded) p.fetchSubscriptions();
       }
-      if (_tabController.index == 2) {
+      if (_tabController.index == 1) {
         if (!p.ordersLoaded) p.fetchOrders();
       }
     });
@@ -50,13 +75,15 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
   @override
   void dispose() {
     _tabController.dispose();
+    _subscriptionScrollController.dispose();
+    _orderScrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 3,
+      length: 2,
       child: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
@@ -72,7 +99,6 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
               unselectedLabelColor: Colors.grey[300],
               indicatorColor: AllColors.tabBarline,
               tabs: const [
-                Tab(text: "All Order"),
                 Tab(text: "Subscription"),
                 Tab(text: "One Time Order"),
               ],
@@ -84,115 +110,6 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
             return TabBarView(
               controller: _tabController,
               children: [
-                // Pull-to-refresh wrapper for the All Orders tab
-                RefreshIndicator(
-                  onRefresh: () async {
-                    await context.read<MyOrderProvider>().loadAllForTab1(
-                      force: true,
-                    );
-                  },
-                  child: provider.isLoadingAll
-                      ? SingleChildScrollView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          child: SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.6,
-                            child: const Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                          ),
-                        )
-                      : provider.allOrdersUnified.isEmpty
-                      ? SingleChildScrollView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          child: SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.6,
-                            child: const Center(
-                              child: Text("No orders found."),
-                            ),
-                          ),
-                        )
-                      : ListView.builder(
-                          padding: EdgeInsets.all(8.0.r),
-                          itemCount: provider.allOrdersUnified.length,
-                          itemBuilder: (context, index) {
-                            final item = provider.allOrdersUnified[index];
-
-                            return Padding(
-                              padding: EdgeInsets.all(8.0.r),
-                              child: MyOrderCard(
-                                id: '${item.type == "subscription" ? "Subscription ID" : "Order ID"}: ${item.id}',
-                                date: item.date,
-
-                                status: item.status,
-                                productName: item.productName,
-                                imageUrl:
-                                    item.signedUrl ??
-                                    item.rawImageUrl ??
-                                    'assets/images/image.png',
-                                detail: item.type == "subscription"
-                                    ? "Frequency: ${item.deliveryFrequency}"
-                                    : "Quantity: ${item.quantity}",
-                                paymentMethod: item.type == "subscription"
-                                    ? "Next Delivery: ${item.nextDelivery}"
-                                    : "PayPal",
-                                invoiceUrl: item.invoiceUrl,
-                                invoiceNumber: item.invoiceNumber,
-                                currentStatus: item.type == "subscription"
-                                    ? item.currentStatus
-                                    : null,
-                                onViewTap: () {
-                                  if (item.type == "subscription") {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            SubscriptionDetailScreen(
-                                              subscriptionId: int.parse(
-                                                item.id,
-                                              ),
-                                            ),
-                                      ),
-                                    );
-                                  } else {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => OrderDetailScreen(
-                                          orderId: int.parse(item.id),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                },
-                                onInvoiceTap:
-                                    (item.invoiceUrl != null &&
-                                        item.invoiceNumber != null)
-                                    ? () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                InvoiceViewerScreen(
-                                                  invoiceUrl: item.invoiceUrl!,
-                                                  invoiceNumber:
-                                                      item.invoiceNumber!,
-                                                ),
-                                          ),
-                                        );
-                                      }
-                                    : () {
-                                        MySnackBar.showSnackBar(
-                                          context,
-                                          'Invoice not available',
-                                        );
-                                      },
-                              ),
-                            );
-                          },
-                        ),
-                ),
-
-                // Pull-to-refresh wrapper for Subscriptions tab
                 RefreshIndicator(
                   onRefresh: () async {
                     await context.read<MyOrderProvider>().fetchSubscriptions();
@@ -218,9 +135,20 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                           ),
                         )
                       : ListView.builder(
+                          controller: _subscriptionScrollController,
                           padding: EdgeInsets.all(8.0.r),
-                          itemCount: provider.subscriptions.length,
+                          itemCount:
+                              provider.subscriptions.length +
+                              (provider.isMoreSubscriptionsLoading ? 1 : 0),
                           itemBuilder: (context, i) {
+                            if (i == provider.subscriptions.length) {
+                              return const Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            }
                             final sub = provider.subscriptions[i];
                             final product = sub.products.isNotEmpty
                                 ? sub.products[0]
@@ -287,8 +215,6 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                           },
                         ),
                 ),
-
-                // Pull-to-refresh wrapper for One-time Orders tab
                 RefreshIndicator(
                   onRefresh: () async {
                     await context.read<MyOrderProvider>().fetchOrders();
@@ -314,9 +240,20 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                           ),
                         )
                       : ListView.builder(
+                          controller: _orderScrollController,
                           padding: EdgeInsets.all(8.0.r),
-                          itemCount: provider.orders.length,
+                          itemCount:
+                              provider.orders.length +
+                              (provider.isMoreOrdersLoading ? 1 : 0),
                           itemBuilder: (context, i) {
+                            if (i == provider.orders.length) {
+                              return const Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            }
                             final order = provider.orders[i];
                             final cartDetail = order.cart.cartDetails.isNotEmpty
                                 ? order.cart.cartDetails[0]
@@ -336,7 +273,7 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                                     'assets/images/image.png',
                                 detail:
                                     'Quantity: ${cartDetail?.quantity ?? 1}',
-                                paymentMethod: 'PayPal',
+                                paymentMethod: '',
                                 invoiceUrl: order.invoice?.signedUrl,
                                 invoiceNumber: order.invoice?.invoiceNumber,
                                 onViewTap: () {

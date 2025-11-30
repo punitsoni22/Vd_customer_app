@@ -1,11 +1,11 @@
 import 'dart:collection';
 import 'dart:developer';
 import 'package:flutter/foundation.dart';
-import 'package:vd_customer_app/core/models/order_model.dart';
-import 'package:vd_customer_app/core/models/subscription_model.dart';
-import 'package:vd_customer_app/core/models/unified_order_model_.dart';
-import 'package:vd_customer_app/core/services/api_services.dart';
-import 'package:vd_customer_app/core/services/signedurl.dart';
+
+import '../../../core/models/order_model.dart';
+import '../../../core/models/subscription_model.dart';
+import '../../../core/services/api_services.dart';
+import '../../../core/services/signedurl.dart';
 
 class MyOrderProvider extends ChangeNotifier {
   bool _isLoading = false;
@@ -15,7 +15,8 @@ class MyOrderProvider extends ChangeNotifier {
   int currentPage = 1;
   int totalPages = 1;
 
-  int _requestId = 0;
+  int _ordersRequestId = 0;
+  int _subscriptionsRequestId = 0;
 
   bool _disposed = false;
 
@@ -27,13 +28,16 @@ class MyOrderProvider extends ChangeNotifier {
   List<SubscriptionModel> get subscriptions =>
       UnmodifiableListView(_subscriptions);
 
-  final List<UnifiedOrderModel> _allOrdersUnified = [];
-  List<UnifiedOrderModel> get allOrdersUnified => _allOrdersUnified;
-
-  bool allDataLoaded = false;
-  bool isLoadingAll = false;
   bool subscriptionsLoaded = false;
   bool ordersLoaded = false;
+  bool isMoreOrdersLoading = false;
+  bool isMoreSubscriptionsLoading = false;
+
+  int currentOrderPage = 1;
+  int totalOrderPages = 1;
+
+  int currentSubscriptionPage = 1;
+  int totalSubscriptionPages = 1;
 
   @override
   void dispose() {
@@ -45,117 +49,39 @@ class MyOrderProvider extends ChangeNotifier {
     if (!_disposed) notifyListeners();
   }
 
-  void mergeAllOrders() {
-    _allOrdersUnified.clear();
-
-    for (var order in _orders) {
-      if (order.cart.cartDetails.isNotEmpty) {
-        final c = order.cart.cartDetails[0];
-        _allOrdersUnified.add(
-          UnifiedOrderModel(
-            id: order.orderId.toString(),
-            type: "order",
-            date: order.orderConfirmedDate.split('T').first,
-            status: order.status,
-            productName: c.productName,
-            quantity: c.quantity,
-            signedUrl: c.productImages.signedUrl,
-            rawImageUrl: c.productImages.imageUrl,
-            invoiceUrl: order.invoice?.signedUrl,
-            invoiceNumber: order.invoice?.invoiceNumber,
-          ),
-        );
-      }
-    }
-
-    for (var sub in _subscriptions) {
-      final p = sub.products.isNotEmpty ? sub.products[0] : null;
-      final String computedStatus = sub.status != null
-          ? (sub.status == 0
-                ? 'Paused'
-                : (sub.status == 1
-                      ? 'Resumed'
-                      : (sub.status == 2 ? 'Cancelled' : sub.subscriptionType)))
-          : sub.subscriptionType;
-
-      _allOrdersUnified.add(
-        UnifiedOrderModel(
-          id: sub.id.toString(),
-          type: "subscription",
-          date: sub.startDate.toString().split(" ").first,
-          status: computedStatus,
-          currentStatus: sub.status,
-          productName: p?.productName ?? 'Subscription Product',
-          quantity: p?.quantity ?? 1,
-          signedUrl: p?.signedUrl,
-          rawImageUrl: p?.imageUrl,
-          nextDelivery: sub.startDate.toString().split(" ").first,
-          deliveryFrequency: sub.deliveryFrequencyType,
-          invoiceUrl: sub.invoice?.signedUrl,
-          invoiceNumber: sub.invoice?.invoiceNumber,
-        ),
-      );
-    }
-
-    _allOrdersUnified.sort((a, b) => b.date.compareTo(a.date));
-    _safeNotify();
-  }
-
-  Future<void> loadAllForTab1({bool force = false}) async {
-    if (isLoadingAll) return;
-    if (allDataLoaded && !force) return;
-
-    if (force) {
-      allDataLoaded = false;
-      subscriptionsLoaded = false;
-      ordersLoaded = false;
-      _subscriptions.clear();
-      _orders.clear();
-      _allOrdersUnified.clear();
-    }
-
-    isLoadingAll = true;
-    _safeNotify();
-
-    await fetchSubscriptions();
-    await fetchOrders();
-
-    mergeAllOrders();
-    allDataLoaded = true;
-    isLoadingAll = false;
-    _safeNotify();
-  }
-
   Future<void> fetchOrders({int page = 1}) async {
-    final int rid = ++_requestId;
-    _isLoading = true;
+    final int rid = ++_ordersRequestId;
+    if (page == 1) {
+      _isLoading = true;
+      _orders.clear();
+    } else {
+      isMoreOrdersLoading = true;
+    }
     _message = null;
     _safeNotify();
 
     log("Fetching orders, page: $page, requestId: $rid");
 
     try {
-      // final token = await Prefs.getString(Prefs.keyAuthToken) ?? '';
-
       final response = await Api.post('getAllOrders', {
-        "page": page,
-        "pageSize": 10,
-        // "token": token,
+        "data": {"page": page, "pageSize": 10, "searchText": ""},
       });
 
       log("API Response: $response");
 
-      if (rid != _requestId) return;
+      if (rid != _ordersRequestId) return;
 
       if (response['success'] == true) {
         final List<dynamic> items = response['data']?['items'] ?? [];
         final pagination = response['data']?['pagination'] ?? {};
-        currentPage = pagination['page'] ?? 1;
-        totalPages = pagination['totalPages'] ?? 1;
-        _orders.clear();
-        _orders.addAll(items.map((e) => Order.fromJson(e)));
+        currentOrderPage = pagination['page'] ?? 1;
+        totalOrderPages = pagination['totalPages'] ?? 1;
+
+        final newOrders = items.map((e) => Order.fromJson(e)).toList();
+        _orders.addAll(newOrders);
+
         await Future.wait(
-          _orders.map((order) async {
+          newOrders.map((order) async {
             for (var cartDetail in order.cart.cartDetails) {
               final imageUrl = cartDetail.productImages.imageUrl;
               if (imageUrl.isNotEmpty) {
@@ -191,40 +117,45 @@ class MyOrderProvider extends ChangeNotifier {
         log("API returned failure: $_message");
       }
     } catch (e, st) {
-      if (rid != _requestId) return;
+      if (rid != _ordersRequestId) return;
       _orders.clear();
       ordersLoaded = true;
       _message = "Exception: $e";
       log("MyOrder fetch exception: $e\n$st");
     } finally {
-      if (rid != _requestId) return;
+      if (rid != _ordersRequestId) return;
       _isLoading = false;
+      isMoreOrdersLoading = false;
       _safeNotify();
     }
   }
 
   Future<void> fetchSubscriptions({int page = 1}) async {
-    final int rid = ++_requestId;
-    _isLoading = true;
+    final int rid = ++_subscriptionsRequestId;
+    if (page == 1) {
+      _isLoading = true;
+      _subscriptions.clear();
+    } else {
+      isMoreSubscriptionsLoading = true;
+    }
     _message = null;
     _safeNotify();
 
     try {
       final response = await Api.post("getAllSubscription", {
-        "page": page,
-        "pageSize": 10,
-        "searchText": "",
+        "data": {"page": page, "pageSize": 10, "searchText": ""},
       });
-      if (rid != _requestId) return;
+      if (rid != _subscriptionsRequestId) return;
 
       if (response["success"] == true) {
         final List<dynamic> items = response["data"]?["subscription"] ?? [];
-
-        _subscriptions.clear();
-        _subscriptions.addAll(items.map((e) => SubscriptionModel.fromJson(e)));
+        final newSubscriptions = items
+            .map((e) => SubscriptionModel.fromJson(e))
+            .toList();
+        _subscriptions.addAll(newSubscriptions);
 
         await Future.wait(
-          _subscriptions.map((sub) async {
+          newSubscriptions.map((sub) async {
             if (sub.invoice != null && sub.invoice!.invoiceUrl.isNotEmpty) {
               try {
                 sub.invoice!.signedUrl = await generateSignedUrl(
@@ -259,14 +190,15 @@ class MyOrderProvider extends ChangeNotifier {
         _message = response["message"] ?? "Failed to fetch subscriptions";
       }
     } catch (e, st) {
-      if (rid != _requestId) return;
+      if (rid != _subscriptionsRequestId) return;
       _subscriptions.clear();
       subscriptionsLoaded = true;
       _message = "Error: $e";
       log("fetchSubscriptions err: $e\n$st");
     } finally {
-      if (rid != _requestId) return;
+      if (rid != _subscriptionsRequestId) return;
       _isLoading = false;
+      isMoreSubscriptionsLoading = false;
       _safeNotify();
     }
   }
