@@ -26,13 +26,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final _formKey = GlobalKey<FormState>();
   final _otpFormKey = GlobalKey<FormState>();
-
-  // login inputs
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
-
-  // otp input
   final _otpCtrl = TextEditingController();
 
   @override
@@ -136,7 +132,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 }
 
-class _LoginStep extends StatelessWidget {
+class _LoginStep extends StatefulWidget {
   final GlobalKey<FormState> formKey;
   final TextEditingController emailCtrl;
   final TextEditingController passwordCtrl;
@@ -155,10 +151,16 @@ class _LoginStep extends StatelessWidget {
   });
 
   @override
+  State<_LoginStep> createState() => _LoginStepState();
+}
+
+class _LoginStepState extends State<_LoginStep> {
+  bool _isPasswordVisible = false;
+
+  @override
   Widget build(BuildContext context) {
     return Form(
-      key: formKey,
-      // ❗ Validation only on submit, not on every keystroke
+      key: widget.formKey,
       autovalidateMode: AutovalidateMode.disabled,
       child: DefaultTabController(
         length: 2,
@@ -210,17 +212,15 @@ class _LoginStep extends StatelessWidget {
               height: 320.h,
               child: TabBarView(
                 children: [
-                  // EMAIL LOGIN
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       CommonTextField(
-                        controller: emailCtrl,
+                        controller: widget.emailCtrl,
                         label: "Email",
                         keyboardType: TextInputType.emailAddress,
                         onChanged: (v) {
-                          provider.setEmail(v);
-                          // ❌ removed immediate formKey.currentState?.validate()
+                          widget.provider.setEmail(v);
                         },
                         validator: (v) {
                           final s = v?.trim() ?? '';
@@ -233,10 +233,23 @@ class _LoginStep extends StatelessWidget {
                       ),
                       SizedBox(height: 14.h),
                       CommonTextField(
-                        controller: passwordCtrl,
+                        controller: widget.passwordCtrl,
                         label: "Password",
-                        obscureText: true,
-                        onChanged: provider.setPassword,
+                        obscureText: !_isPasswordVisible,
+                        suFFixIcon: IconButton(
+                          icon: Icon(
+                            _isPasswordVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isPasswordVisible = !_isPasswordVisible;
+                            });
+                          },
+                        ),
+                        onChanged: widget.provider.setPassword,
                         validator: (v) {
                           final s = v ?? '';
                           if (s.isEmpty) return "Password is required";
@@ -253,15 +266,15 @@ class _LoginStep extends StatelessWidget {
                       CommonButton(
                         buttonValue: 'Login',
                         isFullWidth: true,
-                        isLoading: provider.isLoading,
+                        isLoading: widget.provider.isLoading,
                         onTap: () async {
-                          // ✅ validate only on button tap
-                          if (!(formKey.currentState?.validate() ?? false)) {
+                          if (!(widget.formKey.currentState?.validate() ??
+                              false)) {
                             return;
                           }
-                          await provider.loginViaEmail(context);
+                          await widget.provider.loginViaEmail(context);
                           if (!context.mounted) return;
-                          final msg = provider.message;
+                          final msg = widget.provider.message;
                           if (msg != null) {
                             MySnackBar.showSnackBar(
                               context,
@@ -290,19 +303,17 @@ class _LoginStep extends StatelessWidget {
                       ),
                     ],
                   ),
-
-                  // PHONE LOGIN (OTP)
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       CommonTextField(
-                        controller: phoneCtrl,
+                        controller: widget.phoneCtrl,
                         label: "Phone Number",
                         keyboardType: TextInputType.phone,
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
                         ],
-                        onChanged: provider.setNumber,
+                        onChanged: widget.provider.setNumber,
                         validator: (v) {
                           final s = v?.trim() ?? '';
                           if (s.isEmpty) return "Phone number is required";
@@ -316,14 +327,14 @@ class _LoginStep extends StatelessWidget {
                       CommonButton(
                         buttonValue: 'Login via OTP',
                         isFullWidth: true,
-                        isLoading: provider.isLoading,
+                        isLoading: widget.provider.isLoading,
                         onTap: () async {
-                          if (!(formKey.currentState?.validate() ?? false)) {
+                          if (!(widget.formKey.currentState?.validate() ?? false)) {
                             return;
                           }
-                          await provider.loginViaOtp(context);
+                          await widget.provider.loginViaOtp(context);
                           if (!context.mounted) return;
-                          onOtpRequested();
+                          widget.onOtpRequested();
                         },
                       ),
                       TextButton(
@@ -376,7 +387,6 @@ class _OtpStep extends StatelessWidget {
   Widget build(BuildContext context) {
     return Form(
       key: formKey,
-      // To keep behavior consistent, also validate on submit only here
       autovalidateMode: AutovalidateMode.disabled,
       child: Column(
         key: const ValueKey('otpForm'),

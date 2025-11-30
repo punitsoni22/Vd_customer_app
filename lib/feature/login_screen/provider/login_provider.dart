@@ -14,9 +14,7 @@ class LoginProvider extends ChangeNotifier {
   bool _success = false;
 
   bool get isLoading => _isLoading;
-
   String? get message => _message;
-
   bool get success => _success;
 
   String? _email;
@@ -24,21 +22,16 @@ class LoginProvider extends ChangeNotifier {
   String? _number;
 
   String? get email => _email;
-
   String? get password => _password;
-
   String? get number => _number;
 
   void setEmail(String v) {
-    print("jugug $v");
     _email = v.trim();
     notifyListeners();
   }
 
   void setPassword(String v) => _password = v;
-
   void setNumber(String v) => _number = v.trim();
-
   void _setLoading(bool v) {
     if (_isLoading != v) {
       _isLoading = v;
@@ -78,8 +71,6 @@ class LoginProvider extends ChangeNotifier {
     _result(success: false, message: null);
     try {
       final res = await Api.post('login', payload);
-      log("Login (email) → $res");
-
       final ok = res['success'] == true;
       if (ok) {
         final token = res['data']?['token']?.toString();
@@ -128,8 +119,6 @@ class LoginProvider extends ChangeNotifier {
     _result(success: false, message: null);
     try {
       final res = await Api.post('login', payload);
-      log("Login (OTP request) → $res");
-
       final ok = res['success'] == true;
       if (ok) {
         if (!context.mounted) return;
@@ -160,8 +149,6 @@ class LoginProvider extends ChangeNotifier {
     _result(success: false, message: null);
     try {
       final res = await Api.post('verifyOTP', payload);
-      log("Verify OTP → $res");
-
       final ok = res['success'] == true;
       if (ok) {
         if (!context.mounted) return;
