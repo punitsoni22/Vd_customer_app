@@ -134,6 +134,9 @@ class _InvoiceViewerScreenState extends State<InvoiceViewerScreen> {
         title: widget.invoiceNumber,
         showBack: true,
         titleAlignment: BarTitleAlignment.center,
+        titleStyle: TextStyle(
+          fontSize: 14.sp
+        ),
         actions: [
           IconButton(
             icon: _isDownloading

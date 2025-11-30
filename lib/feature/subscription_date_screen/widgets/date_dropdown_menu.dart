@@ -376,10 +376,11 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                           });
                           if (response["success"] == true) {
                             if (mounted) {
-                              context.go(
-                                AppRoutes.bottomBarScreen,
-                                extra: {'index': 2},
+                              MySnackBar.showSnackBar(
+                                context,
+                                'Subscription created successfully for $selectedValue delivery starting ${_formatDate(startDate!)}',
                               );
+                              context.pushNamed(AppRoutes.myOrderScreen);
                             }
                           } else {
                             MySnackBar.showSnackBar(

@@ -59,18 +59,11 @@ class MyOrderProvider extends ChangeNotifier {
     }
     _message = null;
     _safeNotify();
-
-    log("Fetching orders, page: $page, requestId: $rid");
-
     try {
       final response = await Api.post('getAllOrders', {
         "data": {"page": page, "pageSize": 10, "searchText": ""},
       });
-
-      log("API Response: $response");
-
       if (rid != _ordersRequestId) return;
-
       if (response['success'] == true) {
         final List<dynamic> items = response['data']?['items'] ?? [];
         final pagination = response['data']?['pagination'] ?? {};
