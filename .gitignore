@@ -47,3 +47,4 @@ app.*.map.json
 # Environment and local configuration files
 .env
 android/local.properties
+ios/Secrets.xcconfig
