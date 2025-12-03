@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
-
-import 'package:provider/provider.dart';
-import 'package:vd_customer_app/feature/profile_screen/provider/profileProvider.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_calendar.dart';
+import 'package:vd_customer_app/feature/profile_screen/provider/profileProvider.dart';
 import 'package:vd_customer_app/widget/snack_bar.dart';
+
 import '../provider/subscription_provider.dart';
 import 'address_bottom_sheet.dart';
 
@@ -55,7 +55,7 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
       Provider.of<SubscriptionProvider>(
         context,
         listen: false,
-      ).getAllAddresses();
+      ).getAllAddresses(context);
     });
   }
 
@@ -286,7 +286,7 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                           Provider.of<SubscriptionProvider>(
                             context,
                             listen: false,
-                          ).getAllAddresses();
+                          ).getAllAddresses(context);
                         }
                       },
                     ),
@@ -370,7 +370,7 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                               await Provider.of<SubscriptionProvider>(
                                 context,
                                 listen: false,
-                              ).createOrEditSubscription(apiPayload);
+                              ).createOrEditSubscription(context, apiPayload);
                           setState(() {
                             isLoading = false;
                           });

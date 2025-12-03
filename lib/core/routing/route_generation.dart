@@ -18,7 +18,7 @@ import 'routes.dart';
 
 GoRouter buildRouter() {
   return GoRouter(
-    initialLocation: AppRoutes.authScreen,
+    initialLocation: AppRoutes.bottomBarScreen,
     routes: [
       GoRoute(
         path: '/auth_screen',

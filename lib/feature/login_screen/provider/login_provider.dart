@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
+import 'package:vd_customer_app/feature/auth_screen/provider/auth_provider.dart';
 import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
 
 class LoginProvider extends ChangeNotifier {
@@ -76,6 +77,10 @@ class LoginProvider extends ChangeNotifier {
         final token = res['data']?['token']?.toString();
         if (token != null) {
           await Prefs.saveString(Prefs.keyAuthToken, token);
+          if (context.mounted) {
+            await context.read<AuthProvider>().setToken(token);
+          }
+
           try {
             final payload = _decodeJwt(token);
             final userId = payload['id'];
@@ -153,6 +158,14 @@ class LoginProvider extends ChangeNotifier {
       if (ok) {
         if (!context.mounted) return;
 
+        final token = res['data']?['token']?.toString();
+        if (token != null) {
+          await Prefs.saveString(Prefs.keyAuthToken, token);
+          if (context.mounted) {
+            await context.read<AuthProvider>().setToken(token);
+          }
+        }
+
         final userId = res['dataResponse']?['userId']?.toString();
         if (userId != null) {
           await Prefs.saveString("user_id", userId);
@@ -165,7 +178,7 @@ class LoginProvider extends ChangeNotifier {
               res['dataResponse']?['description']?.toString() ??
               "OTP verified successfully",
         );
-        context.goNamed(AppRoutes.homeScreen);
+        context.goNamed(AppRoutes.bottomBarScreen);
       } else {
         _result(
           success: false,

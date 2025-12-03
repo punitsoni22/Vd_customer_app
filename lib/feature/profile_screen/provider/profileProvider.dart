@@ -1,9 +1,11 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
+import 'package:vd_customer_app/feature/auth_screen/provider/auth_provider.dart';
 import 'package:vd_customer_app/widget/snack_bar.dart';
 
 class ProfileProvider extends ChangeNotifier {
@@ -55,6 +57,53 @@ class ProfileProvider extends ChangeNotifier {
 
     isLoading = false;
     notifyListeners();
+  }
+
+  Future<bool> deleteAccount(BuildContext context) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await Api.post('deleteMyAccount', {});
+      if (response['success'] == true) {
+        await Prefs.clearAll();
+        clearUserData();
+        try {
+          if (context.mounted) {
+            context.read<AuthProvider>().clearToken();
+          }
+        } catch (_) {}
+
+        if (context.mounted) {
+          MySnackBar.showSnackBar(context, 'Account deleted successfully');
+          context.goNamed(AppRoutes.loginScreen);
+        }
+
+        isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        final msg = response['message'] ?? 'Failed to delete account';
+        if (context.mounted) MySnackBar.showSnackBar(context, msg);
+        try {
+          final msgStr = msg.toString();
+          if (msgStr.contains('401')) {
+            await Prefs.clearAll();
+            if (context.mounted) context.goNamed(AppRoutes.loginScreen);
+          }
+        } catch (_) {}
+
+        isLoading = false;
+        notifyListeners();
+        return false;
+      }
+    } catch (e, st) {
+      message = 'Exception: $e';
+      if (context.mounted) MySnackBar.showSnackBar(context, message!);
+      isLoading = false;
+      notifyListeners();
+      return false;
+    }
   }
 
   void clearUserData() {

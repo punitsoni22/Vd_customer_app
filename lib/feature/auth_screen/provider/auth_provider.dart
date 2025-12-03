@@ -9,6 +9,8 @@ class AuthProvider extends ChangeNotifier {
     checkAuth();
   }
 
+  bool get isLoggedIn => token != null && token!.isNotEmpty;
+
   Future<void> checkAuth() async {
     isLoading = true;
     notifyListeners();
@@ -19,8 +21,15 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setToken(String newToken) async {
+    await Prefs.saveString(Prefs.keyAuthToken, newToken);
+    token = newToken;
+    notifyListeners();
+  }
+
   Future<void> clearToken() async {
     await Prefs.clear(Prefs.keyAuthToken);
+    await Prefs.clear(Prefs.keyUserId);
     token = null;
     notifyListeners();
   }
