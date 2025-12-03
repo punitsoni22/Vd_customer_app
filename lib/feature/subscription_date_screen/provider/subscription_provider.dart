@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
+import 'package:vd_customer_app/helpers/auth_helper.dart';
 
 class AddressModel {
   final int id;
@@ -43,8 +44,17 @@ class SubscriptionProvider extends ChangeNotifier {
   }
 
   Future<Map<String, dynamic>> createOrEditSubscription(
+    BuildContext context,
     Map<String, dynamic> payload,
   ) async {
+    // Check login before allowing subscription operations
+    if (!AuthHelper.requireLogin(
+      context,
+      message: 'Please login to create subscription',
+    )) {
+      return {'success': false, 'message': 'Login required'};
+    }
+
     try {
       final response = await Api.post('addEditSubscription', payload);
       if (response["success"] == true) {
@@ -61,7 +71,14 @@ class SubscriptionProvider extends ChangeNotifier {
   List<AddressModel> addresses = [];
   String? message;
 
-  Future<void> getAllAddresses() async {
+  Future<void> getAllAddresses(BuildContext context) async {
+    if (!AuthHelper.requireLogin(
+      context,
+      message: 'Please login to view addresses',
+    )) {
+      return;
+    }
+
     isLoading = true;
     notifyListeners();
     try {

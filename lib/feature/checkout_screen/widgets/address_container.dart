@@ -65,7 +65,7 @@ class AddressContainer extends StatelessWidget {
                   Provider.of<subscription.SubscriptionProvider>(
                     context,
                     listen: false,
-                  ).getAllAddresses();
+                  ).getAllAddresses(context);
 
                   Provider.of<CheckoutProvider>(
                     context,
@@ -202,7 +202,7 @@ class AddressContainer extends StatelessWidget {
                         Provider.of<subscription.SubscriptionProvider>(
                           context,
                           listen: false,
-                        ).getAllAddresses();
+                        ).getAllAddresses(context);
 
                         Provider.of<CheckoutProvider>(
                           context,

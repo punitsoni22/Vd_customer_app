@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vd_customer_app/core/models/cart_model.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
+import 'package:vd_customer_app/helpers/auth_helper.dart';
 import 'package:vd_customer_app/widget/snack_bar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vd_customer_app/core/services/signedurl.dart';
@@ -168,6 +169,15 @@ class CartProvider extends ChangeNotifier {
     CartDetail item, {
     BuildContext? context,
   }) async {
+    // Check login before allowing cart operations
+    if (context != null &&
+        !AuthHelper.requireLogin(
+          context,
+          message: 'Please login to add items to cart',
+        )) {
+      return {'success': false, 'message': 'Login required'};
+    }
+
     try {
       final latest = await Api.post('getLatestCartByUserId', {});
       int cartIdToUse = 0;
@@ -205,10 +215,7 @@ class CartProvider extends ChangeNotifier {
         'price': item.price,
       });
       final payload = {
-        'data': {
-          'id': cartIdToUse,
-          'products': productsPayload,
-        },
+        'data': {'id': cartIdToUse, 'products': productsPayload},
       };
       final resp = await Api.post('addEditCart', payload);
       print('addItem API Response: $resp');
@@ -250,6 +257,14 @@ class CartProvider extends ChangeNotifier {
   }
 
   Future<void> removeItem(BuildContext context, CartDetail item) async {
+    // Check login before allowing cart operations
+    if (!AuthHelper.requireLogin(
+      context,
+      message: 'Please login to manage cart',
+    )) {
+      return;
+    }
+
     try {
       final cartDetailId = item.id;
 
