@@ -36,20 +36,235 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       backgroundColor: Colors.white,
       body: authProvider.isLoggedIn
-          ? Padding(
-              padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 12.w),
-              child: Column(
-                children: [
-                  ProfileHeader(
-                    name: displayName,
-                    phoneNumber: displayPhone,
-                    ontouch: () {},
+          ? RefreshIndicator(
+              onRefresh: () async {
+                await provider.fetchSpecificUser(context);
+              },
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    vertical: 10.h,
+                    horizontal: 12.w,
                   ),
-                  SizedBox(height: 15.h),
-                  OrdersCard(),
-                  SizedBox(height: 15.h),
-                  LogoutButton(),
-                ],
+                  child: Column(
+                    children: [
+                      ProfileHeader(
+                        name: displayName,
+                        phoneNumber: displayPhone,
+                        ontouch: () {},
+                      ),
+                      SizedBox(height: 15.h),
+                      OrdersCard(),
+                      SizedBox(height: 12.h),
+                      // Delete account button (themed) - left-aligned label
+                      SizedBox(
+                        width: double.infinity,
+                        child: CommonButton(
+                          isFullWidth: true,
+                          isLoading: provider.isLoading,
+                          buttonValue: 'Delete My Account',
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              provider.isLoading
+                                  ? 'Deleting...'
+                                  : 'Delete My Account',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14.sp,
+                                color: AllColors.olivegreenColor,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ),
+                          onTap: provider.isLoading
+                              ? null
+                              : () async {
+                                  final confirmed = await showDialog<bool>(
+                                    context: context,
+                                    barrierDismissible: false,
+                                    builder: (ctx) {
+                                      return AlertDialog(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            16.r,
+                                          ),
+                                        ),
+                                        backgroundColor: Colors.white,
+                                        contentPadding: EdgeInsets.all(24.w),
+                                        content: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            // Icon
+                                            Container(
+                                              width: 60.w,
+                                              height: 60.h,
+                                              decoration: BoxDecoration(
+                                                color:
+                                                    AllColors.profileBackColor,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Icon(
+                                                Icons.delete_forever_rounded,
+                                                color: Colors.red.shade600,
+                                                size: 28.sp,
+                                              ),
+                                            ),
+                                            SizedBox(height: 20.h),
+
+                                            // Title
+                                            Text(
+                                              'Delete Confirmation',
+                                              style: TextStyle(
+                                                fontSize: 18.sp,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black87,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            SizedBox(height: 12.h),
+
+                                            // Message
+                                            Text(
+                                              'Are you sure you want to delete your account? This action cannot be undone and all your data will be removed.',
+                                              style: TextStyle(
+                                                fontSize: 14.sp,
+                                                color:
+                                                    AllColors.myOrderTextColor,
+                                                fontWeight: FontWeight.w400,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ],
+                                        ),
+                                        actionsPadding: EdgeInsets.symmetric(
+                                          horizontal: 16.w,
+                                          vertical: 12.h,
+                                        ),
+                                        actions: [
+                                          SizedBox(
+                                            width: double.infinity,
+                                            child: Row(
+                                              children: [
+                                                Expanded(
+                                                  child: InkWell(
+                                                    onTap: () => Navigator.of(
+                                                      ctx,
+                                                    ).pop(false),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8.r,
+                                                        ),
+                                                    child: Container(
+                                                      height: 44.h,
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.white,
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              8.r,
+                                                            ),
+                                                        border: Border.all(
+                                                          color: AllColors
+                                                              .olivegreenColor,
+                                                          width: 1.5,
+                                                        ),
+                                                      ),
+                                                      child: Center(
+                                                        child: Text(
+                                                          'Cancel',
+                                                          style: TextStyle(
+                                                            fontSize: 14.sp,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color: AllColors
+                                                                .olivegreenColor,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                SizedBox(width: 12.w),
+                                                Expanded(
+                                                  child: InkWell(
+                                                    onTap: provider.isLoading
+                                                        ? null
+                                                        : () async {
+                                                            Navigator.of(
+                                                              ctx,
+                                                            ).pop(true);
+                                                          },
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          8.r,
+                                                        ),
+                                                    child: Container(
+                                                      height: 44.h,
+                                                      decoration: BoxDecoration(
+                                                        color:
+                                                            Colors.red.shade600,
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              8.r,
+                                                            ),
+                                                      ),
+                                                      child: Center(
+                                                        child:
+                                                            provider.isLoading
+                                                            ? SizedBox(
+                                                                width: 18.w,
+                                                                height: 18.w,
+                                                                child: CircularProgressIndicator(
+                                                                  valueColor:
+                                                                      AlwaysStoppedAnimation(
+                                                                        Colors
+                                                                            .white,
+                                                                      ),
+                                                                  strokeWidth:
+                                                                      2.0,
+                                                                ),
+                                                              )
+                                                            : Text(
+                                                                'Delete',
+                                                                style: TextStyle(
+                                                                  fontSize:
+                                                                      14.sp,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                  color: Colors
+                                                                      .white,
+                                                                ),
+                                                              ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+
+                                  if (confirmed == true) {
+                                    await provider.deleteAccount(context);
+                                  }
+                                },
+                          backgroundColor: Colors.transparent,
+                          borderRadius: BorderRadius.circular(5.r),
+                          foregroundColor: AllColors.olivegreenColor,
+                        ),
+                      ),
+                      SizedBox(height: 12.h),
+                      LogoutButton(),
+                    ],
+                  ),
+                ),
               ),
             )
           : Center(
