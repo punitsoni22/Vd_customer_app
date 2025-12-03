@@ -64,22 +64,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           isFullWidth: true,
                           isLoading: provider.isLoading,
                           buttonValue: 'Delete My Account',
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              provider.isLoading
-                                  ? 'Deleting...'
-                                  : 'Delete My Account',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14.sp,
-                                color: AllColors.olivegreenColor,
-                                letterSpacing: 0.2,
-                              ),
-                            ),
-                          ),
                           onTap: provider.isLoading
                               ? null
                               : () async {
@@ -258,6 +242,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           backgroundColor: Colors.transparent,
                           borderRadius: BorderRadius.circular(5.r),
                           foregroundColor: AllColors.olivegreenColor,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              provider.isLoading
+                                  ? 'Deleting...'
+                                  : 'Delete My Account',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14.sp,
+                                color: AllColors.olivegreenColor,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                       SizedBox(height: 12.h),
