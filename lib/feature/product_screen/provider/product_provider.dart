@@ -9,7 +9,12 @@ class ProductProvider extends ChangeNotifier {
   String? message;
   List<Product> products = [];
 
-  Future<void> getProducts(Map<String, dynamic> requestData) async {
+  bool _hasLoaded = false;
+  bool get hasLoaded => _hasLoaded;
+
+  Future<void> getProducts(Map<String, dynamic> requestData, {bool forceRefresh = false}) async {
+    if (_hasLoaded && !forceRefresh) return;
+
     isLoading = true;
     message = null;
     notifyListeners();
@@ -27,6 +32,7 @@ class ProductProvider extends ChangeNotifier {
           }
         }
         message = response['message'] ?? "Products fetched successfully";
+        _hasLoaded = true;
       } else {
         products = [];
         message = response['message'] ?? "Failed to fetch products";

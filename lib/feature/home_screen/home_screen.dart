@@ -110,42 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Consumer<AuthProvider>(
-                                    builder: (context, auth, _) {
-                                      if (!auth.isLoggedIn) {
-                                        return Align(
-                                          alignment: Alignment.centerRight,
-                                          child: GestureDetector(
-                                            onTap: () {
-                                              context.pushNamed(
-                                                AppRoutes.loginScreen,
-                                              );
-                                            },
-                                            child: Container(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 16.w,
-                                                vertical: 8.h,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: AllColors.buttonColor,
-                                                borderRadius:
-                                                    BorderRadius.circular(20.r),
-                                              ),
-                                              child: Text(
-                                                'Login',
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 14.sp,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      }
-                                      return const SizedBox.shrink();
-                                    },
-                                  ),
+                                  const SizedBox.shrink(),
                                   const Spacer(),
                                   RichText(
                                     text: TextSpan(

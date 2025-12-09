@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/models/cart_model.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
@@ -7,6 +8,8 @@ import 'package:vd_customer_app/widget/snack_bar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vd_customer_app/core/services/signedurl.dart';
 import 'package:vd_customer_app/core/routing/routes.dart';
+
+import '../../auth_screen/provider/auth_provider.dart';
 
 class CartProvider extends ChangeNotifier {
   Cart? _cart;
@@ -59,21 +62,8 @@ class CartProvider extends ChangeNotifier {
         };
       }).toList();
 
-      // double total = 0;
-      // for (final p in productsPayload) {
-      //   final q = (p['quantity'] is int)
-      //       ? (p['quantity'] as int)
-      //       : int.tryParse(p['quantity'].toString()) ?? 0;
-      //   final pr = double.tryParse(p['price'].toString()) ?? 0.0;
-      //   // total += pr * q;
-      // }
-
       final payload = {
-        "data": {
-          if (cartId != null) 'id': cartId,
-          "products": productsPayload,
-          // "totalPrice": total,
-        },
+        "data": {if (cartId != null) 'id': cartId, "products": productsPayload},
       };
 
       final response = await Api.post('addEditCart', payload);
@@ -116,7 +106,6 @@ class CartProvider extends ChangeNotifier {
               signedImages.add(signed);
             }
           }
-          // Update the images list with signed URLs
           detail.product!.images.clear();
           detail.product!.images.addAll(signedImages);
         }
@@ -154,7 +143,12 @@ class CartProvider extends ChangeNotifier {
             await Prefs.clear(Prefs.keyUserId);
             await Prefs.clearAll();
             clearCart();
-            context.goNamed(AppRoutes.loginScreen);
+            // ignore: use_build_context_synchronously
+            try {
+              // ignore: depend_on_referenced_packages
+              context.read<AuthProvider>().clearToken();
+            } catch (_) {}
+            context.goNamed(AppRoutes.bottomBarScreen);
           }
         } catch (e) {
           print('Error during logout handling: $e');
@@ -234,17 +228,15 @@ class CartProvider extends ChangeNotifier {
             await Prefs.clear(Prefs.keyAuthToken);
             await Prefs.clear(Prefs.keyUserId);
             await Prefs.clearAll();
-
-            // clear local cart state
             clearCart();
-
-            // navigate to login/auth screen if context provided
             if (context != null) {
-              context.goNamed(AppRoutes.loginScreen);
+              try {
+                context.read<AuthProvider>().clearToken();
+              } catch (_) {}
+              context.goNamed(AppRoutes.bottomBarScreen);
             }
           }
         } catch (e) {
-          // ignore errors during logout handling but log if needed
           print('Error during logout handling: $e');
         }
 

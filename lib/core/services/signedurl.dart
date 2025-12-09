@@ -26,7 +26,7 @@ Future<String> generateSignedUrl(String rawS3Url) async {
     final presignedUrl = await s3Storage.presignedGetObject(
       bucket,
       objectKey,
-      expires: 300,
+      expires: 3600,
     );
     signedUrls[rawS3Url] = presignedUrl;
 

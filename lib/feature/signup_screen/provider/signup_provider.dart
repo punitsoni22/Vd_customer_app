@@ -1,11 +1,14 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:vd_customer_app/widget/snack_bar.dart';
 
 import '../../../core/routing/routes.dart';
 import '../../../core/services/api_services.dart';
 import '../../../core/utils/prefs/prefs.dart';
+import '../../../widget/snack_bar.dart';
+import '../../auth_screen/provider/auth_provider.dart';
+import '../../profile_screen/provider/profileProvider.dart';
+import 'package:provider/provider.dart';
 
 class SignupProvider extends ChangeNotifier {
   bool _isLoading = false;
@@ -29,11 +32,7 @@ class SignupProvider extends ChangeNotifier {
           "mobileNumber": mobileNumber.trim(),
         },
       };
-      log("Signup payload → $payload");
-
       final response = await Api.post('register', payload);
-      log("Signup response → $response");
-
       final success = response['success'] == true;
       final msg =
           (response['message'] ??
@@ -46,6 +45,10 @@ class SignupProvider extends ChangeNotifier {
         MySnackBar.showSnackBar(context, msg);
         final token = data['token'];
         await Prefs.saveString(Prefs.keyAuthToken, token);
+        if (context.mounted) {
+          await context.read<AuthProvider>().setToken(token);
+          context.read<ProfileProvider>().fetchSpecificUser(context);
+        }
         context.goNamed(AppRoutes.bottomBarScreen);
       } else {
         _showError(context, msg);
@@ -69,5 +72,13 @@ class SignupProvider extends ChangeNotifier {
 
   void _showError(BuildContext context, String message) {
     MySnackBar.showSnackBar(context, message);
+  }
+
+  bool _isPrivacyPolicyAccepted = false;
+  bool get isPrivacyPolicyAccepted => _isPrivacyPolicyAccepted;
+
+  void togglePrivacyPolicy(bool? value) {
+    _isPrivacyPolicyAccepted = value ?? false;
+    notifyListeners();
   }
 }

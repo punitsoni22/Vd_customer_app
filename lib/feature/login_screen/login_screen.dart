@@ -3,14 +3,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:vd_customer_app/core/theme/colors.dart';
-import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
-import 'package:vd_customer_app/core/utils/common_widgets/common_textfield.dart';
-import 'package:vd_customer_app/feature/login_screen/provider/login_provider.dart';
-import 'package:vd_customer_app/widget/snack_bar.dart';
+import 'package:flutter/gestures.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/routing/routes.dart';
+import '../../core/theme/colors.dart';
+import '../../core/utils/common_widgets/common_button.dart';
+import '../../core/utils/common_widgets/common_textfield.dart';
+import '../../widget/snack_bar.dart';
 import '../signup_screen/widget/header.dart';
+import 'provider/login_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -70,59 +72,77 @@ class _LoginScreenState extends State<LoginScreen> {
                       switchOutCurve: Curves.easeIn,
                       child: _stage == _Stage.login
                           ? _LoginStep(
-                        key: const ValueKey('_login'),
-                        formKey: _formKey,
-                        emailCtrl: _emailCtrl,
-                        passwordCtrl: _passwordCtrl,
-                        phoneCtrl: _phoneCtrl,
-                        provider: provider,
-                        onOtpRequested: () {
-                          if (provider.success) {
-                            setState(() => _stage = _Stage.otp);
-                            MySnackBar.showSnackBar(
-                              context,
-                              'OTP sent to ${provider.number}',
-                            );
-                          } else {
-                            MySnackBar.showSnackBar(
-                              context,
-                              provider.message ??
-                                  'Failed to send OTP. Try again.',
-                            );
-                          }
-                        },
-                      )
+                              key: const ValueKey('_login'),
+                              formKey: _formKey,
+                              emailCtrl: _emailCtrl,
+                              passwordCtrl: _passwordCtrl,
+                              phoneCtrl: _phoneCtrl,
+                              provider: provider,
+                              onOtpRequested: () {
+                                if (provider.success) {
+                                  setState(() => _stage = _Stage.otp);
+                                  MySnackBar.showSnackBar(
+                                    context,
+                                    'OTP sent to ${provider.number}',
+                                  );
+                                } else {
+                                  MySnackBar.showSnackBar(
+                                    context,
+                                    provider.message ??
+                                        'Failed to send OTP. Try again.',
+                                  );
+                                }
+                              },
+                            )
                           : _OtpStep(
-                        key: const ValueKey('_otp'),
-                        formKey: _otpFormKey,
-                        otpCtrl: _otpCtrl,
-                        provider: provider,
-                        onBackToLogin: () =>
-                            setState(() => _stage = _Stage.login),
-                        onResentOtp: () {
-                          setState(() => _stage = _Stage.login);
-                        },
-                      ),
+                              key: const ValueKey('_otp'),
+                              formKey: _otpFormKey,
+                              otpCtrl: _otpCtrl,
+                              provider: provider,
+                              onBackToLogin: () =>
+                                  setState(() => _stage = _Stage.login),
+                              onResentOtp: () {
+                                setState(() => _stage = _Stage.login);
+                              },
+                            ),
                     ),
                   ),
                   SizedBox(height: 20.h),
-                  Center(
-                    child: Text(
-                      'By continuing you agree to our',
-                      style: TextStyle(fontSize: 12.sp, color: Colors.grey),
-                    ),
-                  ),
-                  Center(
-                    child: Text(
-                      'Terms & Condition and Privacy Policy',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: AllColors.buttonColor,
-                      ),
-                    ),
-                  ),
+                  SizedBox(height: 20.h),
                   SizedBox(height: 20.h),
                 ],
+              ),
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 10.h,
+                left: 16.w,
+                child: GestureDetector(
+                  onTap: () {
+                    if (context.canPop()) {
+                      context.pop();
+                    } else {
+                      context.goNamed(AppRoutes.bottomBarScreen);
+                    }
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(8.r),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.arrow_back_ios_new,
+                      size: 20.sp,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -156,6 +176,67 @@ class _LoginStep extends StatefulWidget {
 
 class _LoginStepState extends State<_LoginStep> {
   bool _isPasswordVisible = false;
+
+  Widget _buildPrivacyCheckbox(BuildContext context) {
+    return Row(
+      children: [
+        Checkbox(
+          value: widget.provider.isPrivacyPolicyAccepted,
+          onChanged: widget.provider.togglePrivacyPolicy,
+          activeColor: AllColors.buttonColor,
+        ),
+        Expanded(
+          child: RichText(
+            text: TextSpan(
+              text: 'I agree to the Privacy Policy',
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: const Color(0xFF888888),
+                fontWeight: FontWeight.w600,
+              ),
+              children: [
+                TextSpan(
+                  text: ' (read)',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: AllColors.buttonColor,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  recognizer: TapGestureRecognizer()
+                    ..onTap = () async {
+                      final uri = Uri.parse(
+                        'https://veedasip.com/privacy-policy',
+                      );
+                      try {
+                        final launched = await launchUrl(
+                          uri,
+                          mode: LaunchMode.externalApplication,
+                        );
+                        if (!launched) {
+                          if (context.mounted) {
+                            MySnackBar.showSnackBar(
+                              context,
+                              'Could not open privacy policy',
+                            );
+                          }
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          MySnackBar.showSnackBar(
+                            context,
+                            'Could not open privacy policy',
+                          );
+                        }
+                      }
+                    },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -262,7 +343,9 @@ class _LoginStepState extends State<_LoginStep> {
                           return null;
                         },
                       ),
-                      SizedBox(height: 24.h),
+                      SizedBox(height: 10.h),
+                      _buildPrivacyCheckbox(context),
+                      SizedBox(height: 14.h),
                       CommonButton(
                         buttonValue: 'Login',
                         isFullWidth: true,
@@ -272,14 +355,18 @@ class _LoginStepState extends State<_LoginStep> {
                               false)) {
                             return;
                           }
+                          if (!widget.provider.isPrivacyPolicyAccepted) {
+                            MySnackBar.showSnackBar(
+                              context,
+                              "Please accept the Privacy Policy",
+                            );
+                            return;
+                          }
                           await widget.provider.loginViaEmail(context);
                           if (!context.mounted) return;
                           final msg = widget.provider.message;
                           if (msg != null) {
-                            MySnackBar.showSnackBar(
-                              context,
-                              msg,
-                            );
+                            MySnackBar.showSnackBar(context, msg);
                           }
                         },
                       ),
@@ -323,13 +410,23 @@ class _LoginStepState extends State<_LoginStep> {
                           return null;
                         },
                       ),
-                      SizedBox(height: 24.h),
+                      SizedBox(height: 10.h),
+                      _buildPrivacyCheckbox(context),
+                      SizedBox(height: 14.h),
                       CommonButton(
                         buttonValue: 'Login via OTP',
                         isFullWidth: true,
                         isLoading: widget.provider.isLoading,
                         onTap: () async {
-                          if (!(widget.formKey.currentState?.validate() ?? false)) {
+                          if (!(widget.formKey.currentState?.validate() ??
+                              false)) {
+                            return;
+                          }
+                          if (!widget.provider.isPrivacyPolicyAccepted) {
+                            MySnackBar.showSnackBar(
+                              context,
+                              "Please accept the Privacy Policy",
+                            );
                             return;
                           }
                           await widget.provider.loginViaOtp(context);
@@ -413,14 +510,12 @@ class _OtpStep extends StatelessWidget {
               if (!(formKey.currentState?.validate() ?? false)) return;
               await provider.verifyOtp(context, otpCtrl.text);
               if (!context.mounted) return;
-              final msg = provider.message ??
+              final msg =
+                  provider.message ??
                   (provider.success
                       ? "OTP verified successfully"
                       : "OTP verification failed");
-              MySnackBar.showSnackBar(
-                context,
-                msg,
-              );
+              MySnackBar.showSnackBar(context, msg);
             },
           ),
           TextButton(

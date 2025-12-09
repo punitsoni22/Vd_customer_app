@@ -6,6 +6,7 @@ import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
 import 'package:vd_customer_app/feature/auth_screen/provider/auth_provider.dart';
+import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
 import 'package:vd_customer_app/widget/snack_bar.dart';
 
 class ProfileProvider extends ChangeNotifier {
@@ -39,16 +40,20 @@ class ProfileProvider extends ChangeNotifier {
       } else {
         message = response["message"] ?? "Failed to fetch user details";
         final msgStr = message.toString();
-        if (msgStr.contains('401')) {
-          await Prefs.clear(Prefs.keyAuthToken);
-          await Prefs.clear(Prefs.keyUserId);
-          await Prefs.clearAll();
-          MySnackBar.showSnackBar(
-            context,
-            "Session expired. Please log in again.",
-          );
-          context.goNamed(AppRoutes.loginScreen);
-        }
+          if (msgStr.contains('401')) {
+            await Prefs.clear(Prefs.keyAuthToken);
+            await Prefs.clear(Prefs.keyUserId);
+            await Prefs.clearAll();
+            MySnackBar.showSnackBar(
+              context,
+              "Session expired. Please log in again.",
+            );
+            // ignore: use_build_context_synchronously
+            try {
+              context.read<AuthProvider>().clearToken();
+            } catch (_) {}
+            context.goNamed(AppRoutes.bottomBarScreen);
+          }
       }
     } catch (e, st) {
       message = "Exception: $e";
@@ -71,12 +76,13 @@ class ProfileProvider extends ChangeNotifier {
         try {
           if (context.mounted) {
             context.read<AuthProvider>().clearToken();
+            context.read<CartProvider>().clearCart();
           }
         } catch (_) {}
 
         if (context.mounted) {
           MySnackBar.showSnackBar(context, 'Account deleted successfully');
-          context.goNamed(AppRoutes.loginScreen);
+          context.goNamed(AppRoutes.bottomBarScreen);
         }
 
         isLoading = false;
@@ -89,7 +95,7 @@ class ProfileProvider extends ChangeNotifier {
           final msgStr = msg.toString();
           if (msgStr.contains('401')) {
             await Prefs.clearAll();
-            if (context.mounted) context.goNamed(AppRoutes.loginScreen);
+            if (context.mounted) context.goNamed(AppRoutes.bottomBarScreen);
           }
         } catch (_) {}
 

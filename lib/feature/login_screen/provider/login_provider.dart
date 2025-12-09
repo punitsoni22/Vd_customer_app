@@ -3,11 +3,13 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:vd_customer_app/core/routing/routes.dart';
-import 'package:vd_customer_app/core/services/api_services.dart';
-import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
-import 'package:vd_customer_app/feature/auth_screen/provider/auth_provider.dart';
-import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
+
+import '../../../core/routing/routes.dart';
+import '../../../core/services/api_services.dart';
+import '../../../core/utils/prefs/prefs.dart';
+import '../../auth_screen/provider/auth_provider.dart';
+import '../../cart_screen/provider/cart_provider.dart';
+import '../../profile_screen/provider/profileProvider.dart';
 
 class LoginProvider extends ChangeNotifier {
   bool _isLoading = false;
@@ -87,6 +89,7 @@ class LoginProvider extends ChangeNotifier {
             if (userId != null) {
               await Prefs.saveString("user_id", userId.toString());
               context.read<CartProvider>().fetchLatestCart(context);
+              context.read<ProfileProvider>().fetchSpecificUser(context);
             }
           } catch (e) {
             print("DEBUG: Failed to decode token: $e");
@@ -170,6 +173,7 @@ class LoginProvider extends ChangeNotifier {
         if (userId != null) {
           await Prefs.saveString("user_id", userId);
           context.read<CartProvider>().fetchLatestCart(context);
+          context.read<ProfileProvider>().fetchSpecificUser(context);
         }
 
         _result(
@@ -196,6 +200,14 @@ class LoginProvider extends ChangeNotifier {
     } finally {
       _setLoading(false);
     }
+  }
+
+  bool _isPrivacyPolicyAccepted = false;
+  bool get isPrivacyPolicyAccepted => _isPrivacyPolicyAccepted;
+
+  void togglePrivacyPolicy(bool? value) {
+    _isPrivacyPolicyAccepted = value ?? false;
+    notifyListeners();
   }
 
   void clearMessage() {

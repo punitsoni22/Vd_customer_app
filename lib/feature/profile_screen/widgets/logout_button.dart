@@ -7,6 +7,7 @@ import 'package:vd_customer_app/core/theme/colors.dart';
 
 import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
 import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
+import 'package:vd_customer_app/feature/auth_screen/provider/auth_provider.dart';
 
 class LogoutButton extends StatelessWidget {
   const LogoutButton({super.key});
@@ -142,8 +143,9 @@ class LogoutButton extends StatelessWidget {
 
     Provider.of<CartProvider>(context, listen: false).clearCart();
 
+    await context.read<AuthProvider>().clearToken();
     if (context.mounted) {
-      context.go(AppRoutes.loginScreen);
+      context.goNamed(AppRoutes.bottomBarScreen);
     }
   }
 
