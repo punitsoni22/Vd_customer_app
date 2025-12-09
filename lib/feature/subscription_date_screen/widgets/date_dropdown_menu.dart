@@ -31,12 +31,23 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
   List<String> selectedDeliveryDays = [];
   List<DateTime> selectedCustomDates = [];
   String selectedValue = "Daily";
+  String preferredTiming = "7AM - 9AM";
+  String remarks = "";
 
   final List<String> items = [
     "Daily",
     "Weekly",
     "Alternate Days",
     "Custom Date",
+  ];
+
+  final List<String> timings = [
+    "7AM - 9AM",
+    "9AM - 11AM",
+    "11AM - 1PM",
+    "1PM - 3PM",
+    "3PM - 5PM",
+    "5PM - 7PM",
   ];
 
   @override
@@ -159,145 +170,20 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                   ),
                 ),
                 SizedBox(height: 10.h),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Container(
-                        height: 40.h,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 8.w,
-                          vertical: 2.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(8.r),
-                          border: Border.all(
-                            color: primary.withValues(alpha: 0.3),
-                            width: 1,
-                          ),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: selectedAddressId,
-                            hint: Text(
-                              "Select Address",
-                              style: TextStyle(
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w400,
-                                color: primary.withValues(alpha: 0.8),
-                              ),
-                            ),
-                            isExpanded: true,
-                            icon: Icon(
-                              Icons.keyboard_arrow_down_rounded,
-                              color: primary,
-                            ),
-                            dropdownColor: Colors.white,
-                            borderRadius: BorderRadius.circular(10.r),
-                            menuMaxHeight: 260.h,
-
-                            // Selected item appearance
-                            selectedItemBuilder: (context) {
-                              return subProvider.addresses.map((address) {
-                                return Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Text(
-                                    address.fullAddress,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontSize: 13.sp,
-                                      fontWeight: FontWeight.w500,
-                                      color: primary,
-                                    ),
-                                  ),
-                                );
-                              }).toList();
-                            },
-
-                            items: subProvider.addresses.map((address) {
-                              final id = address.id.toString();
-                              final bool isSelected = selectedAddressId == id;
-
-                              return DropdownMenuItem<String>(
-                                value: id,
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        address.fullAddress,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          fontSize: 13.sp,
-                                          fontWeight: isSelected
-                                              ? FontWeight.w600
-                                              : FontWeight.w500,
-                                          color: isSelected
-                                              ? primary
-                                              : Colors.grey.shade800,
-                                        ),
-                                      ),
-                                    ),
-                                    if (isSelected)
-                                      Icon(
-                                        Icons.check_rounded,
-                                        size: 18.sp,
-                                        color: primary,
-                                      ),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-
-                            onChanged: (val) {
-                              setState(() {
-                                selectedAddressId = val;
-                              });
-                            },
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(width: 8.w),
-
-                    GestureDetector(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: AllColors.buttonColor,
-                          borderRadius: BorderRadius.circular(6.r),
-                        ),
-                        width: 40.w,
-                        height: 40.h,
-                        child: Icon(
-                          Icons.add,
-                          size: 22.sp,
-                          color: Colors.white,
-                        ),
-                      ),
-                      onTap: () async {
-                        final added = await showModalBottomSheet<bool>(
-                          context: context,
-                          isScrollControlled: true,
-                          builder: (_) => const AddressBottomSheet(),
-                        );
-                        if (added == true) {
-                          Provider.of<SubscriptionProvider>(
-                            context,
-                            listen: false,
-                          ).getAllAddresses(context);
-                        }
-                      },
-                    ),
-                  ],
-                ),
+                _buildAddressSelection(subProvider, primary),
 
                 SizedBox(height: 18.h),
 
                 _dateField('Start Date', startDate, context, isStart: true),
                 SizedBox(height: 18.h),
                 _dateField('End Date', endDate, context, isStart: false),
+                SizedBox(height: 18.h),
+
+                _buildTimingDropdown(primary),
+                SizedBox(height: 18.h),
+
+                _buildRemarksField(primary),
+                SizedBox(height: 18.h),
 
                 SizedBox(height: 24.h),
                 CommonButton(
@@ -336,6 +222,8 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                             "bottles_per_delivery": bottlesPerDelivery,
                             "products": widget.selectedProducts ?? [],
                             "addressId": int.parse(selectedAddressId!),
+                            "preferredTiming": preferredTiming,
+                            "remarks": remarks.isEmpty ? null : remarks,
                           };
                           if (freq == "Weekly") {
                             if (selectedDeliveryDays.isEmpty) {
@@ -673,6 +561,187 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
           ],
         ],
       ),
+    );
+  }
+
+  Widget _buildAddressSelection(SubscriptionProvider provider, Color primary) {
+    // Auto-select default address if none selected
+    if (selectedAddressId == null && provider.addresses.isNotEmpty) {
+      final defaultAddress = provider.addresses.firstWhere(
+        (addr) => addr.isDefault,
+        orElse: () => provider.addresses.first,
+      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && selectedAddressId == null) {
+          setState(() {
+            selectedAddressId = defaultAddress.id.toString();
+          });
+        }
+      });
+    }
+
+    return GestureDetector(
+      onTap: () async {
+        await showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          builder: (_) => AddressBottomSheet(
+            addresses: provider.addresses,
+            selectedId: selectedAddressId,
+            onSelected: (id) {
+              setState(() {
+                selectedAddressId = id;
+              });
+            },
+          ),
+        );
+      },
+      child: Container(
+        padding: EdgeInsets.all(12.r),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8.r),
+          border: Border.all(color: primary.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.location_on, color: primary, size: 20.sp),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Delivery Address',
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      color: Colors.grey.shade600,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(height: 2.h),
+                  Text(
+                    selectedAddressId != null && provider.addresses.isNotEmpty
+                        ? provider.addresses
+                              .firstWhere(
+                                (a) => a.id.toString() == selectedAddressId,
+                                orElse: () => provider.addresses.first,
+                              )
+                              .fullAddress
+                        : 'Tap to select address',
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w600,
+                      color: selectedAddressId != null
+                          ? Colors.black87
+                          : Colors.grey.shade500,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: 8.w),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 14.sp,
+              color: Colors.grey.shade600,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTimingDropdown(Color primary) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Preferred Timing',
+          style: TextStyle(
+            color: AllColors.olivegreenColor,
+            fontSize: 13.sp,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        SizedBox(height: 6.h),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 12.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8.r),
+            border: Border.all(color: primary.withValues(alpha: 0.3)),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: preferredTiming,
+              isExpanded: true,
+              icon: Icon(Icons.access_time, color: primary, size: 18.sp),
+              style: TextStyle(fontSize: 14.sp, color: AllColors.buttonColor),
+              dropdownColor: Colors.white,
+              onChanged: (String? newValue) {
+                if (newValue != null) {
+                  setState(() {
+                    preferredTiming = newValue;
+                  });
+                }
+              },
+              items: timings.map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRemarksField(Color primary) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Remarks (Optional)',
+          style: TextStyle(
+            color: AllColors.olivegreenColor,
+            fontSize: 13.sp,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        SizedBox(height: 6.h),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(8.r),
+            border: Border.all(color: primary.withValues(alpha: 0.3)),
+          ),
+          child: TextField(
+            onChanged: (value) {
+              setState(() {
+                remarks = value;
+              });
+            },
+            maxLines: 2,
+            decoration: InputDecoration(
+              hintText: 'e.g., Leave at doorstep',
+              hintStyle: TextStyle(
+                fontSize: 14.sp,
+                color: Colors.grey.shade400,
+              ),
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.zero,
+              isDense: true,
+            ),
+            style: TextStyle(fontSize: 14.sp, color: AllColors.buttonColor),
+          ),
+        ),
+      ],
     );
   }
 }
