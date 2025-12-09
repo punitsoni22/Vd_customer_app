@@ -3,15 +3,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:vd_customer_app/core/routing/routes.dart';
+import 'package:flutter/gestures.dart';
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/routing/routes.dart';
 import '../../core/theme/colors.dart';
 import '../../core/utils/common_widgets/common_button.dart';
 import '../../core/utils/common_widgets/common_textfield.dart';
 import '../../core/utils/validators.dart';
+import '../../widget/snack_bar.dart';
 import 'provider/signup_provider.dart';
 import 'widget/header.dart';
-import 'widget/terms.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -27,9 +29,8 @@ class _SignUpScreenState extends State<SignupScreen> {
   late final TextEditingController _emailCtrl;
   late final TextEditingController _phoneCtrl;
   late final TextEditingController _passwordCtrl;
-
-  /// Used to control when to start showing validation errors
   bool _submitted = false;
+  bool _isPasswordVisible = false;
 
   @override
   void initState() {
@@ -51,6 +52,7 @@ class _SignUpScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<SignupProvider>();
     final autovalidateMode = _submitted
         ? AutovalidateMode.onUserInteraction
         : AutovalidateMode.disabled;
@@ -61,67 +63,144 @@ class _SignUpScreenState extends State<SignupScreen> {
         resizeToAvoidBottomInset: true,
         backgroundColor: AllColors.backgroundColor,
         body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+          child: Stack(
             children: [
-              Header(),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 20.h),
-                child: Form(
-                  key: _formKey,
-                  autovalidateMode: autovalidateMode,
-                  child: Column(
-                    children: [
-                      Text(
-                        'Sign Up',
-                        style: TextStyle(
-                          fontSize: 24.sp,
-                          fontWeight: FontWeight.bold,
-                          color: AllColors.buttonColor,
-                        ),
-                      ),
-                      SizedBox(height: 10.h),
-                      CommonTextField(
-                        label: 'Name',
-                        controller: _nameCtrl,
-                        validator: Validators.name,
-                        textInputAction: TextInputAction.next,
-                      ),
-                      SizedBox(height: 10.h),
-                      CommonTextField(
-                        label: 'Email',
-                        controller: _emailCtrl,
-                        keyboardType: TextInputType.emailAddress,
-                        validator: Validators.email,
-                        textInputAction: TextInputAction.next,
-                      ),
-                      SizedBox(height: 10.h),
-                      CommonTextField(
-                        label: 'Phone Number',
-                        controller: _phoneCtrl,
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                        validator: Validators.phone10,
-                        textInputAction: TextInputAction.next,
-                      ),
-                      SizedBox(height: 10.h),
-                      CommonTextField(
-                        label: 'Password',
-                        controller: _passwordCtrl,
-                        obscureText: true,
-                        validator: Validators.passwordStrong,
-                        textInputAction: TextInputAction.done,
-                      ),
-                      SizedBox(height: 30.h),
-                      Selector<SignupProvider, bool>(
-                        selector: (_, p) => p.isLoading,
-                        builder: (context, isLoading, _) {
-                          return CommonButton(
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Header(),
+                  Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12.w,
+                      vertical: 20.h,
+                    ),
+                    child: Form(
+                      key: _formKey,
+                      autovalidateMode: autovalidateMode,
+                      child: Column(
+                        children: [
+                          Text(
+                            'Sign Up',
+                            style: TextStyle(
+                              fontSize: 24.sp,
+                              fontWeight: FontWeight.bold,
+                              color: AllColors.buttonColor,
+                            ),
+                          ),
+                          SizedBox(height: 10.h),
+                          CommonTextField(
+                            label: 'Name',
+                            controller: _nameCtrl,
+                            validator: Validators.name,
+                            textInputAction: TextInputAction.next,
+                          ),
+                          SizedBox(height: 10.h),
+                          CommonTextField(
+                            label: 'Email',
+                            controller: _emailCtrl,
+                            keyboardType: TextInputType.emailAddress,
+                            validator: Validators.email,
+                            textInputAction: TextInputAction.next,
+                          ),
+                          SizedBox(height: 10.h),
+                          CommonTextField(
+                            label: 'Phone Number',
+                            controller: _phoneCtrl,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(10),
+                            ],
+                            validator: Validators.phone10,
+                            textInputAction: TextInputAction.next,
+                          ),
+                          SizedBox(height: 10.h),
+                          CommonTextField(
+                            label: 'Password',
+                            controller: _passwordCtrl,
+                            obscureText: !_isPasswordVisible,
+                            suFFixIcon: IconButton(
+                              icon: Icon(
+                                _isPasswordVisible
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                color: Colors.grey,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _isPasswordVisible = !_isPasswordVisible;
+                                });
+                              },
+                            ),
+                            validator: Validators.passwordStrong,
+                            textInputAction: TextInputAction.done,
+                          ),
+                          SizedBox(height: 30.h),
+                          SizedBox(height: 20.h),
+                          Row(
+                            children: [
+                              Checkbox(
+                                value: provider.isPrivacyPolicyAccepted,
+                                onChanged: provider.togglePrivacyPolicy,
+                                activeColor: AllColors.buttonColor,
+                              ),
+                              Expanded(
+                                child: RichText(
+                                  text: TextSpan(
+                                    text: 'I agree to the Privacy Policy',
+                                    style: TextStyle(
+                                      fontSize: 12.sp,
+                                      color: const Color(0xFF888888),
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    children: [
+                                      TextSpan(
+                                        text: ' (read)',
+                                        style: TextStyle(
+                                          fontSize: 12.sp,
+                                          color: AllColors.buttonColor,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () async {
+                                            final uri = Uri.parse(
+                                              'https://veedasip.com/privacy-policy',
+                                            );
+                                            try {
+                                              final launched = await launchUrl(
+                                                uri,
+                                                mode: LaunchMode
+                                                    .externalApplication,
+                                              );
+                                              if (!launched) {
+                                                if (context.mounted) {
+                                                  MySnackBar.showSnackBar(
+                                                    context,
+                                                    'Could not open privacy policy',
+                                                  );
+                                                }
+                                              }
+                                            } catch (e) {
+                                              if (context.mounted) {
+                                                MySnackBar.showSnackBar(
+                                                  context,
+                                                  'Could not open privacy policy',
+                                                );
+                                              }
+                                            }
+                                          },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 14.h),
+                          CommonButton(
                             buttonValue: 'Sign Up',
                             isFullWidth: true,
-                            isLoading: isLoading,
+                            isLoading: provider.isLoading,
                             onTap: () async {
                               // First submit → turn on autovalidation
                               if (!_submitted) {
@@ -134,7 +213,15 @@ class _SignUpScreenState extends State<SignupScreen> {
                                   _formKey.currentState?.validate() ?? false;
                               if (!valid) return;
 
-                              await context.read<SignupProvider>().signup(
+                              if (!provider.isPrivacyPolicyAccepted) {
+                                MySnackBar.showSnackBar(
+                                  context,
+                                  "Please accept the Privacy Policy",
+                                );
+                                return;
+                              }
+
+                              await provider.signup(
                                 email: _emailCtrl.text,
                                 password: _passwordCtrl.text,
                                 fullName: _nameCtrl.text,
@@ -142,30 +229,61 @@ class _SignUpScreenState extends State<SignupScreen> {
                                 context: context,
                               );
                             },
-                          );
-                        },
-                      ),
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size(50.w, 30.h),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          alignment: Alignment.center,
-                        ),
-                        onPressed: () {
-                          context.replaceNamed(AppRoutes.loginScreen);
-                        },
-                        child: Text(
-                          "Already have an account? Log In",
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            color: AllColors.buttonColor,
                           ),
-                        ),
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              padding: EdgeInsets.zero,
+                              minimumSize: Size(50.w, 30.h),
+                              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              alignment: Alignment.center,
+                            ),
+                            onPressed: () {
+                              context.replaceNamed(AppRoutes.loginScreen);
+                            },
+                            child: Text(
+                              "Already have an account? Log In",
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: AllColors.buttonColor,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 20.h),
+                        ],
                       ),
-                      SizedBox(height: 40.h),
-                      const Terms(),
-                    ],
+                    ),
+                  ),
+                ],
+              ),
+              Positioned(
+                top: MediaQuery.of(context).padding.top + 10.h,
+                left: 16.w,
+                child: GestureDetector(
+                  onTap: () {
+                    if (context.canPop()) {
+                      context.pop();
+                    } else {
+                      context.goNamed(AppRoutes.bottomBarScreen);
+                    }
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(8.r),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Icon(
+                      Icons.arrow_back_ios_new,
+                      size: 20.sp,
+                      color: Colors.black,
+                    ),
                   ),
                 ),
               ),

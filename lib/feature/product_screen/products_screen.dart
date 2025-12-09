@@ -28,28 +28,43 @@ class _ProductScreenState extends State<ProductScreen> {
             title: 'Products',
           ),
           Expanded(
-            child: provider.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : (provider.products.isEmpty)
-                ? const CommonEmptyState(title: "No products found")
-                : GridView.builder(
-                    shrinkWrap: true,
-                    padding: EdgeInsets.symmetric(
-                      vertical: 10.h,
-                      horizontal: 12.w,
-                    ),
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    itemCount: provider.products.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 0.7,
-                          crossAxisSpacing: 20,
-                          mainAxisSpacing: 20,
+            child: RefreshIndicator(
+              onRefresh: () async {
+                await provider.getProducts(
+                  {
+                    "filterModel": {},
+                    "orderBy": "productName",
+                    "orderDir": "ASC",
+                    "searchText": "",
+                    "page": 1,
+                    "pageSize": 10,
+                  },
+                  forceRefresh: true,
+                );
+              },
+              child: provider.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : (provider.products.isEmpty)
+                      ? const CommonEmptyState(title: "No products found")
+                      : GridView.builder(
+                          shrinkWrap: true,
+                          padding: EdgeInsets.symmetric(
+                            vertical: 10.h,
+                            horizontal: 12.w,
+                          ),
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          itemCount: provider.products.length,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            childAspectRatio: 0.7,
+                            crossAxisSpacing: 20,
+                            mainAxisSpacing: 20,
+                          ),
+                          itemBuilder: (context, index) =>
+                              ProductCard(product: provider.products[index]),
                         ),
-                    itemBuilder: (context, index) =>
-                        ProductCard(product: provider.products[index]),
-                  ),
+            ),
           ),
         ],
       ),
