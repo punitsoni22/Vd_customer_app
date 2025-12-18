@@ -205,7 +205,7 @@ class _LoginStepState extends State<_LoginStep> {
                   recognizer: TapGestureRecognizer()
                     ..onTap = () async {
                       final uri = Uri.parse(
-                        'https://veedasip.com/privacy-policy',
+                        'https://new.veedasip.com/privacy-policy',
                       );
                       try {
                         final launched = await launchUrl(
