@@ -1,38 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:vd_customer_app/core/models/address.model.dart';
+import 'package:vd_customer_app/core/models/admin_plan_model.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/helpers/auth_helper.dart';
-
-class AddressModel {
-  final int id;
-  final String fullAddress;
-  final String city;
-  final String state;
-  final String country;
-  final String postalCode;
-  final bool isDefault;
-
-  AddressModel({
-    required this.id,
-    required this.fullAddress,
-    required this.city,
-    required this.state,
-    required this.country,
-    required this.postalCode,
-    required this.isDefault,
-  });
-
-  factory AddressModel.fromJson(Map<String, dynamic> json) {
-    return AddressModel(
-      id: json['id'] ?? 0,
-      fullAddress: json['fullAddress'] ?? '',
-      city: json['city'] ?? '',
-      state: json['state'] ?? '',
-      country: json['country'] ?? '',
-      postalCode: json['postalCode'] ?? '',
-      isDefault: json['isDefault'] ?? false,
-    );
-  }
-}
 
 class SubscriptionProvider extends ChangeNotifier {
   bool _subscriptionCreatedSuccessfully = false;
@@ -101,6 +71,75 @@ class SubscriptionProvider extends ChangeNotifier {
 
   void clearMessage() {
     message = null;
+    notifyListeners();
+  }
+
+  // Admin Plans
+  bool isLoadingPlans = false;
+  List<AdminPlanModel> adminPlans = [];
+  AdminPlanModel? selectedPlan;
+
+  Future<void> getAllActivePlans(BuildContext context) async {
+    isLoadingPlans = true;
+    notifyListeners();
+
+    try {
+      final response = await Api.post('getAllActivePlansForUsers', {
+        "data": {"searchText": "", "page": 1, "pageSize": 50},
+      });
+
+      if (response['success'] == true) {
+        final List<dynamic> plans = response['data']?['plans'] ?? [];
+        adminPlans = plans.map((e) => AdminPlanModel.fromJson(e)).toList();
+        message = response['message'] ?? 'Plans fetched successfully';
+      } else {
+        adminPlans = [];
+        message = response['message'] ?? 'Failed to fetch plans';
+      }
+    } catch (e) {
+      adminPlans = [];
+      message = 'Exception: $e';
+    }
+
+    isLoadingPlans = false;
+    notifyListeners();
+  }
+
+  Future<AdminPlanModel?> getSpecificAdminPlan(
+    BuildContext context,
+    int planId,
+  ) async {
+    isLoadingPlans = true;
+    notifyListeners();
+
+    try {
+      final response = await Api.post('getSpecificAdminPlan', {
+        "data": {"id": planId},
+      });
+
+      if (response['success'] == true) {
+        final planData = response['data'];
+        if (planData != null) {
+          selectedPlan = AdminPlanModel.fromJson(planData);
+          message = 'Plan details fetched successfully';
+          isLoadingPlans = false;
+          notifyListeners();
+          return selectedPlan;
+        }
+      } else {
+        message = response['message'] ?? 'Failed to fetch plan details';
+      }
+    } catch (e) {
+      message = 'Exception: $e';
+    }
+
+    isLoadingPlans = false;
+    notifyListeners();
+    return null;
+  }
+
+  void clearSelectedPlan() {
+    selectedPlan = null;
     notifyListeners();
   }
 }

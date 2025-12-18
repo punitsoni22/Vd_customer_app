@@ -15,4 +15,5 @@ class AppRoutes {
   static const String myOrderScreen = '/my_order_screen';
   static const String orderDetailScreen = '/order_detail_screen';
   static const String homescreen2 = '/homescreen';
+  static const String planDetailsScreen = '/plan_details_screen';
 }

@@ -7,7 +7,9 @@ import 'package:vd_customer_app/feature/order_detail_screen.dart/order_detail_sc
 import 'package:vd_customer_app/feature/product_detail_screen/product_detail_screen.dart';
 import 'package:vd_customer_app/feature/profile_screen/profile_screen.dart';
 import 'package:vd_customer_app/feature/subscription_date_screen/subscription_date_screen.dart';
+import 'package:vd_customer_app/feature/subscription_plan_details/plan_details_screen.dart';
 import 'package:vd_customer_app/feature/subscription_product_screen/subscription_product_screen.dart';
+
 import '../../feature/auth_screen/auth_screen.dart';
 import '../../feature/home_screen/home_screen.dart';
 import '../../feature/login_screen/login_screen.dart';
@@ -100,6 +102,15 @@ GoRouter buildRouter() {
           final selectedProducts =
               extra?['selectedProducts'] as List<Map<String, dynamic>>?;
           return SubscriptionDateScreen(selectedProducts: selectedProducts);
+        },
+      ),
+      GoRoute(
+        path: '/plan_details_screen',
+        name: AppRoutes.planDetailsScreen,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final planId = extra?['planId'] as int?;
+          return PlanDetailsScreen(planId: planId ?? 0);
         },
       ),
       GoRoute(

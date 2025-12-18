@@ -1,20 +1,30 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:vd_customer_app/core/models/address.model.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
+import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_textfield.dart';
-import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/widget/snack_bar.dart';
+
 import '../../shared/map_picker.dart';
 
 class AddressBottomSheet extends StatefulWidget {
-  const AddressBottomSheet({super.key});
+  final List<AddressModel>? addresses;
+  final String? selectedId;
+  final Function(String)? onSelected;
+
+  const AddressBottomSheet({
+    super.key,
+    this.addresses,
+    this.selectedId,
+    this.onSelected,
+  });
 
   @override
   State<AddressBottomSheet> createState() => _AddressBottomSheetState();
@@ -29,10 +39,11 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
   final TextEditingController _country = TextEditingController();
   final TextEditingController _postalCode = TextEditingController();
 
-  bool _isDefault = false;
+  final bool _isDefault = false;
   LatLng? _pickedLatLng;
   bool _isSubmitting = false;
   bool _hasPickedLocation = false;
+  bool _showAddForm = false;
 
   String get _googleApiKey => dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '';
 
@@ -141,6 +152,10 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
     if (resp['success'] == true) {
       if (mounted) {
         MySnackBar.showSnackBar(context, resp['message'] ?? 'Address added');
+
+        if (widget.onSelected != null && resp['data']?['id'] != null) {
+          widget.onSelected!(resp['data']['id'].toString());
+        }
         Navigator.of(context).pop(true);
       }
     } else {
@@ -190,301 +205,446 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
               topLeft: Radius.circular(20.r),
               topRight: Radius.circular(20.r),
             ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-              child: SingleChildScrollView(
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // ────────── Drag handle + header ──────────
-                      Center(
-                        child: Container(
-                          width: 40.w,
-                          height: 4.h,
-                          margin: EdgeInsets.only(bottom: 10.h),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade300,
-                            borderRadius: BorderRadius.circular(100.r),
-                          ),
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              'Add New Address',
-                              style: TextStyle(
-                                fontSize: 18.sp,
-                                fontWeight: FontWeight.w700,
-                                color: AllColors.buttonColor,
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () => Navigator.of(context).pop(false),
-                            icon: Icon(
-                              Icons.close_rounded,
-                              size: 20.sp,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 4.h),
+            child: _showAddForm
+                ? _buildAddAddressForm(primary)
+                : _buildAddressList(primary),
+          ),
+        ),
+      ),
+    );
+  }
 
-                      // ────────── Map/location status ──────────
-                      Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.all(10.w),
-                        margin: EdgeInsets.only(bottom: 12.h, top: 4.h),
-                        decoration: BoxDecoration(
-                          color: _hasPickedLocation
-                              ? Colors.green.shade50
-                              : Colors.orange.shade50,
-                          borderRadius: BorderRadius.circular(10.r),
-                          border: Border.all(
-                            color: _hasPickedLocation
-                                ? Colors.green.shade300
-                                : Colors.orange.shade300,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              _hasPickedLocation
-                                  ? Icons.check_circle_rounded
-                                  : Icons.location_on_rounded,
-                              color: _hasPickedLocation
-                                  ? Colors.green.shade700
-                                  : Colors.orange.shade700,
-                              size: 20.sp,
-                            ),
-                            SizedBox(width: 8.w),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    _hasPickedLocation
-                                        ? 'Location selected'
-                                        : 'Pick a location to auto-fill address',
-                                    style: TextStyle(
-                                      fontSize: 13.sp,
-                                      fontWeight: FontWeight.w600,
-                                      color: _hasPickedLocation
-                                          ? Colors.green.shade800
-                                          : Colors.orange.shade800,
-                                    ),
-                                  ),
-                                  if (_hasPickedLocation &&
-                                      _pickedLatLng != null) ...[
-                                    SizedBox(height: 2.h),
-                                    Text(
-                                      'Lat: ${_pickedLatLng!.latitude.toStringAsFixed(4)}, '
-                                      'Lng: ${_pickedLatLng!.longitude.toStringAsFixed(4)}',
-                                      style: TextStyle(
-                                        fontSize: 11.sp,
-                                        color: Colors.grey.shade700,
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                            CommonButton(
-                              buttonValue: _hasPickedLocation
-                                  ? 'Change'
-                                  : 'Pick on Map',
-                              isFullWidth: false,
-                              selfconstraints: BoxConstraints(
-                                maxWidth: 110.w,
-                                minHeight: 36.h,
-                              ),
-                              padding: EdgeInsets.symmetric(
-                                vertical: 6.h,
-                                horizontal: 10.w,
-                              ),
-                              onTap: () async {
-                                final result = await Navigator.push<LatLng>(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => MapPickerPage(
-                                      initialPosition: _pickedLatLng,
-                                    ),
-                                  ),
-                                );
-                                if (result != null) {
-                                  setState(() {
-                                    _pickedLatLng = result;
-                                  });
-                                  await _reverseGeocodeAndFill(result);
-                                }
-                              },
-                              backgroundColor: _hasPickedLocation
-                                  ? primary
-                                  : AllColors.tabBarline,
-                              radius: 8.r,
-                              textStyle: TextStyle(
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+  Widget _buildAddressList(Color primary) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Drag handle
+          Center(
+            child: Container(
+              width: 40.w,
+              height: 4.h,
+              margin: EdgeInsets.only(bottom: 10.h),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(100.r),
+              ),
+            ),
+          ),
+          // Header
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Select Address',
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AllColors.buttonColor,
+                  ),
+                ),
+              ),
+              IconButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                icon: Icon(
+                  Icons.close_rounded,
+                  size: 20.sp,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12.h),
 
-                      // ────────── Address fields card ──────────
-                      Text(
-                        'Address Details',
+          // Address list
+          if (widget.addresses != null && widget.addresses!.isNotEmpty)
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: widget.addresses!.length,
+                itemBuilder: (context, index) {
+                  final address = widget.addresses![index];
+                  final isSelected = widget.selectedId == address.id.toString();
+
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 10.h),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? primary.withValues(alpha: 0.1)
+                          : Colors.grey.shade50,
+                      borderRadius: BorderRadius.circular(8.r),
+                      border: Border.all(
+                        color: isSelected ? primary : Colors.grey.shade300,
+                        width: isSelected ? 2 : 1,
+                      ),
+                    ),
+                    child: ListTile(
+                      onTap: () {
+                        if (widget.onSelected != null) {
+                          widget.onSelected!(address.id.toString());
+                        }
+                        Navigator.of(context).pop(true);
+                      },
+                      leading: Icon(
+                        Icons.location_on,
+                        color: isSelected ? primary : Colors.grey.shade600,
+                      ),
+                      title: Text(
+                        address.fullAddress,
                         style: TextStyle(
                           fontSize: 14.sp,
-                          fontWeight: FontWeight.w700,
-                          color: primary,
+                          fontWeight: isSelected
+                              ? FontWeight.w600
+                              : FontWeight.w500,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitle: Text(
+                        '${address.city}, ${address.state}',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Colors.grey.shade600,
                         ),
                       ),
-                      SizedBox(height: 6.h),
-                      Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 10.w,
-                          vertical: 8.h,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade50,
-                          borderRadius: BorderRadius.circular(12.r),
-                          border: Border.all(color: Colors.grey.shade300),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _fieldLabel("Full Address"),
-                            CommonTextField(
-                              controller: _fullAddress,
-                              label: "Full Address",
-                              enabled: _hasPickedLocation,
-                              validator: (v) => (v == null || v.trim().isEmpty)
-                                  ? "Required"
-                                  : null,
-                              radius: 10,
-                              padding: EdgeInsets.symmetric(
-                                vertical: 9.h,
-                                horizontal: 10.w,
-                              ),
-                            ),
-
-                            _fieldLabel("City"),
-                            CommonTextField(
-                              controller: _city,
-                              label: "City",
-                              enabled: _hasPickedLocation,
-                              validator: (v) => (v == null || v.trim().isEmpty)
-                                  ? "Required"
-                                  : null,
-                              radius: 10,
-                              padding: EdgeInsets.symmetric(
-                                vertical: 9.h,
-                                horizontal: 10.w,
-                              ),
-                            ),
-
-                            _fieldLabel("State"),
-                            CommonTextField(
-                              controller: _state,
-                              label: "State",
-                              enabled: _hasPickedLocation,
-                              radius: 10,
-                              padding: EdgeInsets.symmetric(
-                                vertical: 9.h,
-                                horizontal: 10.w,
-                              ),
-                            ),
-
-                            _fieldLabel("Country"),
-                            CommonTextField(
-                              controller: _country,
-                              label: "Country",
-                              enabled: _hasPickedLocation,
-                              radius: 10,
-                              padding: EdgeInsets.symmetric(
-                                vertical: 9.h,
-                                horizontal: 10.w,
-                              ),
-                            ),
-
-                            _fieldLabel("Pin Code"),
-                            CommonTextField(
-                              controller: _postalCode,
-                              label: "Pin Code",
-                              enabled: _hasPickedLocation,
-                              keyboardType: TextInputType.number,
-                              radius: 10,
-                              padding: EdgeInsets.symmetric(
-                                vertical: 9.h,
-                                horizontal: 10.w,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      SizedBox(height: 14.h),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: CommonButton(
-                              padding: EdgeInsets.symmetric(
-                                vertical: 9.h,
-                                horizontal: 5.w,
-                              ),
-                              buttonValue: 'Cancel',
-                              isFullWidth: true,
-                              backgroundColor: Colors.grey.shade200,
-                              textStyle: TextStyle(
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey.shade800,
-                              ),
-                              radius: 10.r,
-                              onTap: () => Navigator.of(context).pop(false),
-                            ),
-                          ),
-                          SizedBox(width: 10.w),
-                          Expanded(
-                            child: CommonButton(
-                              padding: EdgeInsets.symmetric(
-                                vertical: 9.h,
-                                horizontal: 5.w,
-                              ),
-                              buttonValue: 'Save Address',
-                              isFullWidth: true,
-                              isLoading: _isSubmitting,
-                              onTap: (!_hasPickedLocation || _isSubmitting)
-                                  ? null
-                                  : _submit,
-                              backgroundColor: _hasPickedLocation
-                                  ? AllColors.tabBarline
-                                  : Colors.grey.shade400,
-                              radius: 10.r,
-                              textStyle: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      SizedBox(height: 8.h),
-                    ],
+                      trailing: isSelected
+                          ? Icon(Icons.check_circle, color: primary)
+                          : null,
+                    ),
+                  );
+                },
+              ),
+            )
+          else
+            Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 20.h),
+                child: Text(
+                  'No addresses found',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: Colors.grey.shade600,
                   ),
                 ),
               ),
             ),
+
+          SizedBox(height: 16.h),
+
+          // Add new address button
+          CommonButton(
+            onTap: () {
+              setState(() {
+                _showAddForm = true;
+              });
+            },
+            buttonValue: '+ Add New Address',
+            color: primary,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAddAddressForm(Color primary) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+      child: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ────────── Drag handle + header ──────────
+              Center(
+                child: Container(
+                  width: 40.w,
+                  height: 4.h,
+                  margin: EdgeInsets.only(bottom: 10.h),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(100.r),
+                  ),
+                ),
+              ),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _showAddForm = false;
+                      });
+                    },
+                    icon: Icon(
+                      Icons.arrow_back,
+                      size: 20.sp,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                  Expanded(
+                    child: Text(
+                      'Add New Address',
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w700,
+                        color: AllColors.buttonColor,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    icon: Icon(
+                      Icons.close_rounded,
+                      size: 20.sp,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 4.h),
+
+              // ────────── Map/location status ──────────
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.all(10.w),
+                margin: EdgeInsets.only(bottom: 12.h, top: 4.h),
+                decoration: BoxDecoration(
+                  color: _hasPickedLocation
+                      ? Colors.green.shade50
+                      : Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(10.r),
+                  border: Border.all(
+                    color: _hasPickedLocation
+                        ? Colors.green.shade300
+                        : Colors.orange.shade300,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      _hasPickedLocation
+                          ? Icons.check_circle_rounded
+                          : Icons.location_on_rounded,
+                      color: _hasPickedLocation
+                          ? Colors.green.shade700
+                          : Colors.orange.shade700,
+                      size: 20.sp,
+                    ),
+                    SizedBox(width: 8.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _hasPickedLocation
+                                ? 'Location selected'
+                                : 'Pick a location to auto-fill address',
+                            style: TextStyle(
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w600,
+                              color: _hasPickedLocation
+                                  ? Colors.green.shade800
+                                  : Colors.orange.shade800,
+                            ),
+                          ),
+                          if (_hasPickedLocation && _pickedLatLng != null) ...[
+                            SizedBox(height: 2.h),
+                            Text(
+                              'Lat: ${_pickedLatLng!.latitude.toStringAsFixed(4)}, '
+                              'Lng: ${_pickedLatLng!.longitude.toStringAsFixed(4)}',
+                              style: TextStyle(
+                                fontSize: 11.sp,
+                                color: Colors.grey.shade700,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    CommonButton(
+                      buttonValue: _hasPickedLocation
+                          ? 'Change'
+                          : 'Pick on Map',
+                      isFullWidth: false,
+                      selfconstraints: BoxConstraints(
+                        maxWidth: 110.w,
+                        minHeight: 36.h,
+                      ),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 6.h,
+                        horizontal: 10.w,
+                      ),
+                      onTap: () async {
+                        final result = await Navigator.push<LatLng>(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                MapPickerPage(initialPosition: _pickedLatLng),
+                          ),
+                        );
+                        if (result != null) {
+                          setState(() {
+                            _pickedLatLng = result;
+                          });
+                          await _reverseGeocodeAndFill(result);
+                        }
+                      },
+                      backgroundColor: _hasPickedLocation
+                          ? primary
+                          : AllColors.tabBarline,
+                      radius: 8.r,
+                      textStyle: TextStyle(
+                        fontSize: 12.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // ────────── Address fields card ──────────
+              Text(
+                'Address Details',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w700,
+                  color: primary,
+                ),
+              ),
+              SizedBox(height: 6.h),
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 8.h),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade50,
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _fieldLabel("Full Address"),
+                    CommonTextField(
+                      controller: _fullAddress,
+                      label: "Full Address",
+                      enabled: _hasPickedLocation,
+                      validator: (v) =>
+                          (v == null || v.trim().isEmpty) ? "Required" : null,
+                      radius: 10,
+                      padding: EdgeInsets.symmetric(
+                        vertical: 9.h,
+                        horizontal: 10.w,
+                      ),
+                    ),
+
+                    _fieldLabel("City"),
+                    CommonTextField(
+                      controller: _city,
+                      label: "City",
+                      enabled: _hasPickedLocation,
+                      validator: (v) =>
+                          (v == null || v.trim().isEmpty) ? "Required" : null,
+                      radius: 10,
+                      padding: EdgeInsets.symmetric(
+                        vertical: 9.h,
+                        horizontal: 10.w,
+                      ),
+                    ),
+
+                    _fieldLabel("State"),
+                    CommonTextField(
+                      controller: _state,
+                      label: "State",
+                      enabled: _hasPickedLocation,
+                      radius: 10,
+                      padding: EdgeInsets.symmetric(
+                        vertical: 9.h,
+                        horizontal: 10.w,
+                      ),
+                    ),
+
+                    _fieldLabel("Country"),
+                    CommonTextField(
+                      controller: _country,
+                      label: "Country",
+                      enabled: _hasPickedLocation,
+                      radius: 10,
+                      padding: EdgeInsets.symmetric(
+                        vertical: 9.h,
+                        horizontal: 10.w,
+                      ),
+                    ),
+
+                    _fieldLabel("Pin Code"),
+                    CommonTextField(
+                      controller: _postalCode,
+                      label: "Pin Code",
+                      enabled: _hasPickedLocation,
+                      keyboardType: TextInputType.number,
+                      radius: 10,
+                      padding: EdgeInsets.symmetric(
+                        vertical: 9.h,
+                        horizontal: 10.w,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(height: 14.h),
+              Row(
+                children: [
+                  Expanded(
+                    child: CommonButton(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 9.h,
+                        horizontal: 5.w,
+                      ),
+                      buttonValue: 'Cancel',
+                      isFullWidth: true,
+                      backgroundColor: Colors.grey.shade200,
+                      textStyle: TextStyle(
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade800,
+                      ),
+                      radius: 10.r,
+                      onTap: () => Navigator.of(context).pop(false),
+                    ),
+                  ),
+                  SizedBox(width: 10.w),
+                  Expanded(
+                    child: CommonButton(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 9.h,
+                        horizontal: 5.w,
+                      ),
+                      buttonValue: 'Save Address',
+                      isFullWidth: true,
+                      isLoading: _isSubmitting,
+                      onTap: (!_hasPickedLocation || _isSubmitting)
+                          ? null
+                          : _submit,
+                      backgroundColor: _hasPickedLocation
+                          ? AllColors.tabBarline
+                          : Colors.grey.shade400,
+                      radius: 10.r,
+                      textStyle: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+              SizedBox(height: 8.h),
+            ],
           ),
         ),
       ),
