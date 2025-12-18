@@ -1,13 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:vd_customer_app/core/models/address.model.dart';
 import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
-import 'package:vd_customer_app/core/utils/prefs/prefs.dart';
 import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
 import 'package:vd_customer_app/widget/snack_bar.dart';
 
 class CheckoutProvider extends ChangeNotifier {
+  late Razorpay _razorpay;
+  int? _pendingOrderId;
+  String? _pendingOrderNo;
+  CartProvider? _pendingCartProvider;
+  BuildContext? _pendingContext;
+
+  CheckoutProvider() {
+    _razorpay = Razorpay();
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+  }
   List<AddressModel> _addresses = [];
   List<AddressModel> get addresses => _addresses;
 
@@ -49,9 +61,7 @@ class CheckoutProvider extends ChangeNotifier {
       //   return;
       // }
 
-      final response = await Api.post('getAllAddress', {
-        'data': {},
-      });
+      final response = await Api.post('getAllAddress', {'data': {}});
 
       if (response['success'] == true && response['data'] != null) {
         final rows = response['data']['rows'] as List? ?? [];
@@ -135,6 +145,119 @@ class CheckoutProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _openRazorpay(
+    Map<String, dynamic> paymentData,
+    Map<String, dynamic> orderData,
+    CartProvider cartProvider,
+    BuildContext context,
+  ) {
+    _pendingOrderId = orderData['id'] is int
+        ? orderData['id']
+        : (int.tryParse(orderData['id']?.toString() ?? ''));
+    _pendingOrderNo = orderData['orderNo']?.toString();
+    _pendingCartProvider = cartProvider;
+    _pendingContext = context;
+
+    final key =
+        paymentData['keyId']?.toString() ?? paymentData['key']?.toString();
+    double amountDouble = 0;
+    try {
+      amountDouble = paymentData['amount'] is String
+          ? double.tryParse(paymentData['amount']) ?? 0
+          : (paymentData['amount'] is num
+                ? (paymentData['amount'] as num).toDouble()
+                : 0);
+    } catch (_) {}
+
+    final options = {
+      'key': key,
+      'amount': (amountDouble * 100).toInt(),
+      'name': paymentData['name'] ?? 'Store',
+      'description': paymentData['description'] ?? 'Order Payment',
+      'order_id': paymentData['razorpayOrderId'] ?? paymentData['orderId'],
+      'currency': paymentData['currency'] ?? 'INR',
+      'prefill': paymentData['prefill'] ?? {},
+    };
+
+    try {
+      _razorpay.open(options);
+    } catch (e) {
+      MySnackBar.showSnackBar(
+        context,
+        'Payment gateway error. Please try again.',
+      );
+      _pendingOrderId = null;
+      _pendingOrderNo = null;
+      _pendingCartProvider = null;
+      _pendingContext = null;
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    _isLoading = false;
+    notifyListeners();
+
+    try {
+      final payload = {
+        'data': {
+          'orderId': _pendingOrderId,
+          'orderNo': _pendingOrderNo,
+          'paymentId': response.paymentId,
+          'razorpayOrderId': response.orderId,
+          'razorpaySignature': response.signature,
+        },
+      };
+
+      await Api.post('generateInvoice', payload);
+
+      // finalize order locally
+      if (_pendingCartProvider != null) _pendingCartProvider!.clearCart();
+      clearCoupon();
+      if (_pendingContext != null) {
+        MySnackBar.showSnackBar(_pendingContext!, 'Order placed successfully!');
+        _pendingContext!.pushReplacement(AppRoutes.myOrderScreen);
+      }
+    } catch (e) {
+      if (_pendingContext != null)
+        MySnackBar.showSnackBar(
+          _pendingContext!,
+          'Payment succeeded but finalizing failed.',
+        );
+    } finally {
+      _pendingOrderId = null;
+      _pendingOrderNo = null;
+      _pendingCartProvider = null;
+      _pendingContext = null;
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    _isLoading = false;
+    notifyListeners();
+    if (_pendingContext != null) {
+      MySnackBar.showSnackBar(
+        _pendingContext!,
+        'Payment failed: ${response.message ?? 'Please try again'}',
+      );
+    }
+    _pendingOrderId = null;
+    _pendingOrderNo = null;
+    _pendingCartProvider = null;
+    _pendingContext = null;
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    if (_pendingContext != null)
+      MySnackBar.showSnackBar(
+        _pendingContext!,
+        'External wallet selected: ${response.walletName}',
+      );
+  }
+
   void applyCoupon(String code, double subtotal) {
     final matched = _coupons.firstWhere(
       (c) => c['couponCode'] == code,
@@ -215,12 +338,22 @@ class CheckoutProvider extends ChangeNotifier {
           response['success'] == true;
 
       if (isSuccess) {
-        cartProvider.clearCart();
+        final orderData = response['data'] as Map<String, dynamic>? ?? {};
 
-        clearCoupon();
-        MySnackBar.showSnackBar(context, "Order placed successfully!");
+        final paymentMode = orderData['paymentMode']?.toString() ?? '';
+        final paymentData = orderData['payment'] as Map<String, dynamic>?;
 
-        context.pushReplacement(AppRoutes.myOrderScreen);
+        if (paymentMode.toUpperCase() == 'ONLINE' && paymentData != null) {
+          // Open Razorpay checkout using stored payment details
+          _isLoading = true;
+          notifyListeners();
+          _openRazorpay(paymentData, orderData, cartProvider, context);
+        } else {
+          cartProvider.clearCart();
+          clearCoupon();
+          MySnackBar.showSnackBar(context, "Order placed successfully!");
+          context.pushReplacement(AppRoutes.myOrderScreen);
+        }
       } else {
         final description =
             response['dataResponse']?['description'] ??
