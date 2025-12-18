@@ -69,7 +69,6 @@ class LoginProvider extends ChangeNotifier {
         "roleUniqueIds": ["CUSTOMER"],
       },
     };
-    print('$payload');
     _setLoading(true);
     _result(success: false, message: null);
     try {

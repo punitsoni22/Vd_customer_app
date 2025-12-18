@@ -6,7 +6,7 @@ import '../utils/prefs/prefs.dart';
 import 'api_return_codes.dart';
 
 class Api {
-  static const String baseUrl = 'https://backend.veedasip.com/api';
+  static const String baseUrl = 'https://newbackend.veedasip.com/api';
   static Future<String?>? _refreshFuture;
 
   static Future<Map<String, dynamic>> _makeRequest(
