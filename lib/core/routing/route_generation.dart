@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
+import 'package:vd_customer_app/feature/about_us/about_us_screen.dart';
 import 'package:vd_customer_app/feature/cart_screen/cart_screen.dart';
 import 'package:vd_customer_app/feature/checkout_screen/checkout_screen.dart';
 import 'package:vd_customer_app/feature/my_order_screen/my_order_screen.dart';
@@ -36,6 +37,11 @@ GoRouter buildRouter() {
         path: '/signup_screen',
         name: AppRoutes.signupScreen,
         builder: (context, state) => const SignupScreen(),
+      ),
+      GoRoute(
+        path: '/about_us_screen',
+        name: AppRoutes.aboutUsScreen,
+        builder: (context, state) => const AboutUsScreen(),
       ),
       GoRoute(
         path: '/bottom_bar_screen',

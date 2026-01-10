@@ -260,8 +260,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ),
                       ),
+
+                      SizedBox(height: 12.h),
+                      SizedBox(
+                        width: double.infinity,
+                        child: CommonButton(
+                          isFullWidth: true,
+                          isLoading: provider.isLoading,
+                          buttonValue: 'About Us',
+                          onTap: provider.isLoading
+                              ? null
+                              : () async {
+                                  context.pushNamed(AppRoutes.aboutUsScreen);
+                                },
+                          backgroundColor: Colors.transparent,
+                          borderRadius: BorderRadius.circular(5.r),
+                          foregroundColor: AllColors.olivegreenColor,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              provider.isLoading ? '...' : 'About Us',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14.sp,
+                                color: AllColors.olivegreenColor,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                       SizedBox(height: 12.h),
                       LogoutButton(),
+                      SizedBox(height: 12.h),
                     ],
                   ),
                 ),

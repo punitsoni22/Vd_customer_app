@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter/services.dart';
-
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_appbar.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
@@ -14,6 +13,7 @@ import 'package:vd_customer_app/widget/snack_bar.dart';
 
 import 'widgets/address_container.dart';
 import 'widgets/payment_cards.dart';
+import 'widgets/qr_payment_modal.dart';
 
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
@@ -89,28 +89,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                               setState(() => _selectedPaymentIndex = 0),
                         ),
                         PaymentOptionCard(
-                          icon: Icons.credit_card,
-                          title: "Card Payment",
-                          badge: "Secure",
+                          icon: Icons.local_shipping,
+                          title: "Cash on Delivery",
+                          badge: "Easy",
                           selected: _selectedPaymentIndex == 1,
                           onTap: () =>
                               setState(() => _selectedPaymentIndex = 1),
                         ),
                         PaymentOptionCard(
-                          icon: Icons.local_shipping,
-                          title: "Cash on Delivery",
-                          badge: "Easy",
+                          icon: Icons.qr_code,
+                          title: "QR Code",
+                          badge: "Scan",
                           selected: _selectedPaymentIndex == 2,
                           onTap: () =>
                               setState(() => _selectedPaymentIndex = 2),
-                        ),
-                        PaymentOptionCard(
-                          icon: Icons.account_balance_wallet,
-                          title: "Wallet",
-                          badge: "Fast",
-                          selected: _selectedPaymentIndex == 3,
-                          onTap: () =>
-                              setState(() => _selectedPaymentIndex = 3),
                         ),
                       ],
                     ),
@@ -149,15 +141,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                     cartProvider.subtotal,
                                   ),
                                   builder: (context, snapshot) {
-                                    final coupons =
-                                        checkoutProvider.coupons;
+                                    final coupons = checkoutProvider.coupons;
 
                                     return Container(
                                       constraints: BoxConstraints(
                                         maxHeight:
-                                            MediaQuery.of(
-                                              context,
-                                            ).size.height *
+                                            MediaQuery.of(context).size.height *
                                             0.7,
                                       ),
                                       child: Column(
@@ -170,9 +159,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                             decoration: BoxDecoration(
                                               color: Colors.grey[300],
                                               borderRadius:
-                                                  BorderRadius.circular(
-                                                    10.r,
-                                                  ),
+                                                  BorderRadius.circular(10.r),
                                             ),
                                           ),
                                           SizedBox(height: 15.h),
@@ -199,23 +186,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                               child: Center(
                                                 child: Column(
                                                   mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .center,
+                                                      MainAxisAlignment.center,
                                                   children: [
                                                     Icon(
                                                       Icons
                                                           .local_offer_outlined,
                                                       size: 64,
-                                                      color:
-                                                          Colors.grey[400],
+                                                      color: Colors.grey[400],
                                                     ),
                                                     SizedBox(height: 16.h),
                                                     Text(
                                                       "No coupons available",
                                                       style: TextStyle(
                                                         fontSize: 16.sp,
-                                                        color: Colors
-                                                            .grey[600],
+                                                        color: Colors.grey[600],
                                                       ),
                                                     ),
                                                   ],
@@ -226,24 +210,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                             Flexible(
                                               child: ListView.separated(
                                                 shrinkWrap: true,
-                                                padding:
-                                                    EdgeInsets.symmetric(
-                                                      horizontal: 16.w,
-                                                    ),
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: 16.w,
+                                                ),
                                                 itemCount: coupons.length,
                                                 separatorBuilder: (_, __) =>
                                                     SizedBox(height: 12.h),
-                                                itemBuilder:
-                                                    (context, index) {
-                                                      final coupon =
-                                                          coupons[index];
-                                                      return _buildCouponCard(
-                                                        context,
-                                                        coupon,
-                                                        cartProvider
-                                                            .subtotal,
-                                                      );
-                                                    },
+                                                itemBuilder: (context, index) {
+                                                  final coupon = coupons[index];
+                                                  return _buildCouponCard(
+                                                    context,
+                                                    coupon,
+                                                    cartProvider.subtotal,
+                                                  );
+                                                },
                                               ),
                                             ),
 
@@ -284,17 +264,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           child: Consumer<CheckoutProvider>(
                             builder: (context, checkoutProvider, child) {
                               final isApplied =
-                                  checkoutProvider.appliedCouponCode !=
-                                  null;
+                                  checkoutProvider.appliedCouponCode != null;
 
                               return CommonButton(
                                 padding: EdgeInsets.symmetric(
                                   vertical: 8.h,
                                   horizontal: 10.w,
                                 ),
-                                buttonValue: isApplied
-                                    ? 'Applied'
-                                    : 'Apply',
+                                buttonValue: isApplied ? 'Applied' : 'Apply',
                                 backgroundColor: isApplied
                                     ? Colors.green
                                     : AllColors.iconColor,
@@ -307,8 +284,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                       "Coupon removed",
                                     );
                                   } else {
-                                    final couponCode = _couponController
-                                        .text
+                                    final couponCode = _couponController.text
                                         .trim()
                                         .toUpperCase();
                                     if (couponCode.isNotEmpty) {
@@ -319,8 +295,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                         cartProvider.subtotal,
                                       );
 
-                                      if (checkoutProvider.couponDiscount >
-                                          0) {
+                                      if (checkoutProvider.couponDiscount > 0) {
                                         checkoutProvider.setAppliedCoupon(
                                           couponCode,
                                         );
@@ -460,11 +435,78 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                         final checkoutProvider = context
                             .read<CheckoutProvider>();
 
-                        await checkoutProvider.placeOrder(
+                        // Map selected index to payment mode
+                        String paymentMode = 'ONLINE';
+                        if (_selectedPaymentIndex == 1) paymentMode = 'POD';
+                        if (_selectedPaymentIndex == 2) paymentMode = 'QR';
+
+                        final orderData = await checkoutProvider.placeOrder(
                           cartProvider: cartProvider,
                           context: context,
                           couponCode: checkoutProvider.appliedCouponCode ?? "",
+                          paymentMode: paymentMode,
                         );
+
+                        // If QR data present, show QR modal
+                        if (orderData != null &&
+                            (orderData['qrCode'] != null &&
+                                orderData['qrCode'].toString().isNotEmpty)) {
+                          // Extract QR URL from qrCode object
+                          String qrUrl = '';
+                          final qrCode = orderData['qrCode'];
+
+                          if (qrCode is Map<String, dynamic>) {
+                            // If qrCode is an object, extract the URL
+                            qrUrl =
+                                qrCode['qrCodeUrl']?.toString() ??
+                                qrCode['qrCodeString']?.toString() ??
+                                qrCode['image_url']?.toString() ??
+                                '';
+                          } else if (qrCode is String) {
+                            // If qrCode is already a string URL
+                            qrUrl = qrCode;
+                          }
+
+                          if (qrUrl.isEmpty) {
+                            MySnackBar.showSnackBar(
+                              context,
+                              'QR code not available. Please try again.',
+                            );
+                            return;
+                          }
+
+                          final orderId = orderData['id'] is int
+                              ? orderData['id'] as int
+                              : int.tryParse(
+                                      orderData['id']?.toString() ?? '',
+                                    ) ??
+                                    0;
+
+                          if (!mounted) return;
+
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (ctx) => QRPaymentModal(
+                              qrData: qrUrl,
+                              orderId: orderId,
+                              onPaymentSuccess: (order) async {
+                                // Use the provider method to handle success
+                                await checkoutProvider.handleQRPaymentSuccess(
+                                  order,
+                                  cartProvider,
+                                  context,
+                                );
+                              },
+                              onExpired: () {
+                                MySnackBar.showSnackBar(
+                                  context,
+                                  'QR code expired. Please try again.',
+                                );
+                              },
+                            ),
+                          );
+                        }
                       },
                     ),
                   ),

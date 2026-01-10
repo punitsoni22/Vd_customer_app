@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:vd_customer_app/feature/auth_screen/provider/auth_provider.dart';
 import 'package:vd_customer_app/feature/home_screen/provider/home_provider.dart';
 import 'package:vd_customer_app/feature/home_screen/widgets/home_product_card.dart';
 import 'package:vd_customer_app/feature/profile_screen/provider/profileProvider.dart';
 
-import '../../core/routing/routes.dart';
 import '../../core/theme/colors.dart';
 import '../../core/utils/common_widgets/common_subscription_container.dart';
 
@@ -186,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 gridDelegate:
                                     const SliverGridDelegateWithFixedCrossAxisCount(
                                       crossAxisCount: 2,
-                                      childAspectRatio: 0.8  ,
+                                      childAspectRatio: 0.8,
                                       crossAxisSpacing: 18,
                                       mainAxisSpacing: 17,
                                     ),

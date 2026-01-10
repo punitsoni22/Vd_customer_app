@@ -300,19 +300,20 @@ class CheckoutProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> placeOrder({
+  Future<Map<String, dynamic>?> placeOrder({
     required CartProvider cartProvider,
     required BuildContext context,
     String couponCode = "",
+    String paymentMode = 'ONLINE',
   }) async {
     if (_selectedAddress == null) {
       MySnackBar.showSnackBar(context, "Please select an address.");
-      return;
+      return null;
     }
 
     if (cartProvider.cartId == null) {
       MySnackBar.showSnackBar(context, "No active cart found.");
-      return;
+      return null;
     }
 
     _isLoading = true;
@@ -325,13 +326,11 @@ class CheckoutProvider extends ChangeNotifier {
           "cartId": cartProvider.cartId!,
           "addressId": _selectedAddress!.id,
           "couponCode": couponCode,
+          "paymentMode": paymentMode,
         },
       };
 
       final response = await Api.post("addEditOrder", payload);
-
-      _isLoading = false;
-      notifyListeners();
 
       final isSuccess =
           response['dataResponse']?['returnCode'] == 0 ||
@@ -340,21 +339,37 @@ class CheckoutProvider extends ChangeNotifier {
       if (isSuccess) {
         final orderData = response['data'] as Map<String, dynamic>? ?? {};
 
-        final paymentMode = orderData['paymentMode']?.toString() ?? '';
+        // If QR payment created by backend, return orderData so UI can show QR
+        if ((paymentMode.toUpperCase() == 'QR' ||
+            (orderData['qrCode'] != null && orderData['qrCode'] != ""))) {
+          // Do not finalize locally; UI will handle showing QR and polling
+          _isLoading = false;
+          notifyListeners();
+          return orderData;
+        }
+
+        final respPaymentMode = orderData['paymentMode']?.toString() ?? '';
         final paymentData = orderData['payment'] as Map<String, dynamic>?;
 
-        if (paymentMode.toUpperCase() == 'ONLINE' && paymentData != null) {
+        if (respPaymentMode.toUpperCase() == 'ONLINE' && paymentData != null) {
           // Open Razorpay checkout using stored payment details
           _isLoading = true;
           notifyListeners();
           _openRazorpay(paymentData, orderData, cartProvider, context);
+          return orderData;
         } else {
+          // For POD/COD
+          _isLoading = false;
+          notifyListeners();
           cartProvider.clearCart();
           clearCoupon();
           MySnackBar.showSnackBar(context, "Order placed successfully!");
           context.pushReplacement(AppRoutes.myOrderScreen);
+          return orderData;
         }
       } else {
+        _isLoading = false;
+        notifyListeners();
         final description =
             response['dataResponse']?['description'] ??
             response['message'] ??
@@ -367,6 +382,38 @@ class CheckoutProvider extends ChangeNotifier {
       debugPrint("placeOrder Exception = $e");
       debugPrint("placeOrder StackTrace = $st");
       MySnackBar.showSnackBar(context, "Error: $e");
+    }
+
+    return null;
+  }
+
+  Future<void> handleQRPaymentSuccess(
+    Map<String, dynamic> order,
+    CartProvider cartProvider,
+    BuildContext context,
+  ) async {
+    try {
+      // Try to generate invoice
+      final invoicePayload = {
+        'data': {'orderId': order['id'], 'orderNo': order['orderNo']},
+      };
+
+      await Api.post('generateInvoice', invoicePayload);
+
+      // Clear cart and coupon
+      cartProvider.clearCart();
+      clearCoupon();
+
+      // Show success and navigate
+      MySnackBar.showSnackBar(context, 'Payment successful! Order confirmed.');
+      context.pushReplacement(AppRoutes.myOrderScreen);
+    } catch (e) {
+      debugPrint('Invoice generation error: $e');
+      // Even if invoice fails, order was successful
+      cartProvider.clearCart();
+      clearCoupon();
+      MySnackBar.showSnackBar(context, 'Payment successful! Order confirmed.');
+      context.pushReplacement(AppRoutes.myOrderScreen);
     }
   }
 }
