@@ -1,8 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:vd_customer_app/core/models/address.model.dart';
 import 'package:vd_customer_app/core/models/admin_plan_model.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/helpers/auth_helper.dart';
+
+import '../../../core/services/signedurl.dart';
 
 class SubscriptionProvider extends ChangeNotifier {
   bool _subscriptionCreatedSuccessfully = false;
@@ -91,6 +95,15 @@ class SubscriptionProvider extends ChangeNotifier {
       if (response['success'] == true) {
         final List<dynamic> plans = response['data']?['plans'] ?? [];
         adminPlans = plans.map((e) => AdminPlanModel.fromJson(e)).toList();
+        for (var plan in adminPlans) {
+          for (var product in plan.products) {
+            for (var image in product.images) {
+              if (image.imageUrl.isNotEmpty) {
+                image.signedUrl = await generateSignedUrl(image.imageUrl);
+              }
+            }
+          }
+        }
         message = response['message'] ?? 'Plans fetched successfully';
       } else {
         adminPlans = [];
@@ -117,10 +130,19 @@ class SubscriptionProvider extends ChangeNotifier {
         "data": {"id": planId},
       });
 
+      log("thgis is $response");
+
       if (response['success'] == true) {
         final planData = response['data'];
         if (planData != null) {
           selectedPlan = AdminPlanModel.fromJson(planData);
+          for (var product in selectedPlan!.products) {
+            for (var image in product.images) {
+              if (image.imageUrl.isNotEmpty) {
+                image.signedUrl = await generateSignedUrl(image.imageUrl);
+              }
+            }
+          }
           message = 'Plan details fetched successfully';
           isLoadingPlans = false;
           notifyListeners();

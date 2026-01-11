@@ -115,24 +115,6 @@ class CheckoutProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // final userIdString = await Prefs.getString('user_id');
-      // if (userIdString == null) {
-      //   _addresses = [];
-      //   _selectedAddress = null;
-      //   _isLoading = false;
-      //   notifyListeners();
-      //   return;
-      // }
-
-      // final userId = int.tryParse(userIdString);
-      // if (userId == null) {
-      //   _addresses = [];
-      //   _selectedAddress = null;
-      //   _isLoading = false;
-      //   notifyListeners();
-      //   return;
-      // }
-
       final response = await Api.post('getAllAddress', {'data': {}});
 
       if (response['success'] == true && response['data'] != null) {

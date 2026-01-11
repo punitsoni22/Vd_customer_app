@@ -3,13 +3,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:vd_customer_app/feature/subscription_date_screen/provider/subscription_provider.dart'
     as subscription;
-import 'package:vd_customer_app/widget/snack_bar.dart';
 
 import '../../core/theme/colors.dart';
 import '../../core/utils/common_widgets/common_appbar.dart';
 import '../../core/utils/common_widgets/common_button.dart';
 import '../../core/utils/common_widgets/common_summary_rowtext.dart';
 import '../../core/utils/common_widgets/common_textfield.dart';
+import '../../widget/snack_bar.dart';
 import '../cart_screen/provider/cart_provider.dart';
 import '../subscription_date_screen/widgets/address_bottom_sheet.dart';
 import 'provider/checkout_provider.dart';
