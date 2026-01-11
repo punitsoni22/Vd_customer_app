@@ -29,6 +29,78 @@ class CheckoutProvider extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  // New state variables for 2-step checkout
+  int _currentStep = 1;
+  int get currentStep => _currentStep;
+
+  bool _isCheckingDelivery = false;
+  bool get isCheckingDelivery => _isCheckingDelivery;
+
+  bool _isDeliverable = false;
+  bool get isDeliverable => _isDeliverable;
+
+  String _deliveryMessage = '';
+  String get deliveryMessage => _deliveryMessage;
+
+  void setStep(int step) {
+    _currentStep = step;
+    notifyListeners();
+  }
+
+  Future<void> checkDeliveryPincode(String pinCode) async {
+    _isCheckingDelivery = true;
+    _deliveryMessage = '';
+    notifyListeners();
+
+    try {
+      final response = await Api.post('checkDeliveryPincode', {
+        "data": {
+          "pinCode": [pinCode]
+        }
+      });
+
+      print("checkDeliveryPincode Response: $response");
+
+      bool isSuccess = false;
+      Map<String, dynamic>? data;
+
+      if (response['success'] == true) {
+        isSuccess = true;
+        data = response['data'];
+      } else if (response['dataResponse']?['returnCode'] == 0) {
+        isSuccess = true;
+        data = response['data'];
+      }
+
+      if (isSuccess && data != null) {
+        _isDeliverable = data['isDeliverable'] == true;
+        _deliveryMessage = data['message'] ??
+            (_isDeliverable
+                ? "Delivery is available."
+                : "Delivery not available.");
+      } else {
+        _isDeliverable = false;
+        _deliveryMessage = response['message'] ??
+            response['dataResponse']?['description'] ??
+            "Unable to verify delivery.";
+      }
+    } catch (e) {
+      print("checkDeliveryPincode error: $e");
+      _isDeliverable = false;
+      _deliveryMessage = "Error verifying delivery pincode.";
+    }
+
+    _isCheckingDelivery = false;
+    notifyListeners();
+  }
+
+  void resetDeliveryStatus() {
+    _isDeliverable = false;
+    _deliveryMessage = '';
+    notifyListeners();
+  }
+
+
   List<Map<String, dynamic>> _coupons = [];
   List<Map<String, dynamic>> get coupons => _coupons;
 

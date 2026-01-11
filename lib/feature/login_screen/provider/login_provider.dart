@@ -150,7 +150,11 @@ class LoginProvider extends ChangeNotifier {
 
   Future<void> verifyOtp(BuildContext context, String otp) async {
     final payload = {
-      "data": {"userName": _number, "otp": int.tryParse(otp.trim()) ?? 0},
+      "data": {
+        "userName": _number,
+        "otp": int.tryParse(otp.trim()) ?? 0,
+        "roleUniqueIds": ["CUSTOMER"],
+      },
     };
     _setLoading(true);
     _result(success: false, message: null);

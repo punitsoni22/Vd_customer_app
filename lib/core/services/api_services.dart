@@ -7,7 +7,6 @@ import 'api_return_codes.dart';
 
 class Api {
   static const String baseUrl = 'https://newbackend.veedasip.com/api';
-  static Future<String?>? _refreshFuture;
 
   static Future<Map<String, dynamic>> _makeRequest(
     String method,
@@ -22,6 +21,7 @@ class Api {
     };
 
     http.Response response;
+    log("this is url: $uri, header: $headers, body: ${jsonEncode(data)}");
     try {
       if (method == 'POST') {
         response = await http.post(

@@ -12,6 +12,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
   final BarTitleAlignment titleAlignment;
   final bool showBack;
   final VoidCallback? onBack;
+  final VoidCallback? onBackTap;
   final List<Widget>? actions;
 
   final double height;
@@ -30,6 +31,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.titleAlignment = BarTitleAlignment.left,
     this.showBack = false,
     this.onBack,
+    this.onBackTap,
     this.actions,
     this.height = 40,
     this.padding = const EdgeInsets.symmetric(horizontal: 16),
@@ -92,7 +94,7 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
                             ),
                             color: fg,
                             onPressed:
-                                onBack ?? () => Navigator.maybePop(context),
+                                onBackTap ?? onBack ?? () => Navigator.maybePop(context),
                           ),
                         ),
                       ),
