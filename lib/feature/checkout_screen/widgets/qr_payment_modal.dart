@@ -6,7 +6,7 @@ import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 
 class QRPaymentModal extends StatefulWidget {
-  final String qrData; // could be URL or raw data
+  final String qrData;
   final int orderId;
   final void Function(Map<String, dynamic> order) onPaymentSuccess;
   final VoidCallback onExpired;
@@ -27,24 +27,20 @@ class _QRPaymentModalState extends State<QRPaymentModal> {
   Timer? _timer;
   Timer? _displayTimer;
   int _elapsed = 0;
-  final int _timeoutSeconds = 600; // 10 minutes
+  final int _timeoutSeconds = 600;
   bool _isChecking = false;
 
   @override
   void initState() {
     super.initState();
-    // Start polling immediately and then every 3 seconds
     _checkStatus();
     _timer = Timer.periodic(const Duration(seconds: 3), (_) => _checkStatus());
-
-    // Separate timer for UI updates every second
     _displayTimer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (mounted) {
         setState(() {
           _elapsed += 1;
         });
 
-        // Check if expired
         if (_elapsed >= _timeoutSeconds) {
           _timer?.cancel();
           _displayTimer?.cancel();
@@ -90,7 +86,6 @@ class _QRPaymentModalState extends State<QRPaymentModal> {
               order['paymentStatus']?.toString().toLowerCase() ?? '';
           final orderStatus = order['status']?.toString().toLowerCase() ?? '';
 
-          // Check multiple conditions for successful payment
           final isPaid =
               paymentStatus == 'paid' ||
               paymentStatus == 'success' ||
@@ -139,7 +134,7 @@ class _QRPaymentModalState extends State<QRPaymentModal> {
             borderRadius: BorderRadius.circular(20.r),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.2),
+                color: Colors.black.withValues(alpha: 0.2),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -182,20 +177,18 @@ class _QRPaymentModalState extends State<QRPaymentModal> {
                 ),
 
                 SizedBox(height: 20.h),
-
-                // QR Code Container
                 Container(
                   padding: EdgeInsets.all(16.r),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16.r),
                     border: Border.all(
-                      color: AllColors.iconColor.withOpacity(0.3),
+                      color: AllColors.iconColor.withValues(alpha: 0.3),
                       width: 2,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: AllColors.iconColor.withOpacity(0.1),
+                        color: AllColors.iconColor.withValues(alpha: 0.1),
                         blurRadius: 10,
                         offset: const Offset(0, 4),
                       ),
@@ -253,15 +246,13 @@ class _QRPaymentModalState extends State<QRPaymentModal> {
                 ),
 
                 SizedBox(height: 20.h),
-
-                // Status message
                 Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: 16.w,
                     vertical: 12.h,
                   ),
                   decoration: BoxDecoration(
-                    color: AllColors.iconColor.withOpacity(0.1),
+                    color: AllColors.iconColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12.r),
                   ),
                   child: Row(
@@ -292,8 +283,6 @@ class _QRPaymentModalState extends State<QRPaymentModal> {
                 ),
 
                 SizedBox(height: 16.h),
-
-                // Timer
                 Container(
                   padding: EdgeInsets.symmetric(
                     horizontal: 16.w,
@@ -301,8 +290,8 @@ class _QRPaymentModalState extends State<QRPaymentModal> {
                   ),
                   decoration: BoxDecoration(
                     color: remainingSeconds < 30
-                        ? Colors.red.withOpacity(0.1)
-                        : Colors.orange.withOpacity(0.1),
+                        ? Colors.red.withValues(alpha: 0.1)
+                        : Colors.orange.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Row(
@@ -331,8 +320,6 @@ class _QRPaymentModalState extends State<QRPaymentModal> {
                 ),
 
                 SizedBox(height: 20.h),
-
-                // Cancel button
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
