@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:vd_customer_app/core/models/product_model.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/feature/subscription_product_screen/widgets/price_drop_down_bar.dart';
@@ -92,10 +93,13 @@ class _SubscriptionProductCardState extends State<SubscriptionProductCard> {
                 child: SizedBox(
                   width: double.infinity,
                   child: (imgUrl != null && imgUrl.isNotEmpty)
-                      ? Image.network(
-                          imgUrl,
+                      ? CachedNetworkImage(
+                          imageUrl: imgUrl,
                           fit: BoxFit.fill,
-                          errorBuilder: (_, __, ___) => Image.asset(
+                          placeholder: (context, url) => const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                          errorWidget: (_, __, ___) => Image.asset(
                             'assets/images/Bigbottle.png',
                             fit: BoxFit.cover,
                           ),

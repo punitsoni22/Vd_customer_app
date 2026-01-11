@@ -81,7 +81,7 @@ class _SubscriptionProductScreenState extends State<SubscriptionProductScreen>
         "searchText": "",
         "page": 1,
         "pageSize": 10,
-      }),
+      }, forceRefresh: true),
       subscriptionProvider.getAllActivePlans(context),
     ]);
   }

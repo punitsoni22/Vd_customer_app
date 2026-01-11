@@ -20,6 +20,7 @@ class HomeProvider extends ChangeNotifier {
 
   // Guard against out-of-order responses
   int _requestId = 0;
+  bool _hasLoaded = false;
 
   // Disposal guard for safe notifications
   bool _disposed = false;
@@ -34,7 +35,9 @@ class HomeProvider extends ChangeNotifier {
     if (!_disposed) notifyListeners();
   }
 
-  Future<void> fetchHomeProducts(Map<String, dynamic> requestData) async {
+  Future<void> fetchHomeProducts(Map<String, dynamic> requestData, {bool forceRefresh = false}) async {
+    if (_hasLoaded && !forceRefresh) return;
+
     final int rid = ++_requestId;
 
     _isLoading = true;
@@ -55,6 +58,7 @@ class HomeProvider extends ChangeNotifier {
         _message = response['message'] ?? "Failed to fetch products";
       } else {
         _message = response['message'] ?? "Products fetched successfully";
+        _hasLoaded = true;
 
         // Parallel signed URL generation (fast)
         await Future.wait(

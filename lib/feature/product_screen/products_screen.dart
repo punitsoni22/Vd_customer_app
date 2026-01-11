@@ -16,6 +16,19 @@ class _ProductScreenState extends State<ProductScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<ProductProvider>();
+      if (!provider.hasLoaded) {
+        provider.getProducts({
+          "filterModel": {},
+          "orderBy": "productName",
+          "orderDir": "ASC",
+          "searchText": "",
+          "page": 1,
+          "pageSize": 10,
+        });
+      }
+    });
   }
 
   @override

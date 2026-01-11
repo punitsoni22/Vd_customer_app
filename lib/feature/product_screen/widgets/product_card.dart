@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/models/product_model.dart';
@@ -75,10 +76,13 @@ class ProductCard extends StatelessWidget {
                     child: SizedBox(
                       width: double.infinity,
                       child: (imgUrl != null && imgUrl.isNotEmpty)
-                          ? Image.network(
-                              imgUrl,
+                          ? CachedNetworkImage(
+                              imageUrl: imgUrl,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) => Image.asset(
+                              placeholder: (context, url) => const Center(
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                              errorWidget: (_, __, ___) => Image.asset(
                                 'assets/images/Bigbottle.png',
                                 fit: BoxFit.cover,
                               ),

@@ -15,6 +15,7 @@ import '../../core/utils/common_widgets/common_button.dart';
 import '../../widget/snack_bar.dart';
 import '../cart_screen/provider/cart_provider.dart';
 import '../home_screen/widgets/home_product_card.dart';
+import '../home_screen/provider/home_provider.dart';
 import 'provider/product_detail_provider.dart';
 import 'widget/productimagecontainer.dart';
 
@@ -46,16 +47,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             });
           }
         });
-
-        final requestData = {
-          "filterModel": {},
-          "orderBy": "productName",
-          "orderDir": "ASC",
-          "searchText": "",
-          "page": 1,
-          "pageSize": 10,
-        };
-        provider.fetchDetailProducts(requestData);
       }
     });
   }
@@ -63,6 +54,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ProductDetailProvider>();
+    final homeProvider = context.watch<HomeProvider>();
     final product = provider.selectedProduct;
 
     return Scaffold(
@@ -413,7 +405,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                     ),
                     SizedBox(height: 12.h),
-                    provider.detailProducts.isEmpty
+                    homeProvider.homeProducts.isEmpty
                         ? Center(
                             child: Padding(
                               padding: EdgeInsets.symmetric(vertical: 16.h),
@@ -429,7 +421,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         : GridView.builder(
                             physics: const NeverScrollableScrollPhysics(),
                             shrinkWrap: true,
-                            itemCount: provider.detailProducts.length,
+                            itemCount: homeProvider.homeProducts.length,
                             gridDelegate:
                                 const SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 2,
@@ -438,7 +430,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                   mainAxisSpacing: 14,
                                 ),
                             itemBuilder: (context, index) {
-                              final product = provider.detailProducts[index];
+                              final product = homeProvider.homeProducts[index];
                               return HomeProductCard(product: product);
                             },
                           ),

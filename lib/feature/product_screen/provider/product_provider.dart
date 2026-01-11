@@ -23,7 +23,6 @@ class ProductProvider extends ChangeNotifier {
 
     try {
       final response = await Api.post('getAllProducts', requestData);
-      log("this is product api response: $response");
       if (response['success'] == true) {
         final List<dynamic> items = response['data']?['items'] ?? [];
         products = items.map((e) => Product.fromJson(e)).toList();
