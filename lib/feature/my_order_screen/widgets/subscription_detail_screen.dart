@@ -252,11 +252,17 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
   Widget _buildSubscriptionInfoCard() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.r),
+      padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -264,46 +270,72 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Subscription #${_subscriptionDetail!.id}',
-                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Subscription ID',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: Colors.grey.shade500,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    '#${_subscriptionDetail!.id}',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                 decoration: BoxDecoration(
                   color: _subscriptionDetail!.status == 1
-                      ? Colors.green.shade100
-                      : Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(20.r),
+                      ? Colors.green.shade50
+                      : Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(30.r),
+                  border: Border.all(
+                    color: _subscriptionDetail!.status == 1
+                        ? Colors.green.shade200
+                        : Colors.grey.shade300,
+                  ),
                 ),
                 child: Text(
                   _subscriptionDetail!.status == 1 ? 'ACTIVE' : 'INACTIVE',
                   style: TextStyle(
                     color: _subscriptionDetail!.status == 1
-                        ? Colors.green
-                        : Colors.grey,
+                        ? Colors.green.shade700
+                        : Colors.grey.shade600,
                     fontSize: 12.sp,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
                   ),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 20.h),
+          Divider(color: Colors.grey.shade100),
+          SizedBox(height: 20.h),
           _buildInfoRow(
-            Icons.category,
+            Icons.category_outlined,
             'Type',
             _formatSubscriptionType(_subscriptionDetail!.subscriptionType),
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: 12.h),
           _buildInfoRow(
-            Icons.calendar_today,
+            Icons.calendar_today_outlined,
             'Start Date',
             _formatDate(_subscriptionDetail!.startDate),
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: 12.h),
           _buildInfoRow(
-            Icons.event,
+            Icons.event_outlined,
             'End Date',
             _formatDate(_subscriptionDetail!.endDate),
           ),
@@ -315,29 +347,53 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
   Widget _buildCustomerInfoCard() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.r),
+      padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(Icons.person, color: AllColors.olivegreenColor, size: 20.sp),
-              SizedBox(width: 8.w),
+              Container(
+                padding: EdgeInsets.all(8.r),
+                decoration: BoxDecoration(
+                  color: AllColors.olivegreenColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.person_outline,
+                  color: AllColors.olivegreenColor,
+                  size: 20.sp,
+                ),
+              ),
+              SizedBox(width: 12.w),
               Text(
                 'Customer Information',
-                style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
               ),
             ],
           ),
-          SizedBox(height: 12.h),
-          Text(
-            _subscriptionDetail!.customerName,
-            style: TextStyle(fontSize: 14.sp, color: Colors.grey.shade700),
+          SizedBox(height: 16.h),
+          Padding(
+            padding: EdgeInsets.only(left: 4.w),
+            child: Text(
+              _subscriptionDetail!.customerName,
+              style: TextStyle(
+                fontSize: 15.sp,
+                color: Colors.grey.shade800,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
         ],
       ),
@@ -347,30 +403,43 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
   Widget _buildDeliveryScheduleCard() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.r),
+      padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(
-                Icons.schedule,
-                color: AllColors.olivegreenColor,
-                size: 20.sp,
+              Container(
+                padding: EdgeInsets.all(8.r),
+                decoration: BoxDecoration(
+                  color: AllColors.olivegreenColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.schedule,
+                  color: AllColors.olivegreenColor,
+                  size: 20.sp,
+                ),
               ),
-              SizedBox(width: 8.w),
+              SizedBox(width: 12.w),
               Text(
                 'Delivery Schedule',
-                style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
               ),
             ],
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 16.h),
           _buildInfoRow(
             Icons.repeat,
             'Frequency',
@@ -384,20 +453,26 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
   Widget _buildProductsList() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.r),
+      padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Products',
-            style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
+            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 16.h),
           ...(_subscriptionDetail!.products
               .map((product) => _buildProductItem(product))
               .toList()),
@@ -412,7 +487,7 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
       padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
         color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(8.r),
+        borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: Colors.grey.shade200),
       ),
       child: Row(
@@ -423,11 +498,12 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
             child: Row(
               children: [
                 Container(
-                  width: 56.w,
-                  height: 56.h,
+                  width: 60.w,
+                  height: 60.h,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8.r),
-                    color: Colors.grey.shade200,
+                    borderRadius: BorderRadius.circular(10.r),
+                    color: Colors.white,
+                    border: Border.all(color: Colors.grey.shade200),
                     image: (product.signedUrl ?? product.imageUrl) != null
                         ? DecorationImage(
                             image: NetworkImage(
@@ -438,7 +514,7 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
                         : null,
                   ),
                 ),
-                SizedBox(width: 12.w),
+                SizedBox(width: 16.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -448,6 +524,7 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
                         style: TextStyle(
                           fontSize: 14.sp,
                           fontWeight: FontWeight.w600,
+                          color: Colors.black87,
                         ),
                       ),
                       SizedBox(height: 4.h),
@@ -456,8 +533,9 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
                             ? 'Price: \u20B9${product.price}'
                             : 'Variant: ${product.variantId}',
                         style: TextStyle(
-                          fontSize: 12.sp,
+                          fontSize: 13.sp,
                           color: Colors.grey.shade600,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
@@ -479,7 +557,7 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
                   ? '${formatVolume(product.quantityInMl!).toUpperCase()} x ${product.quantity}'
                   : 'Qty: ${product.quantity}',
               style: TextStyle(
-                fontSize: 13.sp,
+                fontSize: 12.sp,
                 fontWeight: FontWeight.w600,
                 color: AllColors.olivegreenColor,
               ),
@@ -493,19 +571,19 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(icon, size: 16.sp, color: Colors.grey.shade600),
-        SizedBox(width: 8.w),
+        Icon(icon, size: 18.sp, color: Colors.grey.shade400),
+        SizedBox(width: 12.w),
         Text(
           '$label: ',
-          style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade600),
+          style: TextStyle(fontSize: 14.sp, color: Colors.grey.shade500),
         ),
         Expanded(
           child: Text(
             value,
             style: TextStyle(
-              fontSize: 13.sp,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey.shade800,
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w600,
+              color: Colors.black87,
             ),
           ),
         ),

@@ -138,11 +138,17 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   Widget _buildStatusCard() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.r),
+      padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,31 +156,69 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Order #${_orderDetail!.id}',
-                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Order ID',
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: Colors.grey.shade500,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    '#${_orderDetail!.id}',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ],
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                 decoration: BoxDecoration(
-                  color: _getStatusColor(_orderDetail!.status),
-                  borderRadius: BorderRadius.circular(20.r),
+                  color: _getStatusColor(_orderDetail!.status).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(30.r),
+                  border: Border.all(
+                    color: _getStatusColor(_orderDetail!.status).withOpacity(0.3),
+                  ),
                 ),
                 child: Text(
                   _orderDetail!.status,
                   style: TextStyle(
                     color: _getStatusTextColor(_orderDetail!.status),
                     fontSize: 12.sp,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
                   ),
                 ),
               ),
             ],
           ),
-          SizedBox(height: 8.h),
-          Text(
-            'Placed on: ${_formatDate(_orderDetail!.createdOn)}',
-            style: TextStyle(color: Colors.grey.shade600, fontSize: 13.sp),
+          SizedBox(height: 16.h),
+          Divider(color: Colors.grey.shade100),
+          SizedBox(height: 16.h),
+          Row(
+            children: [
+              Icon(
+                Icons.calendar_today_outlined,
+                size: 16.sp,
+                color: Colors.grey.shade400,
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                'Placed on: ${_formatDate(_orderDetail!.createdOn)}',
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -185,38 +229,66 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     final address = _orderDetail!.address;
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.r),
+      padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(
-                Icons.location_on,
-                color: AllColors.olivegreenColor,
-                size: 20.sp,
+              Container(
+                padding: EdgeInsets.all(8.r),
+                decoration: BoxDecoration(
+                  color: AllColors.olivegreenColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.location_on_outlined,
+                  color: AllColors.olivegreenColor,
+                  size: 20.sp,
+                ),
               ),
-              SizedBox(width: 8.w),
+              SizedBox(width: 12.w),
               Text(
                 'Delivery Address',
-                style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
               ),
             ],
           ),
-          SizedBox(height: 12.h),
-          Text(
-            address.fullAddress,
-            style: TextStyle(fontSize: 14.sp, color: Colors.grey.shade700),
-          ),
-          SizedBox(height: 4.h),
-          Text(
-            '${address.city}, ${address.state} - ${address.postalCode}',
-            style: TextStyle(fontSize: 13.sp, color: Colors.grey.shade600),
+          SizedBox(height: 16.h),
+          Padding(
+            padding: EdgeInsets.only(left: 4.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  address.fullAddress,
+                  style: TextStyle(
+                    fontSize: 15.sp,
+                    color: Colors.grey.shade800,
+                    height: 1.4,
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                Text(
+                  '${address.city}, ${address.state} - ${address.postalCode}',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -226,20 +298,26 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   Widget _buildProductsList() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.r),
+      padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Order Items',
-            style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
+            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 16.h),
           ...(_orderDetail!.cart.cartDetails
               .map((item) => _buildProductItem(item))
               .toList()),
@@ -251,37 +329,40 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   Widget _buildProductItem(CartDetailItem item) {
     final imageUrl = item.product.images.isNotEmpty
         ? (item.product.images.first.signedUrl ??
-              item.product.images.first.imageUrl)
+            item.product.images.first.imageUrl)
         : '';
 
     return Container(
-      margin: EdgeInsets.only(bottom: 12.h),
+      margin: EdgeInsets.only(bottom: 16.h),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8.r),
-            child: imageUrl.isNotEmpty
-                ? Image.network(
-                    imageUrl,
-                    width: 60.w,
-                    height: 60.h,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, __, ___) => Container(
-                      width: 60.w,
-                      height: 60.h,
-                      color: Colors.grey.shade200,
-                      child: Icon(Icons.image, color: Colors.grey),
+          Container(
+            width: 70.w,
+            height: 70.h,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12.r),
+              border: Border.all(color: Colors.grey.shade200),
+              color: Colors.white,
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12.r),
+              child: imageUrl.isNotEmpty
+                  ? Image.network(
+                      imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Center(
+                        child: Icon(Icons.image_not_supported_outlined,
+                            color: Colors.grey.shade400),
+                      ),
+                    )
+                  : Center(
+                      child: Icon(Icons.image_not_supported_outlined,
+                          color: Colors.grey.shade400),
                     ),
-                  )
-                : Container(
-                    width: 60.w,
-                    height: 60.h,
-                    color: Colors.grey.shade200,
-                    child: Icon(Icons.image, color: Colors.grey),
-                  ),
+            ),
           ),
-          SizedBox(width: 12.w),
+          SizedBox(width: 16.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -289,25 +370,40 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 Text(
                   item.product.productName,
                   style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 15.sp,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
                   ),
                 ),
-                SizedBox(height: 4.h),
-                Text(
-                  '${item.productVariants.quantityinml} ml',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-                SizedBox(height: 4.h),
-                Text(
-                  'Qty: ${item.quantity}',
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: Colors.grey.shade600,
-                  ),
+                SizedBox(height: 6.h),
+                Row(
+                  children: [
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(6.r),
+                      ),
+                      child: Text(
+                        '${item.productVariants.quantityinml} ml',
+                        style: TextStyle(
+                          fontSize: 12.sp,
+                          color: Colors.grey.shade700,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 8.w),
+                    Text(
+                      'x ${item.quantity}',
+                      style: TextStyle(
+                        fontSize: 13.sp,
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -315,8 +411,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
           Text(
             '₹${item.totalPrice}',
             style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w600,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w700,
               color: AllColors.olivegreenColor,
             ),
           ),
@@ -332,32 +428,40 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16.r),
+      padding: EdgeInsets.all(20.r),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Price Details',
-            style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
+            style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 16.h),
           _buildPriceRow('Subtotal', '₹${subtotal.toStringAsFixed(2)}'),
           if (discount > 0) ...[
-            SizedBox(height: 8.h),
+            SizedBox(height: 12.h),
             _buildPriceRow(
               'Discount',
               '-₹${discount.toStringAsFixed(2)}',
               isDiscount: true,
             ),
           ],
-          Divider(height: 24.h),
+          SizedBox(height: 16.h),
+          Divider(color: Colors.grey.shade200),
+          SizedBox(height: 16.h),
           _buildPriceRow(
-            'Total',
+            'Total Amount',
             '₹${total.toStringAsFixed(2)}',
             isTotal: true,
           ),

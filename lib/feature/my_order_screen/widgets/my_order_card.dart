@@ -56,18 +56,19 @@ class MyOrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(15.r),
+      padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(16.r),
         color: Colors.white,
-        border: Border.all(color: Colors.grey.shade300),
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: Colors.grey.shade100,
-        //     spreadRadius: 1,
-        //     blurRadius: 5,
-        //   ),
-        // ],
+        border: Border.all(color: Colors.grey.shade200),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            spreadRadius: 0,
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
 
       child: Column(
@@ -83,19 +84,19 @@ class MyOrderCard extends StatelessWidget {
               (status != null && status!.isNotEmpty)
                   ? Container(
                       padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 5.h,
+                        horizontal: 12.w,
+                        vertical: 4.h,
                       ),
                       decoration: BoxDecoration(
                         color: getStatusColor(status!),
-                        borderRadius: BorderRadius.circular(20.r),
+                        borderRadius: BorderRadius.circular(12.r),
                       ),
                       child: Text(
                         status!,
                         style: TextStyle(
                           color: statusFontColor(status!),
                           fontWeight: FontWeight.w500,
-                          fontSize: 12.sp,
+                          fontSize: 10.sp,
                         ),
                       ),
                     )
@@ -134,25 +135,31 @@ class MyOrderCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(10.r),
-                child: Image.network(
-                  imageUrl.isNotEmpty && imageUrl.startsWith('http')
-                      ? imageUrl
-                      : 'assets/images/image.png',
-                  height: 74.h,
-                  width: 74.w,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Image.asset(
-                    'assets/images/image.png',
-                    height: 74.h,
-                    width: 74.w,
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12.r),
+                  border: Border.all(color: Colors.grey.shade100),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12.r),
+                  child: Image.network(
+                    imageUrl.isNotEmpty && imageUrl.startsWith('http')
+                        ? imageUrl
+                        : 'assets/images/image.png',
+                    height: 80.h,
+                    width: 80.w,
                     fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Image.asset(
+                      'assets/images/image.png',
+                      height: 80.h,
+                      width: 80.w,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
 
-              SizedBox(width: 12.w),
+              SizedBox(width: 16.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,36 +169,38 @@ class MyOrderCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                         fontSize: 16.sp,
-                      ),
-                    ),
-                    SizedBox(height: 4.h),
-                    Text(
-                      detail,
-                      style: TextStyle(
-                        color: AllColors.myOrderTextColor,
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w400,
+                        color: Colors.black87,
                       ),
                     ),
                     SizedBox(height: 6.h),
+                    Text(
+                      detail,
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w500,
+                        height: 1.3,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
                     if (paymentMethod != '')
                       Row(
                         children: [
                           Icon(
-                            icon2 ?? Icons.account_balance_wallet_outlined,
-                            size: 16.sp,
-                            color: Colors.grey,
+                            icon2 ?? Icons.calendar_today_outlined,
+                            size: 14.sp,
+                            color: AllColors.olivegreenColor,
                           ),
-                          SizedBox(width: 4.w),
+                          SizedBox(width: 6.w),
                           Text(
                             paymentMethod!,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              color: AllColors.myOrderTextColor,
+                              color: AllColors.olivegreenColor,
                               fontSize: 13.sp,
-                              fontWeight: FontWeight.w400,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],
@@ -201,7 +210,7 @@ class MyOrderCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: 15.h),
+          SizedBox(height: 20.h),
           warning != null
               ? Text(
                   warning ??
@@ -222,15 +231,33 @@ class MyOrderCard extends StatelessWidget {
                   child: PopupMenuButton<int>(
                     onSelected: (val) => onStatusChange!(val),
                     child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 8.h),
+                      padding: EdgeInsets.symmetric(vertical: 10.h),
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
-                        color: AllColors.tabBarline.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(6.r),
+                        color: AllColors.tabBarline.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8.r),
+                        border: Border.all(
+                          color: AllColors.tabBarline.withValues(alpha: 0.2),
+                        ),
                       ),
-                      child: Text(
-                        _statusLabelFromNumeric(currentStatus),
-                        style: TextStyle(fontSize: 13.sp),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            _statusLabelFromNumeric(currentStatus),
+                            style: TextStyle(
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w600,
+                              color: AllColors.tabBarline,
+                            ),
+                          ),
+                          SizedBox(width: 4.w),
+                          Icon(
+                            Icons.keyboard_arrow_down,
+                            size: 16.sp,
+                            color: AllColors.tabBarline,
+                          ),
+                        ],
                       ),
                     ),
                     itemBuilder: (context) {
@@ -278,36 +305,39 @@ class MyOrderCard extends StatelessWidget {
                 )
               else
                 SizedBox(width: 10.w),
-              SizedBox(width: 10.w),
+              SizedBox(width: 12.w),
               Expanded(
                 child: CommonButton(
                   buttonValue: button2 ?? "View",
                   onTap: onViewTap ?? () {},
                   color: AllColors.olivegreenColor,
-                  selfconstraints: BoxConstraints(minHeight: 37.h),
+                  selfconstraints: BoxConstraints(minHeight: 40.h),
                   padding: EdgeInsets.symmetric(
                     horizontal: 10.w,
-                    vertical: 6.h,
+                    vertical: 8.h,
                   ),
-                  fontSize: 12.sp,
+                  fontSize: 13.sp,
+                  radius: 8.r,
+                  elevation: 0,
                 ),
               ),
-              SizedBox(width: 10.w),
+              SizedBox(width: 12.w),
               Expanded(
                 child: CommonButton(
                   buttonValue: button3 ?? "Invoice",
                   onTap: onInvoiceTap ?? () {},
-                  icon: icon3 ?? Icons.download_done,
-                  iconSize: 13.sp,
+                  icon: icon3 ?? Icons.download_rounded,
+                  iconSize: 16.sp,
                   variant: ButtonVariant.outlined,
                   borderColor: Colors.grey.shade300,
-                  foregroundColor: Colors.black54,
-                  selfconstraints: BoxConstraints(minHeight: 37.h),
+                  foregroundColor: Colors.black87,
+                  selfconstraints: BoxConstraints(minHeight: 40.h),
                   padding: EdgeInsets.symmetric(
                     horizontal: 10.w,
-                    vertical: 6.h,
+                    vertical: 8.h,
                   ),
-                  fontSize: 12.sp,
+                  fontSize: 13.sp,
+                  radius: 8.r,
                 ),
               ),
             ],
@@ -349,7 +379,7 @@ Color getStatusColor(String status) {
       return Colors.blue.shade50;
 
     default:
-      return Colors.grey;
+      return Colors.black;
   }
 }
 
@@ -371,6 +401,6 @@ Color statusFontColor(String status) {
       return Colors.blue.shade50;
 
     default:
-      return Colors.grey;
+      return Colors.white;
   }
 }

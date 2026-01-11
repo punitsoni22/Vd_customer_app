@@ -63,6 +63,7 @@ class MyOrderProvider extends ChangeNotifier {
       final response = await Api.post('getAllOrders', {
         "data": {"page": page, "pageSize": 10, "searchText": ""},
       });
+      log("messageL: $response");
       if (rid != _ordersRequestId) return;
       if (response['success'] == true) {
         final List<dynamic> items = response['data']?['items'] ?? [];
@@ -142,6 +143,10 @@ class MyOrderProvider extends ChangeNotifier {
 
       if (response["success"] == true) {
         final List<dynamic> items = response["data"]?["subscription"] ?? [];
+        final pagination = response['data']?['pagination'] ?? {};
+        currentSubscriptionPage = pagination['page'] ?? 1;
+        totalSubscriptionPages = pagination['totalPages'] ?? 1;
+
         final newSubscriptions = items
             .map((e) => SubscriptionModel.fromJson(e))
             .toList();

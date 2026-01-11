@@ -58,7 +58,6 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
       }
     });
 
-    // Keep lazy-loading behavior on tab change
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) return;
       final p = context.read<MyOrderProvider>();
@@ -85,23 +84,44 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.grey.shade50,
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
           titleSpacing: 0,
           toolbarHeight: 0,
           bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(48),
-            child: TabBar(
-              controller: _tabController,
-              labelColor: AllColors.lightgreenColor,
-              unselectedLabelColor: Colors.grey[300],
-              indicatorColor: AllColors.tabBarline,
-              tabs: const [
-                Tab(text: "Subscription"),
-                Tab(text: "One Time Order"),
-              ],
+            preferredSize: const Size.fromHeight(50),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    offset: const Offset(0, 2),
+                    blurRadius: 4,
+                  ),
+                ],
+              ),
+              child: TabBar(
+                controller: _tabController,
+                labelColor: AllColors.olivegreenColor,
+                labelStyle: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14.sp,
+                ),
+                unselectedLabelColor: Colors.grey[400],
+                unselectedLabelStyle: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14.sp,
+                ),
+                indicatorColor: AllColors.olivegreenColor,
+                indicatorWeight: 3,
+                tabs: const [
+                  Tab(text: "Subscription"),
+                  Tab(text: "One Time Order"),
+                ],
+              ),
             ),
           ),
         ),
@@ -136,7 +156,8 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                         )
                       : ListView.builder(
                           controller: _subscriptionScrollController,
-                          padding: EdgeInsets.all(8.0.r),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 12.w, vertical: 10.h),
                           itemCount:
                               provider.subscriptions.length +
                               (provider.isMoreSubscriptionsLoading ? 1 : 0),
@@ -155,7 +176,7 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                                 : null;
 
                             return Padding(
-                              padding: EdgeInsets.all(8.0.r),
+                              padding: EdgeInsets.only(bottom: 16.h),
                               child: MyOrderCard(
                                 id: 'Subscription ID: ${sub.id}',
                                 date:
@@ -241,7 +262,8 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                         )
                       : ListView.builder(
                           controller: _orderScrollController,
-                          padding: EdgeInsets.all(8.0.r),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 16.w, vertical: 16.h),
                           itemCount:
                               provider.orders.length +
                               (provider.isMoreOrdersLoading ? 1 : 0),
@@ -260,7 +282,7 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                                 : null;
 
                             return Padding(
-                              padding: EdgeInsets.all(8.0.r),
+                              padding: EdgeInsets.only(bottom: 16.h),
                               child: MyOrderCard(
                                 id: 'Order ID: ${order.orderId}',
                                 date: order.orderConfirmedDate.split('T').first,
