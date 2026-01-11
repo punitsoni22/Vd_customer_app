@@ -775,7 +775,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   );
 
                   if (orderData != null && context.mounted) {
-                    final qrCode = orderData['qrCode'];
+                    final qrCode = orderData['qrCode']['qrCodeUrl'];
                     if ((paymentMode == 'QR' ||
                         (qrCode != null && qrCode.isNotEmpty))) {
                       showDialog(

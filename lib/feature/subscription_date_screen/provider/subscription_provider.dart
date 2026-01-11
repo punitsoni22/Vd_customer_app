@@ -31,6 +31,7 @@ class SubscriptionProvider extends ChangeNotifier {
 
     try {
       final response = await Api.post('addEditSubscription', payload);
+      log("this res: $response");
       if (response["success"] == true) {
         _subscriptionCreatedSuccessfully = true;
         notifyListeners();

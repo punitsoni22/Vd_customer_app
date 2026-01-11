@@ -213,7 +213,6 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
 
                           final payload = <String, dynamic>{
                             "customerName": customerNameStr,
-                            "subscription_type": subscriptionType,
                             "delivery_frequency_type": freq
                                 .toLowerCase()
                                 .replaceAll(' ', '_'),
@@ -237,7 +236,6 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                               return;
                             }
                             payload["delivery_days"] = selectedDeliveryDays;
-                            payload["subscription_type"] = "1_week";
                           } else if (freq == "Custom Date") {
                             if (selectedCustomDates.isEmpty) {
                               MySnackBar.showSnackBar(

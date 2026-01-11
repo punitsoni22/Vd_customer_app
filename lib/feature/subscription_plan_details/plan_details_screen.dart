@@ -8,6 +8,7 @@ import 'package:vd_customer_app/core/utils/common_widgets/common_appbar.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
 import 'package:vd_customer_app/feature/subscription_date_screen/provider/subscription_provider.dart';
 import 'package:vd_customer_app/feature/subscription_date_screen/widgets/address_bottom_sheet.dart';
+import 'package:vd_customer_app/feature/subscription_plan_details/utils/subscription_date_helper.dart';
 import 'package:vd_customer_app/widget/snack_bar.dart';
 
 class PlanDetailsScreen extends StatefulWidget {
@@ -49,9 +50,46 @@ class _PlanDetailsScreenState extends State<PlanDetailsScreen> {
     return "${date.year.toString().padLeft(4, '0')}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
   }
 
+  void _onStartDateChanged(DateTime newDate, AdminPlanModel plan) {
+    // Validate past dates
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    if (newDate.isBefore(today)) {
+      MySnackBar.showSnackBar(context, "Start date cannot be in the past");
+      return;
+    }
+
+    setState(() {
+      startDate = newDate;
+      
+      if (SubscriptionDateHelper.isFixedDuration(plan.subscriptionType)) {
+        endDate = SubscriptionDateHelper.calculateEndDate(startDate!, plan.subscriptionType);
+      } else if (SubscriptionDateHelper.isUntilCancel(plan.subscriptionType)) {
+        endDate = null;
+      } else {
+        // For custom or unknown types, reset end date if it's before start date
+        if (endDate != null && endDate!.isBefore(startDate!)) {
+          endDate = null;
+        }
+      }
+    });
+  }
+
   Future<void> _createSubscription() async {
-    if (startDate == null || endDate == null) {
-      MySnackBar.showSnackBar(context, "Please select start and end dates");
+    final provider = context.read<SubscriptionProvider>();
+    final plan = provider.selectedPlan;
+    
+    if (plan == null) return;
+    
+    final isUntilCancel = SubscriptionDateHelper.isUntilCancel(plan.subscriptionType);
+
+    if (startDate == null) {
+      MySnackBar.showSnackBar(context, "Please select start date");
+      return;
+    }
+    
+    if (endDate == null && !isUntilCancel) {
+      MySnackBar.showSnackBar(context, "Please select end date");
       return;
     }
 
@@ -69,14 +107,13 @@ class _PlanDetailsScreenState extends State<PlanDetailsScreen> {
         "admin_plan_id": widget.planId,
         "addressId": int.parse(selectedAddressId!),
         "start_date": _formatApiDate(startDate!),
-        "end_date": _formatApiDate(endDate!),
+        "end_date": endDate != null ? _formatApiDate(endDate!) : null,
         "preferredTiming": preferredTiming,
         "remarks": remarks.isEmpty ? null : remarks,
       },
     };
 
-    final subscriptionProvider = context.read<SubscriptionProvider>();
-    final response = await subscriptionProvider.createOrEditSubscription(
+    final response = await provider.createOrEditSubscription(
       context,
       payload,
     );
@@ -156,7 +193,7 @@ class _PlanDetailsScreenState extends State<PlanDetailsScreen> {
                 SizedBox(height: 12.h),
                 _buildSectionTitle('Subscription Dates'),
                 SizedBox(height: 6.h),
-                _buildDateFields(),
+                _buildDateFields(plan),
                 SizedBox(height: 12.h),
                 _buildSectionTitle('Delivery Address'),
                 SizedBox(height: 6.h),
@@ -493,19 +530,84 @@ class _PlanDetailsScreenState extends State<PlanDetailsScreen> {
     );
   }
 
-  Widget _buildDateFields() {
-    return Row(
+  Widget _buildDateFields(AdminPlanModel plan) {
+    final isUntilCancel = SubscriptionDateHelper.isUntilCancel(plan.subscriptionType);
+    final isFixedDuration = SubscriptionDateHelper.isFixedDuration(plan.subscriptionType);
+    final helpMessage = SubscriptionDateHelper.getHelpMessage(plan.subscriptionType);
+
+    int? totalDays;
+    if (startDate != null && endDate != null) {
+      totalDays = SubscriptionDateHelper.calculateDays(startDate!, endDate!);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(child: _buildDateField('Start Date', startDate, true)),
-        SizedBox(width: 12.w),
-        Expanded(child: _buildDateField('End Date', endDate, false)),
+        Row(
+          children: [
+            Expanded(child: _buildDateField('Start Date', startDate, true, plan: plan)),
+            if (!isUntilCancel) ...[
+               SizedBox(width: 12.w),
+               Expanded(child: _buildDateField('End Date', endDate, false, readOnly: isFixedDuration, plan: plan)),
+            ]
+          ],
+        ),
+        SizedBox(height: 8.h),
+        if (totalDays != null && !isUntilCancel) ...[
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+            decoration: BoxDecoration(
+              color: AllColors.olivegreenColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8.r),
+              border: Border.all(color: AllColors.olivegreenColor.withValues(alpha: 0.3)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.date_range, size: 16.sp, color: AllColors.olivegreenColor),
+                SizedBox(width: 8.w),
+                Text(
+                  "Total Duration: $totalDays Days",
+                  style: TextStyle(
+                    fontSize: 13.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AllColors.olivegreenColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(height: 8.h),
+        ],
+        if (helpMessage != null) ...[
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+               Padding(
+                 padding: EdgeInsets.only(top: 2.h),
+                 child: Icon(Icons.info_outline, size: 14.sp, color: Colors.grey[600]),
+               ),
+               SizedBox(width: 6.w),
+               Expanded(
+                 child: Text(
+                   helpMessage,
+                   style: TextStyle(
+                     fontSize: 12.sp,
+                     color: Colors.grey[600],
+                     fontStyle: FontStyle.italic,
+                   ),
+                 ),
+               ),
+            ],
+          ),
+        ]
       ],
     );
   }
 
-  Widget _buildDateField(String label, DateTime? value, bool isStart) {
+  Widget _buildDateField(String label, DateTime? value, bool isStart, {bool readOnly = false, required AdminPlanModel plan}) {
     return GestureDetector(
-      onTap: () async {
+      onTap: readOnly ? null : () async {
         DateTime initialDate;
         DateTime firstDate;
         final now = DateTime.now();
@@ -544,22 +646,19 @@ class _PlanDetailsScreenState extends State<PlanDetailsScreen> {
         );
 
         if (picked != null) {
-          setState(() {
-            if (isStart) {
-              startDate = picked;
-              if (endDate != null && endDate!.isBefore(startDate!)) {
-                endDate = null;
-              }
-            } else {
+          if (isStart) {
+             _onStartDateChanged(picked, plan);
+          } else {
+            setState(() {
               endDate = picked;
-            }
-          });
+            });
+          }
         }
       },
       child: Container(
         padding: EdgeInsets.all(16.r),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: readOnly ? Colors.grey[100] : Colors.white,
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
             color: value != null
@@ -590,7 +689,7 @@ class _PlanDetailsScreenState extends State<PlanDetailsScreen> {
                   child: Text(
                     value != null
                         ? "${value.day.toString().padLeft(2, '0')}-${value.month.toString().padLeft(2, '0')}-${value.year}"
-                        : 'Select',
+                        : (readOnly ? '-' : 'Select'),
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
