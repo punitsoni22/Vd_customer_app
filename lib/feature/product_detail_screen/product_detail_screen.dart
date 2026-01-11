@@ -7,6 +7,7 @@ import '../../core/models/cart_model.dart';
 import '../../core/models/product_model.dart';
 import '../../core/routing/routes.dart';
 import '../../core/theme/colors.dart';
+import '../../core/utils/common_widgets/common_price_display.dart';
 import '../../core/utils/common_widgets/common_add_subt_button.dart';
 import '../../core/utils/common_widgets/common_appbar.dart';
 import 'package:vd_customer_app/core/utils/formatters.dart';
@@ -245,14 +246,44 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
-                          '₹${selectedVariant?.price ?? product.displayPrice}',
-                          style: TextStyle(
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w700,
-                            color: AllColors.buttonColor,
+                        if (product.variants.isNotEmpty)
+                          CommonPriceDisplay(
+                            price: (double.tryParse(selectedVariant?.price ??
+                                        product.variants.first.price) ??
+                                    0)
+                                .toInt()
+                                .toString(),
+                            originalPrice: (selectedVariant ??
+                                            product.variants.first)
+                                        .originalPrice !=
+                                    null
+                                ? (double.tryParse((selectedVariant ??
+                                                product.variants.first)
+                                            .originalPrice!) ??
+                                        0)
+                                    .toInt()
+                                    .toString()
+                                : null,
+                            priceStyle: TextStyle(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w700,
+                              color: AllColors.buttonColor,
+                            ),
+                            originalPriceStyle: TextStyle(
+                              fontSize: 14.sp,
+                              decoration: TextDecoration.lineThrough,
+                              color: Colors.grey,
+                            ),
+                          )
+                        else
+                          Text(
+                            'N/A',
+                            style: TextStyle(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w700,
+                              color: AllColors.buttonColor,
+                            ),
                           ),
-                        ),
                       ],
                     ),
                     Divider(height: 24.h),

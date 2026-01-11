@@ -114,7 +114,6 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Order Status Card
                     _buildStatusCard(),
                     SizedBox(height: 16.h),
 
@@ -138,15 +137,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   Widget _buildStatusCard() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(20.r),
+      padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -181,10 +180,14 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               Container(
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                 decoration: BoxDecoration(
-                  color: _getStatusColor(_orderDetail!.status).withOpacity(0.1),
+                  color: _getStatusColor(
+                    _orderDetail!.status,
+                  ).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(30.r),
                   border: Border.all(
-                    color: _getStatusColor(_orderDetail!.status).withOpacity(0.3),
+                    color: _getStatusColor(
+                      _orderDetail!.status,
+                    ).withValues(alpha: 0.3),
                   ),
                 ),
                 child: Text(
@@ -199,15 +202,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               ),
             ],
           ),
-          SizedBox(height: 16.h),
-          Divider(color: Colors.grey.shade100),
-          SizedBox(height: 16.h),
+          SizedBox(height: 6.h),
+          Divider(color: Colors.grey[400]),
+          SizedBox(height: 6.h),
           Row(
             children: [
               Icon(
                 Icons.calendar_today_outlined,
-                size: 16.sp,
-                color: Colors.grey.shade400,
+                size: 18.sp,
+                color: Colors.grey,
               ),
               SizedBox(width: 8.w),
               Text(
@@ -229,15 +232,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
     final address = _orderDetail!.address;
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(20.r),
+      padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -249,7 +252,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               Container(
                 padding: EdgeInsets.all(8.r),
                 decoration: BoxDecoration(
-                  color: AllColors.olivegreenColor.withOpacity(0.1),
+                  color: AllColors.olivegreenColor.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -265,30 +268,24 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               ),
             ],
           ),
-          SizedBox(height: 16.h),
-          Padding(
-            padding: EdgeInsets.only(left: 4.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  address.fullAddress,
-                  style: TextStyle(
-                    fontSize: 15.sp,
-                    color: Colors.grey.shade800,
-                    height: 1.4,
-                  ),
+          SizedBox(height: 10.h),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                address.fullAddress,
+                style: TextStyle(
+                  fontSize: 15.sp,
+                  color: Colors.black,
+                  height: 1.4,
                 ),
-                SizedBox(height: 4.h),
-                Text(
-                  '${address.city}, ${address.state} - ${address.postalCode}',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              ],
-            ),
+              ),
+              SizedBox(height: 4.h),
+              Text(
+                '${address.city}, ${address.state} - ${address.postalCode}',
+                style: TextStyle(fontSize: 14.sp, color: Colors.black),
+              ),
+            ],
           ),
         ],
       ),
@@ -298,15 +295,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   Widget _buildProductsList() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(20.r),
+      padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -329,21 +326,24 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   Widget _buildProductItem(CartDetailItem item) {
     final imageUrl = item.product.images.isNotEmpty
         ? (item.product.images.first.signedUrl ??
-            item.product.images.first.imageUrl)
+              item.product.images.first.imageUrl)
         : '';
 
     return Container(
-      margin: EdgeInsets.only(bottom: 16.h),
-      child: Row(
+      margin: EdgeInsets.only(bottom: 12.h),
+      padding: EdgeInsets.all(12.r),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade50,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: Colors.grey.shade200),
+      ),      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 70.w,
-            height: 70.h,
+            width: 80.w,
+            height: 80.h,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12.r),
-              border: Border.all(color: Colors.grey.shade200),
-              color: Colors.white,
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12.r),
@@ -352,17 +352,21 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                       imageUrl,
                       fit: BoxFit.cover,
                       errorBuilder: (_, __, ___) => Center(
-                        child: Icon(Icons.image_not_supported_outlined,
-                            color: Colors.grey.shade400),
+                        child: Icon(
+                          Icons.image_not_supported_outlined,
+                          color: Colors.grey.shade400,
+                        ),
                       ),
                     )
                   : Center(
-                      child: Icon(Icons.image_not_supported_outlined,
-                          color: Colors.grey.shade400),
+                      child: Icon(
+                        Icons.image_not_supported_outlined,
+                        color: Colors.grey.shade400,
+                      ),
                     ),
             ),
           ),
-          SizedBox(width: 16.w),
+          SizedBox(width: 10.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -370,35 +374,27 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
                 Text(
                   item.product.productName,
                   style: TextStyle(
-                    fontSize: 15.sp,
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
                   ),
                 ),
-                SizedBox(height: 6.h),
+                SizedBox(height: 4.h),
                 Row(
                   children: [
-                    Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
-                        borderRadius: BorderRadius.circular(6.r),
-                      ),
-                      child: Text(
-                        '${item.productVariants.quantityinml} ml',
-                        style: TextStyle(
-                          fontSize: 12.sp,
-                          color: Colors.grey.shade700,
-                          fontWeight: FontWeight.w500,
-                        ),
+                    Text(
+                      '${item.productVariants.quantityinml} ml',
+                      style: TextStyle(
+                        fontSize: 12.sp,
+                        color: Colors.grey.shade700,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     SizedBox(width: 8.w),
                     Text(
                       'x ${item.quantity}',
                       style: TextStyle(
-                        fontSize: 13.sp,
+                        fontSize: 12.sp,
                         color: Colors.grey.shade600,
                         fontWeight: FontWeight.w500,
                       ),
@@ -428,15 +424,15 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(20.r),
+      padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -457,9 +453,7 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               isDiscount: true,
             ),
           ],
-          SizedBox(height: 16.h),
-          Divider(color: Colors.grey.shade200),
-          SizedBox(height: 16.h),
+          Divider(color: Colors.grey[400]),
           _buildPriceRow(
             'Total Amount',
             '₹${total.toStringAsFixed(2)}',

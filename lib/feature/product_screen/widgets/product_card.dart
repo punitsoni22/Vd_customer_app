@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/models/product_model.dart';
 import '../../../core/routing/routes.dart';
 import '../../../core/theme/colors.dart';
+import '../../../core/utils/common_widgets/common_price_display.dart';
 import '../../../core/utils/formatters.dart';
 
 class ProductCard extends StatelessWidget {
@@ -173,30 +174,40 @@ class ProductCard extends StatelessWidget {
                       ),
                       SizedBox(height: 4.h),
                       Expanded(
-                        child: RichText(
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: _price(product),
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  letterSpacing: 0.2,
-                                  color: Colors.black,
-                                ),
+                        child: Row(
+                          children: [
+                            CommonPriceDisplay(
+                              price: (double.tryParse(
+                                          product.variants.first.price) ??
+                                      0)
+                                  .toInt()
+                                  .toString(),
+                              originalPrice: product
+                                          .variants.first.originalPrice !=
+                                      null
+                                  ? (double.tryParse(product
+                                              .variants.first.originalPrice!) ??
+                                          0)
+                                      .toInt()
+                                      .toString()
+                                  : null,
+                              priceStyle: TextStyle(
+                                fontSize: 12.sp,
+                                letterSpacing: 0.2,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
                               ),
-                              TextSpan(
-                                text: ' Per Bottle',
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  letterSpacing: 0.2,
-                                  color: AllColors.buttonColor,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                            ),
+                            Text(
+                              ' Per Bottle',
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                letterSpacing: 0.2,
+                                color: AllColors.buttonColor,
+                                fontWeight: FontWeight.w500,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
                     ],

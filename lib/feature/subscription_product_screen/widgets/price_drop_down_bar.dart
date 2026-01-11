@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/core/models/product_model.dart';
 import 'package:vd_customer_app/core/utils/formatters.dart';
+import '../../../../core/utils/common_widgets/common_price_display.dart';
 
 class SubscriptionPriceDropdown extends StatefulWidget {
   final List<Variant> variants;
@@ -126,12 +127,22 @@ class _SubscriptionPriceDropdownState extends State<SubscriptionPriceDropdown> {
                       color: Colors.grey.shade700,
                     ),
                   ),
-                  Text(
-                    '₹$priceText',
-                    style: TextStyle(
+                  CommonPriceDisplay(
+                    price: priceText,
+                    originalPrice: variant.originalPrice != null
+                        ? (double.tryParse(variant.originalPrice!) ?? 0)
+                            .toInt()
+                            .toString()
+                        : null,
+                    priceStyle: TextStyle(
                       fontSize: 11.sp,
                       fontWeight: FontWeight.w600,
                       color: primary,
+                    ),
+                    originalPriceStyle: TextStyle(
+                      fontSize: 10.sp,
+                      decoration: TextDecoration.lineThrough,
+                      color: Colors.grey,
                     ),
                   ),
                 ],

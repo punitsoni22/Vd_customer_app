@@ -119,14 +119,21 @@ class Variant {
   final int id;
   final String quantityInMl;
   final String price;
+  final String? originalPrice;
 
-  Variant({required this.id, required this.quantityInMl, required this.price});
+  Variant({
+    required this.id,
+    required this.quantityInMl,
+    required this.price,
+    this.originalPrice,
+  });
 
   factory Variant.fromJson(Map<String, dynamic> json) {
     return Variant(
       id: json['id'] ?? 0,
       quantityInMl: json['quantityinml']?.toString() ?? '',
       price: json['price']?.toString() ?? '',
+      originalPrice: json['originalPrice']?.toString(),
     );
   }
 }

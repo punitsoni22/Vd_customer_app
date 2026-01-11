@@ -103,7 +103,6 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
 
       if (response['success'] == true) {
         MySnackBar.showSnackBar(context, 'Subscription updated');
-        // refresh the details to reflect new status
         await _fetchSubscriptionDetail();
       } else {
         MySnackBar.showSnackBar(
@@ -233,8 +232,8 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
                     SizedBox(height: 16.h),
 
                     // Customer Info Card
-                    _buildCustomerInfoCard(),
-                    SizedBox(height: 16.h),
+                    // _buildCustomerInfoCard(),
+                    // SizedBox(height: 16.h),
 
                     // Delivery Schedule Card
                     _buildDeliveryScheduleCard(),
@@ -252,15 +251,15 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
   Widget _buildSubscriptionInfoCard() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(20.r),
+      padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -293,7 +292,7 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
                 ],
               ),
               Container(
-                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
                 decoration: BoxDecoration(
                   color: _subscriptionDetail!.status == 1
                       ? Colors.green.shade50
@@ -319,15 +318,9 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
               ),
             ],
           ),
-          SizedBox(height: 20.h),
-          Divider(color: Colors.grey.shade100),
-          SizedBox(height: 20.h),
-          _buildInfoRow(
-            Icons.category_outlined,
-            'Type',
-            _formatSubscriptionType(_subscriptionDetail!.subscriptionType),
-          ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 6.h),
+          Divider(color: Colors.grey[400]),
+          SizedBox(height: 6.h),
           _buildInfoRow(
             Icons.calendar_today_outlined,
             'Start Date',
@@ -347,15 +340,15 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
   Widget _buildCustomerInfoCard() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(20.r),
+      padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -367,7 +360,7 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
               Container(
                 padding: EdgeInsets.all(8.r),
                 decoration: BoxDecoration(
-                  color: AllColors.olivegreenColor.withOpacity(0.1),
+                  color: AllColors.olivegreenColor.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -383,16 +376,13 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
               ),
             ],
           ),
-          SizedBox(height: 16.h),
-          Padding(
-            padding: EdgeInsets.only(left: 4.w),
-            child: Text(
-              _subscriptionDetail!.customerName,
-              style: TextStyle(
-                fontSize: 15.sp,
-                color: Colors.grey.shade800,
-                fontWeight: FontWeight.w500,
-              ),
+          SizedBox(height: 10.h),
+          Text(
+            _subscriptionDetail!.customerName,
+            style: TextStyle(
+              fontSize: 16.sp,
+              color: Colors.grey.shade800,
+              fontWeight: FontWeight.w500,
             ),
           ),
         ],
@@ -403,15 +393,15 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
   Widget _buildDeliveryScheduleCard() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(20.r),
+      padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -423,7 +413,7 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
               Container(
                 padding: EdgeInsets.all(8.r),
                 decoration: BoxDecoration(
-                  color: AllColors.olivegreenColor.withOpacity(0.1),
+                  color: AllColors.olivegreenColor.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -439,7 +429,7 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
               ),
             ],
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: 10.h),
           _buildInfoRow(
             Icons.repeat,
             'Frequency',
@@ -453,15 +443,15 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
   Widget _buildProductsList() {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(20.r),
+      padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -493,17 +483,15 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Product image + name
           Expanded(
             child: Row(
               children: [
                 Container(
-                  width: 60.w,
-                  height: 60.h,
+                  width: 80.w,
+                  height: 90.h,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10.r),
                     color: Colors.white,
-                    border: Border.all(color: Colors.grey.shade200),
                     image: (product.signedUrl ?? product.imageUrl) != null
                         ? DecorationImage(
                             image: NetworkImage(
@@ -545,11 +533,10 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
             ),
           ),
 
-          // Quantity badge
           Container(
             padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
             decoration: BoxDecoration(
-              color: AllColors.olivegreenColor.withOpacity(0.1),
+              color: AllColors.olivegreenColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8.r),
             ),
             child: Text(
@@ -571,11 +558,11 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Row(
       children: [
-        Icon(icon, size: 18.sp, color: Colors.grey.shade400),
+        Icon(icon, size: 18.sp, color: Colors.grey),
         SizedBox(width: 12.w),
         Text(
           '$label: ',
-          style: TextStyle(fontSize: 14.sp, color: Colors.grey.shade500),
+          style: TextStyle(fontSize: 14.sp, color: Colors.grey),
         ),
         Expanded(
           child: Text(
@@ -597,9 +584,5 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
 
   String _formatFrequency(String frequency) {
     return frequency.replaceAll('_', ' ').toUpperCase();
-  }
-
-  String _formatSubscriptionType(String type) {
-    return type.replaceAll('_', ' ').toUpperCase();
   }
 }

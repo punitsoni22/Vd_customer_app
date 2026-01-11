@@ -16,13 +16,19 @@ import '../../feature/home_screen/home_screen.dart';
 import '../../feature/login_screen/login_screen.dart';
 import '../../feature/navigation_bottom_bar/bottom_bar_screen.dart';
 import '../../feature/product_screen/products_screen.dart';
+import '../../feature/spalsh_screen/splash_screen.dart';
 import '../../feature/signup_screen/signup_screen.dart';
 import 'routes.dart';
 
 GoRouter buildRouter() {
   return GoRouter(
-    initialLocation: AppRoutes.bottomBarScreen,
+    initialLocation: AppRoutes.splashScreen,
     routes: [
+      GoRoute(
+        path: '/splash_screen',
+        name: AppRoutes.splashScreen,
+        builder: (context, state) => const SplashScreen(),
+      ),
       GoRoute(
         path: '/auth_screen',
         name: AppRoutes.authScreen,
