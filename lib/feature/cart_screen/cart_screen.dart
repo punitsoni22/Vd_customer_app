@@ -7,7 +7,6 @@ import '../../core/routing/routes.dart';
 import '../../core/theme/colors.dart';
 import '../../core/utils/common_widgets/common_appbar.dart';
 import '../../core/utils/common_widgets/common_button.dart';
-import '../../core/utils/common_widgets/common_summary_rowtext.dart';
 import '../../widget/snack_bar.dart';
 import 'provider/cart_provider.dart';
 import 'widgets/cart_items.dart';
@@ -26,84 +25,126 @@ class _CartScreenState extends State<CartScreen> {
     final items = cartProvider.cartItems;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
-      appBar: CommonAppBar(title: 'My Cart'),
+      backgroundColor: Colors.grey[50],
+      appBar: CommonAppBar(
+        title: 'My Cart',
+        showBack: true,
+        titleAlignment: BarTitleAlignment.center,
+      ),
       body: SafeArea(
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
               child: Row(
                 children: [
                   Text(
                     'Items (${items.length})',
                     style: TextStyle(
-                      fontSize: 13.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
+                      color: Colors.black87,
                     ),
                   ),
                   const Spacer(),
-                  Row(
-                    children: [
-                      Icon(Icons.refresh, size: 16.sp, color: Colors.grey[600]),
-                      SizedBox(width: 4.w),
-                      Text(
-                        'Pull to refresh',
-                        style: TextStyle(
-                          fontSize: 11.sp,
-                          color: Colors.grey[600],
-                        ),
+                  if (items.isNotEmpty)
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 8.w,
+                        vertical: 4.h,
                       ),
-                    ],
-                  ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20.r),
+                        border: Border.all(color: Colors.grey.shade200),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.refresh,
+                            size: 14.sp,
+                            color: Colors.grey[600],
+                          ),
+                          SizedBox(width: 4.w),
+                          Text(
+                            'Pull to refresh',
+                            style: TextStyle(
+                              fontSize: 11.sp,
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                 ],
               ),
             ),
 
             Expanded(
               child: RefreshIndicator(
+                color: AllColors.buttonColor,
+                backgroundColor: Colors.white,
                 onRefresh: () async {
                   final provider = context.read<CartProvider>();
                   await provider.fetchLatestCart(context);
                 },
                 child: items.isEmpty
-                    ? ListView(
+                    ? SingleChildScrollView(
                         physics: const AlwaysScrollableScrollPhysics(),
-                        children: [
-                          SizedBox(height: 80.h),
-                          Icon(
-                            Icons.shopping_bag_outlined,
-                            size: 64.sp,
-                            color: Colors.grey[400],
-                          ),
-                          SizedBox(height: 16.h),
-                          Center(
-                            child: Text(
-                              "Your cart is empty",
-                              style: TextStyle(
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey[800],
+                        child: SizedBox(
+                          height: 0.6.sh,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(24.r),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.03,
+                                      ),
+                                      blurRadius: 20,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
+                                ),
+                                child: Icon(
+                                  Icons.shopping_cart_outlined,
+                                  size: 48.sp,
+                                  color: Colors.grey[300],
+                                ),
                               ),
-                            ),
-                          ),
-                          SizedBox(height: 4.h),
-                          Center(
-                            child: Text(
-                              "Add products to see them here.",
-                              style: TextStyle(
-                                fontSize: 13.sp,
-                                color: Colors.grey[600],
+                              SizedBox(height: 24.h),
+                              Text(
+                                "Your cart is empty",
+                                style: TextStyle(
+                                  fontSize: 18.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey[800],
+                                ),
                               ),
-                            ),
+                              SizedBox(height: 8.h),
+                              Text(
+                                "Looks like you haven't added\nany items to the cart yet.",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: Colors.grey[500],
+                                  height: 1.5,
+                                ),
+                              ),
+                            ],
                           ),
-                          SizedBox(height: 24.h),
-                        ],
+                        ),
                       )
                     : ListView.builder(
                         physics: const AlwaysScrollableScrollPhysics(),
                         padding: EdgeInsets.symmetric(
-                          horizontal: 12.w,
+                          horizontal: 16.w,
                           vertical: 4.h,
                         ),
                         itemCount: items.length,
@@ -115,150 +156,151 @@ class _CartScreenState extends State<CartScreen> {
               ),
             ),
 
-            Consumer<CartProvider>(
-              builder: (context, cartProvider, child) {
-                final subtotal = cartProvider.subtotal;
+            if (items.isNotEmpty)
+              Consumer<CartProvider>(
+                builder: (context, cartProvider, child) {
+                  final subtotal = cartProvider.subtotal;
 
-                return Container(
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.06),
-                        blurRadius: 10,
-                        offset: const Offset(0, -4),
+                  return Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.08),
+                          blurRadius: 16,
+                          offset: const Offset(0, -4),
+                        ),
+                      ],
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(24.r),
+                        topRight: Radius.circular(24.r),
                       ),
-                    ],
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(16.r),
-                      topRight: Radius.circular(16.r),
                     ),
-                  ),
-                  padding: EdgeInsets.fromLTRB(16.w, 10.h, 16.w, 10.h),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.all(10.r),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10.r),
-                          border: Border.all(color: AllColors.outlineColor),
-                        ),
-                        child: Column(
+                    padding: EdgeInsets.all(12.r),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
                           children: [
-                            Row(
-                              children: [
-                                Text(
-                                  'Price Details',
-                                  style: TextStyle(
-                                    fontSize: 13.sp,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                const Spacer(),
-                                Text(
-                                  '${items.length} item${items.length == 1 ? '' : 's'}',
-                                  style: TextStyle(
-                                    fontSize: 11.sp,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 8.h),
-                            Summary(
-                              label:
-                                  "Subtotal${cartProvider.hasPendingChanges ? ' (Updated)' : ''}",
-                              value: "₹${subtotal.toStringAsFixed(2)}",
-                            ),
-                            const Summary(label: "Savings", value: "-₹0.00"),
-                            const Divider(),
-                            Summary(
-                              label:
-                                  "Total${cartProvider.hasPendingChanges ? ' (Updated)' : ''}",
-                              value: "₹${subtotal.toStringAsFixed(2)}",
-                              isBold: true,
-                            ),
-                            if (cartProvider.hasPendingChanges)
-                              Padding(
-                                padding: EdgeInsets.only(top: 6.h),
-                                child: Text(
-                                  "* Total reflects unsaved changes",
-                                  style: TextStyle(
-                                    fontSize: 11.sp,
-                                    color: Colors.orange[700],
-                                    fontStyle: FontStyle.italic,
-                                  ),
-                                ),
+                            Text(
+                              'Order Summary',
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.black87,
                               ),
-                          ],
-                        ),
-                      ),
-
-                      SizedBox(height: 10.h),
-                      if (cartProvider.hasPendingChanges)
-                        Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: CommonButton(
-                                    onTap: cartProvider.isUpdatingQuantity
-                                        ? null
-                                        : () => cartProvider
-                                              .cancelQuantityChanges(),
-                                    buttonValue: 'Cancel',
-                                    backgroundColor: Colors.grey[400]!,
-                                  ),
-                                ),
-                                SizedBox(width: 12.w),
-                                Expanded(
-                                  child: CommonButton(
-                                    onTap: cartProvider.isUpdatingQuantity
-                                        ? null
-                                        : () => cartProvider
-                                              .saveQuantityChanges(context),
-                                    buttonValue: cartProvider.isUpdatingQuantity
-                                        ? 'Saving...'
-                                        : 'Save Changes',
-                                    backgroundColor: AllColors.iconColor,
-                                  ),
-                                ),
-                              ],
                             ),
-                            SizedBox(height: 8.h),
+                            const Spacer(),
+                            Text(
+                              '${items.length} Items',
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ],
                         ),
-                      CommonButton(
-                        onTap: () {
-                          final cp = context.read<CartProvider>();
-                          if (cp.hasPendingChanges) {
-                            MySnackBar.showSnackBar(
-                              context,
-                              'Please save or cancel your changes first',
-                            );
-                            return;
-                          }
-                          if (cp.cartId == null) {
-                            MySnackBar.showSnackBar(
-                              context,
-                              'No products added to cart',
-                            );
-                            return;
-                          }
-                          context.pushNamed(AppRoutes.checkoutScreen);
-                        },
-                        buttonValue: 'Proceed to Checkout',
-                        backgroundColor: AllColors.iconColor,
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+                        SizedBox(height: 16.h),
+                        Container(
+                          padding: EdgeInsets.all(12.r),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[50],
+                            borderRadius: BorderRadius.circular(16.r),
+                            border: Border.all(color: Colors.grey.shade200),
+                          ),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Total Amount",
+                                    style: TextStyle(
+                                      fontSize: 14.sp,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.black87,
+                                    ),
+                                  ),
+                                  Text(
+                                    "₹${subtotal.toStringAsFixed(2)}",
+                                    style: TextStyle(
+                                      fontSize: 18.sp,
+                                      fontWeight: FontWeight.w800,
+                                      color: AllColors.buttonColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(height: 20.h),
+                        if (cartProvider.hasPendingChanges)
+                          Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: CommonButton(
+                                      onTap: cartProvider.isUpdatingQuantity
+                                          ? null
+                                          : () => cartProvider
+                                                .cancelQuantityChanges(),
+                                      buttonValue: 'Cancel',
+                                      backgroundColor: Colors.grey[400]!,
+                                    ),
+                                  ),
+                                  SizedBox(width: 12.w),
+                                  Expanded(
+                                    child: CommonButton(
+                                      onTap: cartProvider.isUpdatingQuantity
+                                          ? null
+                                          : () => cartProvider
+                                                .saveQuantityChanges(context),
+                                      buttonValue:
+                                          cartProvider.isUpdatingQuantity
+                                          ? 'Saving...'
+                                          : 'Save Changes',
+                                      backgroundColor: AllColors.iconColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 12.h),
+                            ],
+                          )
+                        else
+                          CommonButton(
+                            onTap: () {
+                              final cp = context.read<CartProvider>();
+                              if (cp.hasPendingChanges) {
+                                MySnackBar.showSnackBar(
+                                  context,
+                                  'Please save or cancel your changes first',
+                                );
+                                return;
+                              }
+                              if (cp.cartId == null) {
+                                MySnackBar.showSnackBar(
+                                  context,
+                                  'No products added to cart',
+                                );
+                                return;
+                              }
+                              context.pushNamed(AppRoutes.checkoutScreen);
+                            },
+                            buttonValue: 'Proceed to Checkout',
+                            backgroundColor: AllColors.iconColor,
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              ),
           ],
         ),
       ),

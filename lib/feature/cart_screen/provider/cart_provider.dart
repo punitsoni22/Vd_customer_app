@@ -21,21 +21,21 @@ class CartProvider extends ChangeNotifier {
 
   bool get isEmpty => cartItems.isEmpty;
 
-  bool _isRemovingItem = false;
-  bool get isRemovingItem => _isRemovingItem;
+  // Track removing items by ID to isolate state
+  final Set<int> _removingItemIds = {};
+  bool isItemBeingRemoved(int cartDetailId) => _removingItemIds.contains(cartDetailId);
 
   bool _isUpdatingQuantity = false;
   bool get isUpdatingQuantity => _isUpdatingQuantity;
 
-  //
-  Map<String, int> _pendingQuantityChanges = {};
-  Map<String, int> get pendingQuantityChanges => _pendingQuantityChanges;
+  // Track quantity changes by CartDetail ID for uniqueness
+  Map<int, int> _pendingQuantityChanges = {};
+  Map<int, int> get pendingQuantityChanges => _pendingQuantityChanges;
 
   bool get hasPendingChanges => _pendingQuantityChanges.isNotEmpty;
 
   int getDisplayQuantity(CartDetail item) {
-    final key = '${item.productId}_${item.variantId}';
-    return _pendingQuantityChanges[key] ?? item.quantity;
+    return _pendingQuantityChanges[item.id] ?? item.quantity;
   }
 
   void cancelQuantityChanges() {
@@ -51,8 +51,7 @@ class CartProvider extends ChangeNotifier {
       notifyListeners();
 
       final productsPayload = cartItems.map((item) {
-        final key = '${item.productId}_${item.variantId}';
-        final newQuantity = _pendingQuantityChanges[key] ?? item.quantity;
+        final newQuantity = _pendingQuantityChanges[item.id] ?? item.quantity;
 
         return {
           "productId": item.productId,
@@ -260,7 +259,7 @@ class CartProvider extends ChangeNotifier {
     try {
       final cartDetailId = item.id;
 
-      _isRemovingItem = true;
+      _removingItemIds.add(cartDetailId);
       notifyListeners();
 
       final response = await Api.post("deleteCartItem", {
@@ -301,24 +300,22 @@ class CartProvider extends ChangeNotifier {
         );
       }
     } finally {
-      _isRemovingItem = false;
+      _removingItemIds.remove(item.id);
       notifyListeners();
     }
   }
 
   void increaseQuantity(CartDetail item) {
-    final key = '${item.productId}_${item.variantId}';
-    final currentQuantity = _pendingQuantityChanges[key] ?? item.quantity;
-    _pendingQuantityChanges[key] = currentQuantity + 1;
+    final currentQuantity = _pendingQuantityChanges[item.id] ?? item.quantity;
+    _pendingQuantityChanges[item.id] = currentQuantity + 1;
     notifyListeners();
   }
 
   void decreaseQuantity(CartDetail item) {
-    final key = '${item.productId}_${item.variantId}';
-    final currentQuantity = _pendingQuantityChanges[key] ?? item.quantity;
+    final currentQuantity = _pendingQuantityChanges[item.id] ?? item.quantity;
 
     if (currentQuantity > 1) {
-      _pendingQuantityChanges[key] = currentQuantity - 1;
+      _pendingQuantityChanges[item.id] = currentQuantity - 1;
       notifyListeners();
     }
   }

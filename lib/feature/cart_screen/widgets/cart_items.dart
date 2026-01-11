@@ -19,27 +19,24 @@ class CartItem extends StatelessWidget {
 
     return Consumer<CartProvider>(
       builder: (context, provider, _) {
-        final key = '${item.productId}_${item.variantId}';
-        final hasChanges = provider.pendingQuantityChanges.containsKey(key);
+        final hasChanges = provider.pendingQuantityChanges.containsKey(item.id);
 
         return AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOut,
           margin: EdgeInsets.only(bottom: 12.h),
-          padding: EdgeInsets.all(10.r),
+          padding: EdgeInsets.all(12.r),
           decoration: BoxDecoration(
             border: Border.all(
               color: hasChanges ? Colors.orange : AllColors.greyborderColor,
-              width: hasChanges ? 1.8 : 1,
+              width: hasChanges ? 1.5 : 0.5,
             ),
-            color: hasChanges
-                ? Colors.orange.withValues(alpha: 0.03)
-                : Colors.white,
-            borderRadius: BorderRadius.circular(14.r),
+            color: hasChanges ? Colors.orange.withValues(alpha: 0.02) : Colors.white,
+            borderRadius: BorderRadius.circular(16.r),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
-                blurRadius: 8,
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
             ],
@@ -51,21 +48,37 @@ class CartItem extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12.r),
                 child: SizedBox(
                   width: 90.w,
-                  child: AspectRatio(
-                    aspectRatio: 1,
-                    child: (imgUrl != null && imgUrl.isNotEmpty)
-                        ? Image.network(
-                            imgUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (_, __, ___) => Image.asset(
-                              'assets/images/Bigbottle.png',
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                        : Image.asset(
-                            'assets/images/Bigbottle.png',
-                            fit: BoxFit.cover,
+                  height: 90.w,
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: (imgUrl != null && imgUrl.isNotEmpty)
+                            ? Image.network(
+                                imgUrl,
+                                fit: BoxFit.cover,
+                                errorBuilder: (_, __, ___) => Image.asset(
+                                  'assets/images/Bigbottle.png',
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            : Image.asset(
+                                'assets/images/Bigbottle.png',
+                                fit: BoxFit.cover,
+                              ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              Colors.black.withValues(alpha: 0.05),
+                            ],
                           ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -87,76 +100,55 @@ class CartItem extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(
                                   fontSize: 16.sp,
-                                  fontWeight: FontWeight.w700,
+                                  fontWeight: FontWeight.w600,
                                   color: Colors.black87,
-                                  height: 1.2,
+                                  height: 1.3,
+                                  letterSpacing: -0.3,
                                 ),
                               ),
-                              SizedBox(height: 6.h),
-                              if (hasChanges)
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 8.w,
-                                    vertical: 4.h,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.orange.shade50,
-                                    borderRadius: BorderRadius.circular(6.r),
-                                    border: Border.all(
-                                      color: Colors.orange.shade200,
-                                    ),
-                                  ),
-                                  child: Text(
-                                    'Quantity Modified',
-                                    style: TextStyle(
-                                      fontSize: 10.sp,
-                                      color: Colors.orange.shade800,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
                             ],
                           ),
                         ),
+                        SizedBox(width: 8.w),
                         Consumer<CartProvider>(
                           builder: (context, provider, __) {
-                            final bool isLoading = provider.isRemovingItem;
+                            final bool isRemoving = provider.isItemBeingRemoved(item.id);
 
-                            return InkWell(
-                              borderRadius: BorderRadius.circular(20.r),
-                              onTap: isLoading
-                                  ? null
-                                  : () => provider.removeItem(context, item),
-                              child: Container(
-                                padding: EdgeInsets.all(6.r),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.grey.shade50,
-                                ),
-                                child: isLoading
-                                    ? SizedBox(
-                                        width: 18,
-                                        height: 18,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          valueColor:
-                                              const AlwaysStoppedAnimation<
-                                                Color
-                                              >(Colors.red),
+                            return Material(
+                              color: Colors.transparent,
+                              child: InkWell(
+                                borderRadius: BorderRadius.circular(20.r),
+                                onTap: isRemoving
+                                    ? null
+                                    : () => provider.removeItem(context, item),
+                                child: Container(
+                                  padding: EdgeInsets.all(4.r),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.grey.shade100,
+                                  ),
+                                  child: isRemoving
+                                      ? SizedBox(
+                                          width: 16.sp,
+                                          height: 16.sp,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor: const AlwaysStoppedAnimation<Color>(Colors.red),
+                                          ),
+                                        )
+                                      : Icon(
+                                          Icons.close_rounded,
+                                          size: 16.sp,
+                                          color: Colors.grey.shade500,
                                         ),
-                                      )
-                                    : Icon(
-                                        Icons.close_rounded,
-                                        size: 20.sp,
-                                        color: Colors.grey.shade400,
-                                      ),
+                                ),
                               ),
                             );
                           },
                         ),
                       ],
                     ),
-                    SizedBox(height: 12.h),
+                    SizedBox(height: 16.h),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
@@ -164,9 +156,9 @@ class CartItem extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Price",
+                              "Unit Price",
                               style: TextStyle(
-                                fontSize: 12.sp,
+                                fontSize: 11.sp,
                                 color: Colors.grey[500],
                                 fontWeight: FontWeight.w500,
                               ),
@@ -176,7 +168,7 @@ class CartItem extends StatelessWidget {
                               "₹${item.price.toInt()}",
                               style: TextStyle(
                                 fontSize: 18.sp,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w700,
                                 color: AllColors.buttonColor,
                                 letterSpacing: -0.5,
                               ),
@@ -189,14 +181,14 @@ class CartItem extends StatelessWidget {
                             return Container(
                               decoration: BoxDecoration(
                                 color: Colors.white,
-                                borderRadius: BorderRadius.circular(12.r),
+                                borderRadius: BorderRadius.circular(24.r),
                                 border: Border.all(
                                   color: Colors.grey.shade200,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.02),
-                                    blurRadius: 4,
+                                    color: Colors.black.withValues(alpha: 0.03),
+                                    blurRadius: 6,
                                     offset: const Offset(0, 2),
                                   ),
                                 ],
@@ -204,8 +196,7 @@ class CartItem extends StatelessWidget {
                               child: AddSubtButton(
                                 quantity: provider.getDisplayQuantity(item),
                                 onAdd: () => provider.increaseQuantity(item),
-                                onSubtract:
-                                    () => provider.decreaseQuantity(item),
+                                onSubtract: () => provider.decreaseQuantity(item),
                               ),
                             );
                           },
