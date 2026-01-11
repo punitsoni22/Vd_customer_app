@@ -11,7 +11,7 @@ class SubscriptionDateScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.grey[50],
       appBar: CommonAppBar(
         title: 'Subscription',
         titleAlignment: BarTitleAlignment.center,

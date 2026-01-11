@@ -9,6 +9,7 @@ import 'package:vd_customer_app/core/utils/common_widgets/common_calendar.dart';
 import 'package:vd_customer_app/feature/profile_screen/provider/profileProvider.dart';
 import 'package:vd_customer_app/widget/snack_bar.dart';
 
+import '../../../core/models/address.model.dart';
 import '../provider/subscription_provider.dart';
 import 'address_bottom_sheet.dart';
 
@@ -70,6 +71,39 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
     });
   }
 
+  Widget _buildCard({required Widget child, EdgeInsetsGeometry? padding}) {
+    return Container(
+      padding: padding ?? EdgeInsets.all(16.r),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: child,
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: EdgeInsets.only(left: 4.w),
+      child: Text(
+        title,
+        style: TextStyle(
+          fontSize: 16.sp,
+          fontWeight: FontWeight.w700,
+          color: Colors.black87,
+          letterSpacing: 0.3,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final primary = AllColors.olivegreenColor;
@@ -77,115 +111,152 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          height: 40.h,
-          padding: EdgeInsets.symmetric(horizontal: 10.w),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8.r),
-            border: Border.all(color: primary.withValues(alpha: 0.6), width: 1),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: selectedValue,
-              isExpanded: true,
-              icon: Icon(Icons.keyboard_arrow_down_rounded, color: primary),
-              style: TextStyle(
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w500,
-                color: primary,
-              ),
-              dropdownColor: Colors.white,
-              menuMaxHeight: 260.h,
-              borderRadius: BorderRadius.circular(10.r),
-
-              // How selected item looks when closed
-              selectedItemBuilder: (BuildContext context) {
-                return items.map((value) {
-                  return Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      value,
-                      style: TextStyle(
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w600,
-                        color: primary,
-                      ),
+        _buildSectionTitle('Delivery Frequency'),
+        SizedBox(height: 6.h),
+        _buildCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 40.h,
+                padding: EdgeInsets.symmetric(horizontal: 10.w),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8.r),
+                  border: Border.all(color: primary.withValues(alpha: 0.3), width: 1),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    value: selectedValue,
+                    isExpanded: true,
+                    icon: Icon(Icons.keyboard_arrow_down_rounded, color: primary),
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w500,
+                      color: primary,
                     ),
-                  );
-                }).toList();
-              },
-
-              onChanged: (String? newValue) {
-                if (newValue == null) return;
-                setState(() {
-                  selectedValue = newValue;
-                });
-              },
-
-              items: items.map((String value) {
-                final bool isSelected = value == selectedValue;
-
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          value,
-                          style: TextStyle(
-                            fontSize: 13.sp,
-                            fontWeight: isSelected
-                                ? FontWeight.w600
-                                : FontWeight.w500,
-                            color: isSelected ? primary : Colors.grey.shade700,
+                    dropdownColor: Colors.white,
+                    menuMaxHeight: 260.h,
+                    borderRadius: BorderRadius.circular(10.r),
+                    selectedItemBuilder: (BuildContext context) {
+                      return items.map((value) {
+                        return Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            value,
+                            style: TextStyle(
+                              fontSize: 13.sp,
+                              fontWeight: FontWeight.w600,
+                              color: primary,
+                            ),
                           ),
+                        );
+                      }).toList();
+                    },
+                    onChanged: (String? newValue) {
+                      if (newValue == null) return;
+                      setState(() {
+                        selectedValue = newValue;
+                      });
+                    },
+                    items: items.map((String value) {
+                      final bool isSelected = value == selectedValue;
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                value,
+                                style: TextStyle(
+                                  fontSize: 13.sp,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.w500,
+                                  color: isSelected ? primary : Colors.grey.shade700,
+                                ),
+                              ),
+                            ),
+                            if (isSelected)
+                              Icon(Icons.check_rounded, size: 18.sp, color: primary),
+                          ],
                         ),
-                      ),
-                      if (isSelected)
-                        Icon(Icons.check_rounded, size: 18.sp, color: primary),
-                    ],
+                      );
+                    }).toList(),
                   ),
-                );
-              }).toList(),
-            ),
+                ),
+              ),
+              SizedBox(height: 12.h),
+              _buildWidgetForSelection(selectedValue),
+            ],
           ),
         ),
-
+        
         SizedBox(height: 12.h),
-        _buildWidgetForSelection(selectedValue),
-        SizedBox(height: 10.h),
 
         Consumer<SubscriptionProvider>(
           builder: (context, subProvider, _) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Delivery Details',
-                  style: TextStyle(
-                    color: primary,
-                    fontSize: 20.sp,
-                    fontWeight: FontWeight.bold,
+                _buildSectionTitle('Delivery Address'),
+                SizedBox(height: 6.h),
+                _buildCard(child: _buildAddressSelection(subProvider, primary)),
+                
+                SizedBox(height: 12.h),
+                
+                _buildSectionTitle('Subscription Dates'),
+                SizedBox(height: 6.h),
+                _buildCard(
+                  child: Column(
+                    children: [
+                      _dateField('Start Date', startDate, context, isStart: true),
+                      SizedBox(height: 12.h),
+                      _dateField('End Date', endDate, context, isStart: false),
+                      if (startDate != null && endDate != null) ...[
+                        SizedBox(height: 12.h),
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                          decoration: BoxDecoration(
+                            color: AllColors.olivegreenColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(8.r),
+                            border: Border.all(color: AllColors.olivegreenColor.withValues(alpha: 0.3)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.date_range, size: 16.sp, color: AllColors.olivegreenColor),
+                              SizedBox(width: 8.w),
+                              Text(
+                                "Total Duration: ${endDate!.difference(startDate!).inDays + 1} Days",
+                                style: TextStyle(
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: AllColors.olivegreenColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
-                SizedBox(height: 10.h),
-                _buildAddressSelection(subProvider, primary),
 
-                SizedBox(height: 18.h),
+                SizedBox(height: 12.h),
 
-                _dateField('Start Date', startDate, context, isStart: true),
-                SizedBox(height: 18.h),
-                _dateField('End Date', endDate, context, isStart: false),
-                SizedBox(height: 18.h),
+                _buildSectionTitle('Preferred Timing'),
+                SizedBox(height: 6.h),
+                _buildCard(child: _buildTimingDropdown(primary)),
 
-                _buildTimingDropdown(primary),
-                SizedBox(height: 18.h),
+                SizedBox(height: 12.h),
 
-                _buildRemarksField(primary),
-                SizedBox(height: 18.h),
+                _buildSectionTitle('Remarks (Optional)'),
+                SizedBox(height: 6.h),
+                _buildCard(child: _buildRemarksField(primary)),
 
-                SizedBox(height: 24.h),
+                SizedBox(height: 40.h),
+                
                 CommonButton(
                   backgroundColor: AllColors.tabBarline,
                   onTap: isLoading
@@ -203,6 +274,53 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                           setState(() {
                             isLoading = true;
                           });
+
+                          // Pincode Validation
+                          final subProvider = Provider.of<SubscriptionProvider>(
+                            context,
+                            listen: false,
+                          );
+
+                          AddressModel? selectedAddrObj;
+                          try {
+                            selectedAddrObj = subProvider.addresses.firstWhere(
+                              (element) =>
+                                  element.id.toString() == selectedAddressId,
+                            );
+                          } catch (_) {}
+
+                          if (selectedAddrObj != null) {
+                            await subProvider.checkDeliveryPincode(
+                              selectedAddrObj.postalCode,
+                            );
+
+                            if (!subProvider.isDeliverable) {
+                              setState(() {
+                                isLoading = false;
+                              });
+                              if (mounted) {
+                                MySnackBar.showSnackBar(
+                                  context,
+                                  subProvider.deliveryMessage.isNotEmpty
+                                      ? subProvider.deliveryMessage
+                                      : "Sorry, we cannot deliver to this address",
+                                );
+                              }
+                              return;
+                            }
+                          } else {
+                            setState(() {
+                              isLoading = false;
+                            });
+                            if (mounted) {
+                              MySnackBar.showSnackBar(
+                                context,
+                                'Selected address not found.',
+                              );
+                            }
+                            return;
+                          }
+
                           final freq = selectedValue;
                           final profileProvider = Provider.of<ProfileProvider>(
                             context,
@@ -280,6 +398,7 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                   buttonValue: 'Create Subscription',
                   isLoading: isLoading,
                 ),
+                SizedBox(height: 20.h),
               ],
             );
           },
@@ -300,12 +419,12 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
         Text(
           label,
           style: TextStyle(
-            color: AllColors.olivegreenColor,
-            fontSize: 13.sp,
-            fontWeight: FontWeight.w600,
+            fontSize: 12.sp,
+            color: Colors.grey[500],
+            fontWeight: FontWeight.w500,
           ),
         ),
-        SizedBox(height: 6.h),
+        SizedBox(height: 4.h),
         GestureDetector(
           onTap: () async {
             DateTime initialDate;
@@ -349,6 +468,7 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
             }
           },
           child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
             decoration: BoxDecoration(
               color: Colors.white,
               border: Border.all(
@@ -359,27 +479,19 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
             child: Row(
               children: [
                 Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 12.w,
-                      vertical: 10.h,
-                    ),
-                    child: Text(
-                      value != null ? _formatDate(value) : 'Select Date',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: AllColors.buttonColor,
-                      ),
+                  child: Text(
+                    value != null ? _formatDate(value) : 'Select Date',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: value != null ? Colors.black87 : Colors.grey[400],
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(right: 12.w), // fixed typo here
-                  child: Icon(
-                    Icons.calendar_today_outlined,
-                    size: 20,
-                    color: AllColors.olivegreenColor,
-                  ),
+                Icon(
+                  Icons.calendar_today_outlined,
+                  size: 18.sp,
+                  color: AllColors.olivegreenColor,
                 ),
               ],
             ),
@@ -409,108 +521,101 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
   }
 
   Widget _weeklyWidget() {
-    return Container(
-      padding: EdgeInsets.all(12.r),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(10.r),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Select Delivery Days',
-            style: TextStyle(
-              color: AllColors.olivegreenColor,
-              fontSize: 16.sp,
-              fontWeight: FontWeight.bold,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Select Delivery Days',
+          style: TextStyle(
+            color: Colors.black87,
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w600,
           ),
-          SizedBox(height: 8.h),
-          GridView.count(
-            crossAxisCount: 3,
-            crossAxisSpacing: 19,
-            mainAxisSpacing: 15,
-            childAspectRatio: 2.8,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            children: [
-              for (var day in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'])
-                GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      if (selectedDeliveryDays.contains(day)) {
-                        selectedDeliveryDays.remove(day);
-                      } else {
-                        selectedDeliveryDays.add(day);
-                      }
-                    });
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
+        ),
+        SizedBox(height: 8.h),
+        GridView.count(
+          crossAxisCount: 3,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          childAspectRatio: 2.5,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          children: [
+            for (var day in ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'])
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    if (selectedDeliveryDays.contains(day)) {
+                      selectedDeliveryDays.remove(day);
+                    } else {
+                      selectedDeliveryDays.add(day);
+                    }
+                  });
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: selectedDeliveryDays.contains(day)
+                        ? AllColors.tabBarline
+                        : Colors.grey[50],
+                    borderRadius: BorderRadius.circular(8.r),
+                    border: Border.all(
                       color: selectedDeliveryDays.contains(day)
-                          ? AllColors.tabBarline
-                          : Colors.grey[50],
-                      borderRadius: BorderRadius.circular(8.r),
-                      border: Border.all(
-                        color: selectedDeliveryDays.contains(day)
-                            ? AllColors.olivegreenColor
-                            : Colors.grey.shade300,
-                      ),
+                          ? AllColors.olivegreenColor
+                          : Colors.grey.shade300,
                     ),
-                    child: Center(
-                      child: Text(
-                        day,
-                        style: TextStyle(
-                          color: selectedDeliveryDays.contains(day)
-                              ? Colors.white
-                              : AllColors.olivegreenColor,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700,
-                        ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      day,
+                      style: TextStyle(
+                        color: selectedDeliveryDays.contains(day)
+                            ? Colors.white
+                            : AllColors.olivegreenColor,
+                        fontSize: 13.sp,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                 ),
-            ],
-          ),
-          if (selectedDeliveryDays.isNotEmpty) ...[
-            SizedBox(height: 12.h),
-            Container(
-              padding: EdgeInsets.all(8.r),
-              decoration: BoxDecoration(
-                color: AllColors.olivegreenColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(6.r),
-                border: Border.all(
-                  color: AllColors.olivegreenColor.withValues(alpha: 0.3),
-                ),
               ),
-              child: Text(
-                'Selected days: ${selectedDeliveryDays.join(', ')}',
-                style: TextStyle(
-                  color: AllColors.olivegreenColor,
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w600,
-                ),
+          ],
+        ),
+        if (selectedDeliveryDays.isNotEmpty) ...[
+          SizedBox(height: 12.h),
+          Container(
+            padding: EdgeInsets.all(8.r),
+            decoration: BoxDecoration(
+              color: AllColors.olivegreenColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(6.r),
+              border: Border.all(
+                color: AllColors.olivegreenColor.withValues(alpha: 0.3),
               ),
             ),
-          ],
+            child: Text(
+              'Selected days: ${selectedDeliveryDays.join(', ')}',
+              style: TextStyle(
+                color: AllColors.olivegreenColor,
+                fontSize: 12.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
         ],
-      ),
+      ],
     );
   }
 
   Widget _customWidget() {
-    return Container(
-      padding: EdgeInsets.all(8.r),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(10.r),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CustomCalendar(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: EdgeInsets.all(8.r),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade300),
+            borderRadius: BorderRadius.circular(10.r),
+          ),
+          child: CustomCalendar(
             startDate: startDate,
             endDate: endDate,
             initiallySelectedDates: selectedCustomDates,
@@ -520,45 +625,45 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
               });
             },
           ),
-          if (selectedCustomDates.isNotEmpty) ...[
-            SizedBox(height: 12.h),
-            Container(
-              padding: EdgeInsets.all(8.r),
-              decoration: BoxDecoration(
-                color: AllColors.olivegreenColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(6.r),
-                border: Border.all(
-                  color: AllColors.olivegreenColor.withValues(alpha: 0.3),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Selected delivery dates (${selectedCustomDates.length}):',
-                    style: TextStyle(
-                      color: AllColors.olivegreenColor,
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  SizedBox(height: 4.h),
-                  Text(
-                    selectedCustomDates
-                        .map((date) => _formatDate(date))
-                        .join(', '),
-                    style: TextStyle(
-                      color: AllColors.olivegreenColor.withValues(alpha: 0.8),
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+        ),
+        if (selectedCustomDates.isNotEmpty) ...[
+          SizedBox(height: 12.h),
+          Container(
+            padding: EdgeInsets.all(8.r),
+            decoration: BoxDecoration(
+              color: AllColors.olivegreenColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(6.r),
+              border: Border.all(
+                color: AllColors.olivegreenColor.withValues(alpha: 0.3),
               ),
             ),
-          ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Selected delivery dates (${selectedCustomDates.length}):',
+                  style: TextStyle(
+                    color: AllColors.olivegreenColor,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                Text(
+                  selectedCustomDates
+                      .map((date) => _formatDate(date))
+                      .join(', '),
+                  style: TextStyle(
+                    color: AllColors.olivegreenColor.withValues(alpha: 0.8),
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
-      ),
+      ],
     );
   }
 
@@ -594,152 +699,124 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
           ),
         );
       },
-      child: Container(
-        padding: EdgeInsets.all(12.r),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8.r),
-          border: Border.all(color: primary.withValues(alpha: 0.3)),
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.location_on, color: primary, size: 20.sp),
-            SizedBox(width: 12.w),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Delivery Address',
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      color: Colors.grey.shade600,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  SizedBox(height: 2.h),
-                  Text(
-                    selectedAddressId != null && provider.addresses.isNotEmpty
-                        ? provider.addresses
-                              .firstWhere(
-                                (a) => a.id.toString() == selectedAddressId,
-                                orElse: () => provider.addresses.first,
-                              )
-                              .fullAddress
-                        : 'Tap to select address',
-                    style: TextStyle(
-                      fontSize: 13.sp,
-                      fontWeight: FontWeight.w600,
-                      color: selectedAddressId != null
-                          ? Colors.black87
-                          : Colors.grey.shade500,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.all(8.r),
+            decoration: BoxDecoration(
+              color: AllColors.olivegreenColor.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
             ),
-            SizedBox(width: 8.w),
-            Icon(
-              Icons.arrow_forward_ios,
-              size: 14.sp,
-              color: Colors.grey.shade600,
+            child: Icon(Icons.location_on, color: AllColors.olivegreenColor, size: 18.sp),
+          ),
+          SizedBox(width: 14.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Delivery Address',
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: Colors.grey[500],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(height: 4.h),
+                Text(
+                  selectedAddressId != null && provider.addresses.isNotEmpty
+                      ? provider.addresses
+                            .firstWhere(
+                              (a) => a.id.toString() == selectedAddressId,
+                              orElse: () => provider.addresses.first,
+                            )
+                            .fullAddress
+                      : 'Tap to select address',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: selectedAddressId != null
+                        ? Colors.black87
+                        : Colors.grey[400],
+                    fontWeight: FontWeight.w600,
+                    height: 1.3,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+          Icon(
+            Icons.arrow_forward_ios,
+            size: 14.sp,
+            color: Colors.grey.shade400,
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildTimingDropdown(Color primary) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Preferred Timing',
-          style: TextStyle(
-            color: AllColors.olivegreenColor,
-            fontSize: 13.sp,
-            fontWeight: FontWeight.w600,
-          ),
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8.r),
+        border: Border.all(color: primary.withValues(alpha: 0.3)),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: preferredTiming,
+          isExpanded: true,
+          icon: Icon(Icons.access_time, color: primary, size: 18.sp),
+          style: TextStyle(fontSize: 14.sp, color: AllColors.buttonColor),
+          dropdownColor: Colors.white,
+          onChanged: (String? newValue) {
+            if (newValue != null) {
+              setState(() {
+                preferredTiming = newValue;
+              });
+            }
+          },
+          items: timings.map<DropdownMenuItem<String>>((String value) {
+            return DropdownMenuItem<String>(
+              value: value,
+              child: Text(value),
+            );
+          }).toList(),
         ),
-        SizedBox(height: 6.h),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 12.w),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8.r),
-            border: Border.all(color: primary.withValues(alpha: 0.3)),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<String>(
-              value: preferredTiming,
-              isExpanded: true,
-              icon: Icon(Icons.access_time, color: primary, size: 18.sp),
-              style: TextStyle(fontSize: 14.sp, color: AllColors.buttonColor),
-              dropdownColor: Colors.white,
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  setState(() {
-                    preferredTiming = newValue;
-                  });
-                }
-              },
-              items: timings.map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 
   Widget _buildRemarksField(Color primary) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Remarks (Optional)',
-          style: TextStyle(
-            color: AllColors.olivegreenColor,
-            fontSize: 13.sp,
-            fontWeight: FontWeight.w600,
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8.r),
+        border: Border.all(color: primary.withValues(alpha: 0.3)),
+      ),
+      child: TextField(
+        onChanged: (value) {
+          setState(() {
+            remarks = value;
+          });
+        },
+        maxLines: 3,
+        decoration: InputDecoration(
+          hintText: 'e.g., Leave at doorstep',
+          hintStyle: TextStyle(
+            fontSize: 14.sp,
+            color: Colors.grey.shade400,
           ),
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(vertical: 8.h),
+          isDense: true,
         ),
-        SizedBox(height: 6.h),
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(8.r),
-            border: Border.all(color: primary.withValues(alpha: 0.3)),
-          ),
-          child: TextField(
-            onChanged: (value) {
-              setState(() {
-                remarks = value;
-              });
-            },
-            maxLines: 2,
-            decoration: InputDecoration(
-              hintText: 'e.g., Leave at doorstep',
-              hintStyle: TextStyle(
-                fontSize: 14.sp,
-                color: Colors.grey.shade400,
-              ),
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.zero,
-              isDense: true,
-            ),
-            style: TextStyle(fontSize: 14.sp, color: AllColors.buttonColor),
-          ),
-        ),
-      ],
+        style: TextStyle(fontSize: 14.sp, color: AllColors.buttonColor),
+      ),
     );
   }
 }

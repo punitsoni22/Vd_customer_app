@@ -12,6 +12,71 @@ class SubscriptionProvider extends ChangeNotifier {
   bool _subscriptionCreatedSuccessfully = false;
   bool get subscriptionCreatedSuccessfully => _subscriptionCreatedSuccessfully;
 
+  // Pincode Validation State
+  bool _isCheckingDelivery = false;
+  bool get isCheckingDelivery => _isCheckingDelivery;
+
+  bool _isDeliverable = false;
+  bool get isDeliverable => _isDeliverable;
+
+  String _deliveryMessage = '';
+  String get deliveryMessage => _deliveryMessage;
+
+  Future<void> checkDeliveryPincode(String pinCode) async {
+    _isCheckingDelivery = true;
+    _deliveryMessage = '';
+    notifyListeners();
+
+    try {
+      final response = await Api.post('checkDeliveryPincode', {
+        "data": {
+          "pinCode": [pinCode],
+        },
+      });
+
+      log("checkDeliveryPincode Response: $response");
+
+      bool isSuccess = false;
+      Map<String, dynamic>? data;
+
+      if (response['success'] == true) {
+        isSuccess = true;
+        data = response['data'];
+      } else if (response['dataResponse']?['returnCode'] == 0) {
+        isSuccess = true;
+        data = response['data'];
+      }
+
+      if (isSuccess && data != null) {
+        _isDeliverable = data['isDeliverable'] == true;
+        _deliveryMessage =
+            data['message'] ??
+            (_isDeliverable
+                ? "Delivery is available."
+                : "Delivery not available.");
+      } else {
+        _isDeliverable = false;
+        _deliveryMessage =
+            response['message'] ??
+            response['dataResponse']?['description'] ??
+            "Unable to verify delivery.";
+      }
+    } catch (e) {
+      log("checkDeliveryPincode error: $e");
+      _isDeliverable = false;
+      _deliveryMessage = "Error verifying delivery pincode.";
+    }
+
+    _isCheckingDelivery = false;
+    notifyListeners();
+  }
+
+  void resetDeliveryStatus() {
+    _isDeliverable = false;
+    _deliveryMessage = '';
+    notifyListeners();
+  }
+
   void clearSuccessFlag() {
     _subscriptionCreatedSuccessfully = false;
     notifyListeners();
@@ -21,7 +86,6 @@ class SubscriptionProvider extends ChangeNotifier {
     BuildContext context,
     Map<String, dynamic> payload,
   ) async {
-    // Check login before allowing subscription operations
     if (!AuthHelper.requireLogin(
       context,
       message: 'Please login to create subscription',
@@ -31,7 +95,6 @@ class SubscriptionProvider extends ChangeNotifier {
 
     try {
       final response = await Api.post('addEditSubscription', payload);
-      log("this res: $response");
       if (response["success"] == true) {
         _subscriptionCreatedSuccessfully = true;
         notifyListeners();
