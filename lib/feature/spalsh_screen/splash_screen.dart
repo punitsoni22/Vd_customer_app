@@ -53,7 +53,11 @@ class _SplashScreenState extends State<SplashScreen>
     _animationController.forward();
 
     // Check authentication and redirect
-    _checkAuthAndRedirect();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _checkAuthAndRedirect();
+      }
+    });
   }
 
   Future<void> _checkAuthAndRedirect() async {

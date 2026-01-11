@@ -72,11 +72,24 @@ class SubscriptionProduct {
       }
     }
 
+    // Fallback: check productImages map (similar to CartDetail)
+    if (imgUrl == null &&
+        json['productImages'] != null &&
+        json['productImages'] is Map) {
+      final productImages = json['productImages'] as Map<String, dynamic>;
+      imgUrl = productImages['imageUrl'] as String?;
+    }
+
+    // Fallback: check direct imageUrl
+    if (imgUrl == null && json['imageUrl'] != null) {
+      imgUrl = json['imageUrl'] as String?;
+    }
+
     return SubscriptionProduct(
-      productId: json['productId'],
+      productId: json['productId'] ?? 0,
       productName: json['productName'] ?? '',
-      quantity: json['quantity'],
-      imageUrl: imgUrl,
+      quantity: json['quantity'] ?? 0,
+      imageUrl: imgUrl?.trim(),
     );
   }
 }

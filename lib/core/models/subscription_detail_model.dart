@@ -139,6 +139,19 @@ class SubscriptionProductDetail {
       }
     }
 
+    // Fallback: check productImages map
+    if (imageUrl == null &&
+        json['productImages'] != null &&
+        json['productImages'] is Map) {
+      final productImages = json['productImages'] as Map<String, dynamic>;
+      imageUrl = productImages['imageUrl'] as String?;
+    }
+
+    // Fallback: direct imageUrl
+    if (imageUrl == null && json['imageUrl'] != null) {
+      imageUrl = json['imageUrl'] as String?;
+    }
+
     return SubscriptionProductDetail(
       productId: json['productId'] ?? 0,
       variantId: selectedVariant['id'] ?? 0,
