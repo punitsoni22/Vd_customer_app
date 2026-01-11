@@ -73,6 +73,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         }
       },
       child: Scaffold(
+        backgroundColor: Colors.grey[50],
         appBar: CommonAppBar(
           title: 'Checkout',
           showBack: true,
@@ -89,8 +90,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             children: [
               Container(
                 width: double.infinity,
-                padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
-                color: Colors.white,
+                padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 20.w),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.03),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
                 child: Column(
                   children: [
                     Row(
@@ -100,34 +110,55 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           "Step ${checkoutProvider.currentStep} of 2",
                           style: TextStyle(
                             fontSize: 14.sp,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                             color: AllColors.iconColor,
                           ),
                         ),
-                        Text(
-                          checkoutProvider.currentStep == 1
-                              ? "Address Selection"
-                              : "Payment & Review",
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            color: Colors.grey[600],
+                        SizedBox(width: 8.w),
+                        Flexible(
+                          child: Text(
+                            checkoutProvider.currentStep == 1
+                                ? "Address Selection"
+                                : "Payment & Review",
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.grey[600],
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 8.h),
-                    LinearProgressIndicator(
-                      value: checkoutProvider.currentStep / 2,
-                      backgroundColor: Colors.grey[200],
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        AllColors.iconColor,
-                      ),
-                      borderRadius: BorderRadius.circular(4.r),
+                    SizedBox(height: 12.h),
+                    Stack(
+                      children: [
+                        Container(
+                          height: 6.h,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(3.r),
+                          ),
+                        ),
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                          height: 6.h,
+                          width:
+                              MediaQuery.of(context).size.width *
+                              (checkoutProvider.currentStep / 2),
+                          decoration: BoxDecoration(
+                            color: AllColors.iconColor,
+                            borderRadius: BorderRadius.circular(3.r),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-              const Divider(height: 1),
               Expanded(
                 child: checkoutProvider.currentStep == 1
                     ? _buildStep1(checkoutProvider)
@@ -226,31 +257,55 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
         return InkWell(
           onTap: () => provider.selectAddress(address),
-          borderRadius: BorderRadius.circular(12.r),
-          child: Container(
-            padding: EdgeInsets.all(12.r),
+          borderRadius: BorderRadius.circular(16.r),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            padding: EdgeInsets.all(16.r),
             decoration: BoxDecoration(
               color: isSelected
                   ? AllColors.iconColor.withValues(alpha: 0.05)
                   : Colors.white,
-              borderRadius: BorderRadius.circular(12.r),
+              borderRadius: BorderRadius.circular(16.r),
               border: Border.all(
-                color: isSelected
-                    ? AllColors.iconColor
-                    : AllColors.textfieldborderColor,
-                width: isSelected ? 2 : 1,
+                color: isSelected ? AllColors.iconColor : Colors.grey.shade200,
+                width: isSelected ? 1.5 : 1,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(
+                    alpha: isSelected ? 0.05 : 0.02,
+                  ),
+                  blurRadius: isSelected ? 12 : 4,
+                  offset: const Offset(0, 4),
+                ),
+              ],
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Radio<int>(
-                  value: address.id,
-                  groupValue: provider.selectedAddress?.id,
-                  activeColor: AllColors.iconColor,
-                  onChanged: (val) => provider.selectAddress(address),
+                Container(
+                  padding: EdgeInsets.all(2.r),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: isSelected
+                          ? AllColors.iconColor
+                          : Colors.grey.shade400,
+                      width: 2,
+                    ),
+                  ),
+                  child: Container(
+                    width: 10.w,
+                    height: 10.w,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isSelected
+                          ? AllColors.iconColor
+                          : Colors.transparent,
+                    ),
+                  ),
                 ),
-                SizedBox(width: 8.w),
+                SizedBox(width: 12.w),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -261,7 +316,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             "Address",
                             style: TextStyle(
                               fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
+                              fontWeight: FontWeight.w700,
                               color: Colors.black87,
                             ),
                           ),
@@ -269,34 +324,40 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             SizedBox(width: 8.w),
                             Container(
                               padding: EdgeInsets.symmetric(
-                                horizontal: 6.w,
+                                horizontal: 8.w,
                                 vertical: 2.h,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.green.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(4.r),
+                                color: Colors.green.shade50,
+                                borderRadius: BorderRadius.circular(6.r),
+                                border: Border.all(
+                                  color: Colors.green.shade200,
+                                  width: 0.5,
+                                ),
                               ),
                               child: Text(
                                 "Default",
                                 style: TextStyle(
                                   fontSize: 10.sp,
-                                  color: Colors.green,
-                                  fontWeight: FontWeight.w500,
+                                  color: Colors.green.shade700,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
                           ],
                         ],
                       ),
-                      SizedBox(height: 4.h),
+                      SizedBox(height: 8.h),
                       Text(
                         address.fullAddress,
                         style: TextStyle(
                           fontSize: 13.sp,
                           color: Colors.grey[800],
+                          height: 1.4,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                      SizedBox(height: 2.h),
+                      SizedBox(height: 4.h),
                       Text(
                         "${address.city}, ${address.state} - ${address.postalCode}",
                         style: TextStyle(
@@ -321,14 +382,12 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     CartProvider cartProvider,
   ) {
     final discount = checkoutProvider.couponDiscount;
-    final deliveryCharge = 0.0;
-    final estimatedTax = 0.0;
     final subtotal = cartProvider.subtotal;
-    final totalAmount = subtotal - discount + deliveryCharge - estimatedTax;
+    final totalAmount = subtotal - discount;
     final selectedAddress = checkoutProvider.selectedAddress;
 
     return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -336,87 +395,132 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             Container(
               padding: EdgeInsets.all(12.r),
               decoration: BoxDecoration(
-                color: Colors.grey[50],
-                borderRadius: BorderRadius.circular(8.r),
-                border: Border.all(color: Colors.grey[300]!),
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16.r),
+                border: Border.all(color: Colors.grey.shade200),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              child: Row(
+              child: Column(
                 children: [
-                  Icon(
-                    Icons.location_on,
-                    color: AllColors.iconColor,
-                    size: 20.sp,
-                  ),
-                  SizedBox(width: 12.w),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Delivering to:",
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color: Colors.grey[600],
-                          ),
+                  Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(8.r),
+                        decoration: BoxDecoration(
+                          color: AllColors.iconColor.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
                         ),
-                        Text(
-                          selectedAddress.fullAddress,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 13.sp,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        child: Icon(
+                          Icons.location_on_rounded,
+                          color: AllColors.iconColor,
+                          size: 20.sp,
                         ),
-                        Text(
-                          "${selectedAddress.city}, ${selectedAddress.postalCode}",
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () => checkoutProvider.setStep(1),
-                    child: Text(
-                      "Change",
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        color: AllColors.iconColor,
                       ),
-                    ),
+                      SizedBox(width: 12.w),
+                      Text(
+                        "Delivering to",
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const Spacer(),
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () => checkoutProvider.setStep(1),
+                          borderRadius: BorderRadius.circular(8.r),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 8.w,
+                              vertical: 4.h,
+                            ),
+                            child: Text(
+                              "Change",
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                color: AllColors.iconColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 6.h),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 44.w,
+                      ), // Align with text above (icon + padding + spacing)
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              selectedAddress.fullAddress,
+                              style: TextStyle(
+                                fontSize: 13.sp,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey[800],
+                                height: 1.4,
+                              ),
+                            ),
+                            SizedBox(height: 4.h),
+                            Text(
+                              "${selectedAddress.city}, ${selectedAddress.postalCode}",
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-            SizedBox(height: 16.h),
+            SizedBox(height: 24.h),
           ],
 
           Text(
             "Payment Options",
-            style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+            ),
           ),
-          SizedBox(height: 6.h),
+          SizedBox(height: 12.h),
           Column(
             children: [
               PaymentOptionCard(
-                icon: Icons.qr_code,
+                icon: Icons.qr_code_scanner_rounded,
                 title: "UPI",
                 badge: "Instant",
                 selected: _selectedPaymentIndex == 0,
                 onTap: () => setState(() => _selectedPaymentIndex = 0),
               ),
               PaymentOptionCard(
-                icon: Icons.local_shipping,
+                icon: Icons.local_shipping_outlined,
                 title: "Cash on Delivery",
                 badge: "Easy",
                 selected: _selectedPaymentIndex == 1,
                 onTap: () => setState(() => _selectedPaymentIndex = 1),
               ),
               PaymentOptionCard(
-                icon: Icons.qr_code,
+                icon: Icons.qr_code_2_rounded,
                 title: "QR Code",
                 badge: "Scan",
                 selected: _selectedPaymentIndex == 2,
@@ -425,12 +529,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             ],
           ),
 
-          SizedBox(height: 12.h),
+          SizedBox(height: 24.h),
           Text(
             "Offers & Coupons",
-            style: TextStyle(fontSize: 15.sp, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+            ),
           ),
-          SizedBox(height: 6.h),
+          SizedBox(height: 12.h),
           Row(
             children: [
               GestureDetector(
@@ -438,6 +546,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   final result = await showModalBottomSheet<String>(
                     context: context,
                     isScrollControlled: true,
+                    backgroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.vertical(
                         top: Radius.circular(20.r),
@@ -462,25 +571,25 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                SizedBox(height: 10.h),
+                                SizedBox(height: 12.h),
                                 Container(
-                                  width: 50.w,
-                                  height: 5.h,
+                                  width: 40.w,
+                                  height: 4.h,
                                   decoration: BoxDecoration(
                                     color: Colors.grey[300],
                                     borderRadius: BorderRadius.circular(10.r),
                                   ),
                                 ),
-                                SizedBox(height: 15.h),
+                                SizedBox(height: 16.h),
                                 Text(
                                   "Available Coupons",
                                   style: TextStyle(
                                     fontSize: 18.sp,
-                                    fontWeight: FontWeight.bold,
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
-                                SizedBox(height: 10.h),
-                                const Divider(),
+                                SizedBox(height: 16.h),
+                                const Divider(height: 1),
                                 if (snapshot.connectionState ==
                                     ConnectionState.waiting)
                                   const Expanded(
@@ -497,15 +606,16 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                         children: [
                                           Icon(
                                             Icons.local_offer_outlined,
-                                            size: 64,
-                                            color: Colors.grey[400],
+                                            size: 64.sp,
+                                            color: Colors.grey[300],
                                           ),
                                           SizedBox(height: 16.h),
                                           Text(
                                             "No coupons available",
                                             style: TextStyle(
                                               fontSize: 16.sp,
-                                              color: Colors.grey[600],
+                                              color: Colors.grey[500],
+                                              fontWeight: FontWeight.w500,
                                             ),
                                           ),
                                         ],
@@ -516,9 +626,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                   Flexible(
                                     child: ListView.separated(
                                       shrinkWrap: true,
-                                      padding: EdgeInsets.symmetric(
-                                        horizontal: 16.w,
-                                      ),
+                                      padding: EdgeInsets.all(12.r),
                                       itemCount: coupons.length,
                                       separatorBuilder: (_, __) =>
                                           SizedBox(height: 12.h),
@@ -526,22 +634,42 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                         final coupon = coupons[index];
                                         return Container(
                                           decoration: BoxDecoration(
+                                            color: Colors.white,
                                             border: Border.all(
-                                              color: Colors.grey[300]!,
+                                              color: Colors.grey.shade200,
                                             ),
                                             borderRadius: BorderRadius.circular(
-                                              8.r,
+                                              12.r,
                                             ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black.withValues(
+                                                  alpha: 0.02,
+                                                ),
+                                                blurRadius: 8,
+                                                offset: const Offset(0, 2),
+                                              ),
+                                            ],
                                           ),
                                           child: ListTile(
+                                            leading: Container(
+                                              padding: EdgeInsets.all(8.r),
+                                              decoration: BoxDecoration(
+                                                color: Colors.orange.shade50,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Icon(
+                                                Icons.confirmation_num_outlined,
+                                                color: Colors.orange,
+                                                size: 20.sp,
+                                              ),
+                                            ),
                                             title: Text(
                                               coupon['couponCode'] ?? '',
                                               style: TextStyle(
                                                 fontWeight: FontWeight.bold,
+                                                fontSize: 14.sp,
                                               ),
-                                            ),
-                                            subtitle: Text(
-                                              coupon['description'] ?? '',
                                             ),
                                             trailing: TextButton(
                                               onPressed: () {
@@ -550,7 +678,13 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                                   coupon['couponCode'],
                                                 );
                                               },
-                                              child: const Text("APPLY"),
+                                              child: Text(
+                                                "APPLY",
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  color: AllColors.iconColor,
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         );
@@ -571,13 +705,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   }
                 },
                 child: Container(
-                  padding: EdgeInsets.all(6.w),
+                  padding: EdgeInsets.all(12.r),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12.r),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
                   child: Icon(
                     Icons.local_offer_outlined,
-                    color: Colors.grey[700],
+                    color: AllColors.iconColor,
+                    size: 24.sp,
                   ),
                 ),
               ),
+              SizedBox(width: 12.w),
               Expanded(
                 flex: 3,
                 child: CommonTextField(
@@ -595,7 +736,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
                     return CommonButton(
                       padding: EdgeInsets.symmetric(
-                        vertical: 8.h,
+                        vertical: 12.h,
                         horizontal: 10.w,
                       ),
                       buttonValue: isApplied ? 'Applied' : 'Apply',
@@ -640,17 +781,17 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               ),
             ],
           ),
-          SizedBox(height: 12.h),
+          SizedBox(height: 24.h),
           Container(
-            padding: EdgeInsets.all(10.r),
+            padding: EdgeInsets.all(12.r),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(12.r),
-              border: Border.all(color: AllColors.textfieldborderColor),
+              borderRadius: BorderRadius.circular(16.r),
+              border: Border.all(color: Colors.grey.shade200),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.03),
-                  blurRadius: 8,
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
               ],
@@ -661,44 +802,46 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 Text(
                   'Order Summary',
                   style: TextStyle(
-                    fontSize: 15.sp,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-                SizedBox(height: 4.h),
-                Summary(
-                  label: "Subtotal",
-                  value: "₹${subtotal.toStringAsFixed(2)}",
+                SizedBox(height: 10.h),
+                Container(
+                  padding: EdgeInsets.all(12.r),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Column(
+                    children: [
+                      Summary(
+                        label: "Subtotal",
+                        value: "₹${subtotal.toStringAsFixed(2)}",
+                      ),
+                      SizedBox(height: 8.h),
+                      Summary(
+                        label: "Discount",
+                        value: "-₹${discount.toStringAsFixed(2)}",
+                        color: Colors.green,
+                      ),
+                    ],
+                  ),
                 ),
-                Summary(
-                  label: "Discount",
-                  value: "-₹${discount.toStringAsFixed(2)}",
-                  color: Colors.red,
-                ),
-                Summary(
-                  label: "Delivery Charge",
-                  value: deliveryCharge == 0
-                      ? "Free"
-                      : "₹${deliveryCharge.toStringAsFixed(2)}",
-                  color: deliveryCharge == 0
-                      ? Colors.green
-                      : const Color.fromARGB(255, 237, 98, 98),
-                ),
-                Summary(
-                  label: "Estimated Tax",
-                  value: "-₹${estimatedTax.toStringAsFixed(2)}",
-                ),
+                SizedBox(height: 16.h),
                 const Divider(),
+                SizedBox(height: 8.h),
                 Summary(
                   label: "Total Amount",
                   value: "₹${totalAmount.toStringAsFixed(2)}",
                   isBold: true,
                   color: AllColors.iconColor,
+                  fontSize: 18.sp,
                 ),
               ],
             ),
           ),
-          SizedBox(height: 80.h),
+          SizedBox(height: 40.h),
         ],
       ),
     );
@@ -717,43 +860,54 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.fromLTRB(16.w, 8.h, 16.w, 10.h),
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
       decoration: BoxDecoration(
         color: Colors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24.r)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 12,
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 16,
             offset: const Offset(0, -4),
           ),
         ],
       ),
       child: Row(
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Payable Amount",
-                style: TextStyle(fontSize: 11.sp, color: Colors.grey[600]),
-              ),
-              SizedBox(height: 2.h),
-              Text(
-                "₹${totalAmount.toStringAsFixed(2)}",
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w700,
-                  color: AllColors.iconColor,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "Payable Amount",
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: Colors.grey[600],
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-            ],
+                SizedBox(height: 4.h),
+                Text(
+                  "₹${totalAmount.toStringAsFixed(2)}",
+                  style: TextStyle(
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w700,
+                    color: AllColors.iconColor,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
-          const Spacer(),
+          SizedBox(width: 16.w),
           SizedBox(
-            width: 160.w,
+            width: 180.w,
             child: CommonButton(
+              padding: EdgeInsets.symmetric(vertical: 14.h),
               buttonValue: checkoutProvider.currentStep == 1
-                  ? 'Next'
+                  ? 'Proceed to Pay'
                   : 'Confirm Order',
               backgroundColor: AllColors.iconColor,
               isLoading:

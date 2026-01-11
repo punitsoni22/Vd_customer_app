@@ -134,7 +134,6 @@ class InfoIconButton extends StatelessWidget {
     final timesUsed = coupon['timesUsed'] ?? 0;
     final expiryDate = coupon['expiryDate'] ?? '';
 
-    // Calculate discount amount
     double discountAmount = 0.0;
     String discountText = '';
 
@@ -147,26 +146,27 @@ class InfoIconButton extends StatelessWidget {
       discountText = '₹$couponValue OFF';
     }
 
-    // Ensure discount doesn't exceed subtotal
     if (discountAmount > subtotal) {
       discountAmount = subtotal;
     }
 
     return Container(
-      padding: EdgeInsets.all(16.r),
+      padding: EdgeInsets.all(12.r),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AllColors.iconColor.withOpacity(0.1), Colors.white],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: AllColors.iconColor.withOpacity(0.3)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: AllColors.iconColor.withValues(alpha: 0.3)),
+        boxShadow: [
+          BoxShadow(
+            color: AllColors.iconColor.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header with discount and copy button
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -180,21 +180,24 @@ class InfoIconButton extends StatelessWidget {
                   discountText,
                   style: TextStyle(
                     color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
                     fontSize: 14.sp,
                   ),
                 ),
               ),
-              IconButton(
-                onPressed: () {
+              InkWell(
+                onTap: () {
                   Clipboard.setData(ClipboardData(text: couponCode));
                   MySnackBar.showSnackBar(
                     context,
                     "Coupon code copied to clipboard",
                   );
                 },
-                icon: Icon(Icons.copy, color: AllColors.iconColor, size: 20.sp),
-                visualDensity: VisualDensity.compact,
+                borderRadius: BorderRadius.circular(20.r),
+                child: Padding(
+                  padding: EdgeInsets.all(8.r),
+                  child: Icon(Icons.copy, color: AllColors.iconColor, size: 20.sp),
+                ),
               ),
             ],
           ),

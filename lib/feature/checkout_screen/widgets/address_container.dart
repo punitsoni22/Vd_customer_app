@@ -22,31 +22,42 @@ class AddressContainer extends StatelessWidget {
     if (selectedAddress == null) {
       return Container(
         margin: EdgeInsets.all(8.r),
-        padding: EdgeInsets.all(12.r),
+        padding: EdgeInsets.all(16.r),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12.r),
-          border: Border.all(color: AllColors.textfieldborderColor),
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(color: Colors.grey.shade200),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 8,
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
               offset: const Offset(0, 4),
             ),
           ],
         ),
         child: Row(
           children: [
-            Icon(
-              Icons.location_on_outlined,
-              color: AllColors.iconColor,
-              size: 24.sp,
+            Container(
+              padding: EdgeInsets.all(8.r),
+              decoration: BoxDecoration(
+                color: AllColors.iconColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.location_on_outlined,
+                color: AllColors.iconColor,
+                size: 20.sp,
+              ),
             ),
             SizedBox(width: 12.w),
             Expanded(
               child: Text(
                 "No address found. Please add a delivery address to continue.",
-                style: TextStyle(fontSize: 13.sp, color: Colors.grey[700]),
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  color: Colors.grey[700],
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
             SizedBox(width: 8.w),
@@ -81,15 +92,15 @@ class AddressContainer extends StatelessWidget {
 
     // MAIN CARD
     return Container(
-      padding: EdgeInsets.all(8.r),
+      padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: AllColors.textfieldborderColor),
+        borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 8,
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
@@ -101,12 +112,19 @@ class AddressContainer extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                Icons.location_on_outlined,
-                color: AllColors.iconColor,
-                size: 22.sp,
+              Container(
+                padding: EdgeInsets.all(8.r),
+                decoration: BoxDecoration(
+                  color: AllColors.iconColor.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.location_on_rounded,
+                  color: AllColors.iconColor,
+                  size: 20.sp,
+                ),
               ),
-              SizedBox(width: 8.w),
+              SizedBox(width: 12.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,33 +135,41 @@ class AddressContainer extends StatelessWidget {
                         Text(
                           'Deliver to',
                           style: TextStyle(
-                            color: Colors.black,
+                            color: Colors.black87,
                             fontSize: 14.sp,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         SizedBox(width: 8.w),
                         if (selectedAddress!.isDefault)
                           Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 8.w,
+                              vertical: 2.h,
+                            ),
                             decoration: BoxDecoration(
-                              color: Colors.green.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(12.r),
+                              color: Colors.green.shade50,
+                              borderRadius: BorderRadius.circular(6.r),
+                              border: Border.all(
+                                color: Colors.green.shade200,
+                                width: 0.5,
+                              ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(
-                                  Icons.check_circle,
-                                  size: 14.sp,
+                                  Icons.check_circle_rounded,
+                                  size: 12.sp,
                                   color: Colors.green,
                                 ),
                                 SizedBox(width: 4.w),
                                 Text(
                                   'Default',
                                   style: TextStyle(
-                                    fontSize: 11.sp,
-                                    color: Colors.green[800],
-                                    fontWeight: FontWeight.w500,
+                                    fontSize: 10.sp,
+                                    color: Colors.green.shade700,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
                               ],
@@ -152,15 +178,16 @@ class AddressContainer extends StatelessWidget {
                       ],
                     ),
 
-                    SizedBox(height: 6.h),
+                    SizedBox(height: 8.h),
 
                     // Full address text
                     Text(
                       selectedAddress!.fullAddress,
                       style: TextStyle(
                         fontSize: 13.sp,
-                        color: Colors.black,
-                        height: 1.3,
+                        color: Colors.grey[800],
+                        height: 1.4,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                     SizedBox(height: 4.h),
@@ -168,16 +195,16 @@ class AddressContainer extends StatelessWidget {
                       '${selectedAddress!.city}, ${selectedAddress!.state}, ${selectedAddress!.country}',
                       style: TextStyle(
                         fontSize: 12.sp,
-                        color: const Color.fromARGB(255, 106, 106, 106),
+                        color: Colors.grey[600],
                       ),
-                      maxLines: 3,
+                      maxLines: 2,
                     ),
                     SizedBox(height: 2.h),
                     Text(
                       'Postal code: ${selectedAddress!.postalCode}',
                       style: TextStyle(
                         fontSize: 12.sp,
-                        color: const Color.fromARGB(255, 106, 106, 106),
+                        color: Colors.grey[600],
                       ),
                     ),
                   ],
@@ -186,109 +213,91 @@ class AddressContainer extends StatelessWidget {
 
               SizedBox(width: 8.w),
 
-              // Add / Change actions
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  // Add button (same as before)
-                  GestureDetector(
-                    onTap: () async {
-                      final added = await showModalBottomSheet<bool>(
-                        context: context,
-                        isScrollControlled: true,
-                        builder: (_) => const AddressBottomSheet(),
-                      );
-                      if (added == true) {
-                        Provider.of<subscription.SubscriptionProvider>(
-                          context,
-                          listen: false,
-                        ).getAllAddresses(context);
-
-                        Provider.of<CheckoutProvider>(
-                          context,
-                          listen: false,
-                        ).fetchAddresses();
-                      }
-                    },
-                    child: Container(
-                      width: 34.w,
-                      height: 34.h,
-                      decoration: BoxDecoration(
-                        color: AllColors.buttonColor,
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                      child: Icon(Icons.add, size: 18.sp, color: Colors.white),
-                    ),
-                  ),
-                  SizedBox(height: 6.h),
-
-                  // 🔹 Change button – now clearly a button
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      showModalBottomSheet(
-                        context: context,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(20.r),
-                          ),
+              // Change button
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      backgroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(20.r),
                         ),
-                        builder: (context) {
-                          final addresses = checkoutProvider.addresses;
-
-                          if (addresses.isEmpty) {
-                            return Padding(
-                              padding: EdgeInsets.all(20.r),
-                              child: const Center(
-                                child: Text("No addresses available"),
+                      ),
+                      builder: (context) {
+                        final addresses = checkoutProvider.addresses;
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(height: 12.h),
+                            Container(
+                              width: 40.w,
+                              height: 4.h,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(10.r),
                               ),
-                            );
-                          }
-
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SizedBox(height: 10.h),
-                              Container(
-                                width: 50.w,
-                                height: 5.h,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[300],
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              SizedBox(height: 10.h),
-                              Text(
+                            ),
+                            Padding(
+                              padding: EdgeInsets.symmetric(vertical: 16.h),
+                              child: Text(
                                 "Select Address",
                                 style: TextStyle(
-                                  fontSize: 18.sp,
-                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
-                              const Divider(),
+                            ),
+                            const Divider(height: 1),
+                            if (addresses.isEmpty)
+                              Padding(
+                                padding: EdgeInsets.all(32.r),
+                                child: Text(
+                                  "No addresses available",
+                                  style: TextStyle(color: Colors.grey[600]),
+                                ),
+                              )
+                            else
                               Flexible(
                                 child: ListView.separated(
                                   shrinkWrap: true,
                                   itemCount: addresses.length,
-                                  separatorBuilder: (_, __) => const Divider(),
+                                  separatorBuilder:
+                                      (_, __) => const Divider(height: 1),
                                   itemBuilder: (context, index) {
                                     final addr = addresses[index];
+                                    final isSelected =
+                                        selectedAddress?.id == addr.id;
                                     return ListTile(
+                                      contentPadding: EdgeInsets.symmetric(
+                                        horizontal: 20.w,
+                                        vertical: 8.h,
+                                      ),
                                       leading: Icon(
                                         Icons.location_on_outlined,
-                                        color: AllColors.iconColor,
+                                        color: isSelected
+                                            ? AllColors.iconColor
+                                            : Colors.grey[600],
                                       ),
                                       title: Text(
                                         addr.fullAddress,
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontWeight: isSelected
+                                              ? FontWeight.w600
+                                              : FontWeight.normal,
+                                        ),
                                       ),
                                       subtitle: Text(
                                         '${addr.city}, ${addr.state}',
                                       ),
-                                      trailing: addr.isDefault
-                                          ? const Icon(
-                                              Icons.check,
-                                              color: Colors.green,
+                                      trailing: isSelected
+                                          ? Icon(
+                                              Icons.check_circle,
+                                              color: AllColors.iconColor,
                                             )
                                           : null,
                                       onTap: () {
@@ -299,36 +308,31 @@ class AddressContainer extends StatelessWidget {
                                   },
                                 ),
                               ),
-                              SizedBox(height: 10.h),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                    icon: Icon(
-                      Icons.edit_location_alt_outlined,
-                      size: 14.sp,
-                      color: AllColors.iconColor,
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(8.r),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 12.w,
+                      vertical: 6.h,
                     ),
-                    label: Text(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AllColors.iconColor),
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Text(
                       'Change',
                       style: TextStyle(
                         fontSize: 12.sp,
                         color: AllColors.iconColor,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: AllColors.iconColor, width: 1),
-                      minimumSize: Size(80.w, 32.h),
-                      padding: EdgeInsets.symmetric(horizontal: 8.w),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20.r),
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
-                ],
+                ),
               ),
             ],
           ),

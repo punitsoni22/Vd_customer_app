@@ -5,12 +5,15 @@ class Summary extends StatelessWidget {
   final String value;
   final bool isBold;
   final Color? color;
+  final double? fontSize;
+
   const Summary({
     super.key,
     required this.label,
     required this.value,
     this.isBold = false,
     this.color,
+    this.fontSize,
   });
 
   @override
@@ -23,7 +26,7 @@ class Summary extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: fontSize ?? 14,
               fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
             ),
           ),
@@ -31,7 +34,7 @@ class Summary extends StatelessWidget {
             value,
             style: TextStyle(
               color: color,
-              fontSize: 14,
+              fontSize: fontSize ?? 14,
               fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
             ),
           ),

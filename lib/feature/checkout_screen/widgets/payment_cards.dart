@@ -24,80 +24,86 @@ class PaymentOptionCard extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12.r),
+      borderRadius: BorderRadius.circular(16.r),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOut,
-        margin: EdgeInsets.only(bottom: 10.h),
-        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeInOut,
+        margin: EdgeInsets.only(bottom: 12.h),
+        padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12.r),
+          color: selected ? primary.withValues(alpha: 0.04) : Colors.white,
+          borderRadius: BorderRadius.circular(16.r),
           border: Border.all(
-            color: selected ? primary : Colors.grey.shade300,
-            width: selected ? 1.4 : 1,
+            color: selected ? primary : Colors.grey.shade200,
+            width: selected ? 1.5 : 1,
           ),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ]
-              : [],
+
         ),
         child: Row(
           children: [
             Container(
-              width: 32.w,
-              height: 32.w,
+              width: 44.w,
+              height: 44.w,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: selected
-                    ? primary.withValues(alpha: 0.15)
-                    : Colors.grey.shade100,
+                color: selected ? Colors.white : Colors.grey.shade50,
+                border: Border.all(
+                  color: selected ? primary.withValues(alpha: 0.2) : Colors.transparent,
+                ),
               ),
               child: Icon(
                 icon,
-                size: 18.sp,
-                color: selected ? primary : Colors.grey[800],
+                size: 22.sp,
+                color: selected ? primary : Colors.grey[600],
               ),
             ),
 
-            SizedBox(width: 12.w),
+            SizedBox(width: 16.w),
             Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
-                  color: selected ? Colors.black : Colors.black87,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                      color: selected ? Colors.black : Colors.black87,
+                    ),
+                  ),
+                ],
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
+            
+            if (selected)
+              Container(
+                padding: EdgeInsets.all(4.r),
+                decoration: BoxDecoration(
+                  color: primary,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.check,
+                  size: 14.sp,
+                  color: Colors.white,
+                ),
+              )
+            else if (badge.isNotEmpty)
+               Container(
                   padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                   decoration: BoxDecoration(
-                    color: selected
-                        ? AllColors.badgeSelectedColor
-                        : AllColors.badgeUnselectedColor,
-                    borderRadius: BorderRadius.circular(12.r),
+                    color: AllColors.badgeUnselectedColor,
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Text(
                     badge,
                     style: TextStyle(
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.w500,
-                      color: selected ? primary : Colors.black54,
+                      fontSize: 10.sp,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[700],
                     ),
                   ),
                 ),
-              ],
-            ),
           ],
         ),
       ),

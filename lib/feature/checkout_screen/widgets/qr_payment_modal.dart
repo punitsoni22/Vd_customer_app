@@ -134,7 +134,7 @@ class _QRPaymentModalState extends State<QRPaymentModal> {
             borderRadius: BorderRadius.circular(20.r),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 20,
                 offset: const Offset(0, 10),
               ),
@@ -148,17 +148,24 @@ class _QRPaymentModalState extends State<QRPaymentModal> {
                 // Header
                 Row(
                   children: [
-                    Icon(
-                      Icons.qr_code_scanner,
-                      color: AllColors.iconColor,
-                      size: 28.sp,
+                    Container(
+                      padding: EdgeInsets.all(8.r),
+                      decoration: BoxDecoration(
+                        color: AllColors.iconColor.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.qr_code_scanner,
+                        color: AllColors.iconColor,
+                        size: 24.sp,
+                      ),
                     ),
-                    SizedBox(width: 8.w),
+                    SizedBox(width: 12.w),
                     Expanded(
                       child: Text(
                         'Scan to Pay',
                         style: TextStyle(
-                          fontSize: 20.sp,
+                          fontSize: 18.sp,
                           fontWeight: FontWeight.bold,
                           color: Colors.black87,
                         ),
@@ -172,6 +179,10 @@ class _QRPaymentModalState extends State<QRPaymentModal> {
                       },
                       icon: const Icon(Icons.close),
                       color: Colors.grey[600],
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.grey[100],
+                        padding: EdgeInsets.all(8.r),
+                      ),
                     ),
                   ],
                 ),
