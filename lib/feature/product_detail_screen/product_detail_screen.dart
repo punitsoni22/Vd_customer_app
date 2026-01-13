@@ -51,6 +51,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     });
   }
 
+  final TextEditingController _pincodeController = TextEditingController();
+
+  @override
+  void dispose() {
+    _pincodeController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ProductDetailProvider>();
@@ -239,34 +247,39 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         if (product.variants.isNotEmpty)
-                          CommonPriceDisplay(
-                            price: (double.tryParse(selectedVariant?.price ??
-                                        product.variants.first.price) ??
-                                    0)
-                                .toInt()
-                                .toString(),
-                            originalPrice: (selectedVariant ??
-                                            product.variants.first)
-                                        .originalPrice !=
-                                    null
-                                ? (double.tryParse((selectedVariant ??
-                                                product.variants.first)
-                                            .originalPrice!) ??
-                                        0)
-                                    .toInt()
-                                    .toString()
-                                : null,
-                            priceStyle: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w700,
-                              color: AllColors.buttonColor,
-                            ),
-                            originalPriceStyle: TextStyle(
-                              fontSize: 14.sp,
-                              decoration: TextDecoration.lineThrough,
-                              color: Colors.grey,
-                            ),
-                          )
+                          Builder(builder: (context) {
+                            final variant =
+                                selectedVariant ?? product.variants.first;
+                            final price = double.tryParse(variant.price) ?? 0;
+                            final originalPriceVal =
+                                double.tryParse(variant.originalPrice ?? '0') ??
+                                    0;
+
+                            final showOriginalPrice = originalPriceVal > 0 &&
+                                variant.originalPrice != null &&
+                                variant.originalPrice!.isNotEmpty;
+
+                            return CommonPriceDisplay(
+                              price: price % 1 == 0
+                                  ? price.toInt().toString()
+                                  : price.toString(),
+                              originalPrice: showOriginalPrice
+                                  ? (originalPriceVal % 1 == 0
+                                      ? originalPriceVal.toInt().toString()
+                                      : originalPriceVal.toString())
+                                  : null,
+                              priceStyle: TextStyle(
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.w700,
+                                color: AllColors.buttonColor,
+                              ),
+                              originalPriceStyle: TextStyle(
+                                fontSize: 14.sp,
+                                decoration: TextDecoration.lineThrough,
+                                color: Colors.grey,
+                              ),
+                            );
+                          })
                         else
                           Text(
                             'N/A',
@@ -366,11 +379,147 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ],
                     ),
                     SizedBox(height: 22.h),
+                    
+                    // Pincode Check Section
+                    Text(
+                      'Check Delivery',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        color: AllColors.iconColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(height: 8.h),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Container(
+                            height: 48.h,
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12.r),
+                              border: Border.all(color: Colors.grey.shade300),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.location_on_outlined,
+                                  color: AllColors.iconColor,
+                                  size: 20.sp,
+                                ),
+                                SizedBox(width: 8.w),
+                                Expanded(
+                                  child: TextField(
+                                    controller: _pincodeController,
+                                    keyboardType: TextInputType.number,
+                                    maxLength: 6,
+                                    decoration: InputDecoration(
+                                      hintText: 'Enter Pincode',
+                                      hintStyle: TextStyle(
+                                        color: Colors.grey.shade400,
+                                        fontSize: 14.sp,
+                                      ),
+                                      border: InputBorder.none,
+                                      counterText: '',
+                                      contentPadding: EdgeInsets.zero,
+                                    ),
+                                    style: TextStyle(
+                                      fontSize: 14.sp,
+                                      color: Colors.black87,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    onChanged: (value) {
+                                      if (value.length != 6) {
+                                        provider.clearDeliveryStatus();
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 12.w),
+                        CommonButton(
+                          buttonValue: 'Check',
+                          isLoading: provider.isCheckingDelivery,
+                          backgroundColor: AllColors.buttonColor,
+                          selfconstraints: BoxConstraints(
+                            minWidth: 80.w,
+                            minHeight: 48.h,
+                          ),
+                          onTap: () {
+                            if (_pincodeController.text.length != 6) {
+                              MySnackBar.showSnackBar(
+                                context,
+                                'Please enter a valid 6-digit pincode',
+                              );
+                              return;
+                            }
+                            FocusScope.of(context).unfocus();
+                            provider.checkDeliveryPincode(
+                              _pincodeController.text,
+                              product.id,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                    if (provider.isDeliverable != null) ...[
+                      SizedBox(height: 8.h),
+                      Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 12.w,
+                          vertical: 8.h,
+                        ),
+                        decoration: BoxDecoration(
+                          color: provider.isDeliverable!
+                              ? Colors.green.shade50
+                              : Colors.red.shade50,
+                          borderRadius: BorderRadius.circular(8.r),
+                          border: Border.all(
+                            color: provider.isDeliverable!
+                                ? Colors.green.shade200
+                                : Colors.red.shade200,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              provider.isDeliverable!
+                                  ? Icons.check_circle_outline
+                                  : Icons.error_outline,
+                              color: provider.isDeliverable!
+                                  ? Colors.green.shade700
+                                  : Colors.red.shade700,
+                              size: 18.sp,
+                            ),
+                            SizedBox(width: 8.w),
+                            Expanded(
+                              child: Text(
+                                provider.deliveryMessage ?? '',
+                                style: TextStyle(
+                                  fontSize: 13.sp,
+                                  color: provider.isDeliverable!
+                                      ? Colors.green.shade700
+                                      : Colors.red.shade700,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    SizedBox(height: 22.h),
+
                     if ((product.description).isNotEmpty) ...[
                       Text(
                         'About this Product',
                         style: TextStyle(
-                          fontSize: 16.sp,
+                          fontSize: 18.sp,
                           color: Colors.black,
                           fontWeight: FontWeight.w600,
                         ),
@@ -387,7 +536,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         child: Text(
                           product.description,
                           style: TextStyle(
-                            fontSize: 13.sp,
+                            fontSize: 16.sp,
                             color: const Color(0xFF363636),
                             fontWeight: FontWeight.w400,
                             height: 1.35,

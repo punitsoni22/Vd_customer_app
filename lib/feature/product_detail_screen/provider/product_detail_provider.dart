@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 
 import '../../../core/models/product_model.dart';
@@ -71,6 +73,64 @@ class ProductDetailProvider extends ChangeNotifier {
     }
 
     isLoading = false;
+    notifyListeners();
+  }
+
+  bool isCheckingDelivery = false;
+  bool? isDeliverable;
+  String? deliveryMessage;
+
+  Future<void> checkDeliveryPincode(String pinCode, int productId) async {
+    isCheckingDelivery = true;
+    isDeliverable = null;
+    deliveryMessage = null;
+    notifyListeners();
+
+    try {
+      final response = await Api.post('checkDeliveryPincode', {
+        "data": {"pinCode": pinCode, "productId": productId},
+      });
+
+      log("checkDeliveryPincode Response: $response");
+
+      bool isSuccess = false;
+      Map<String, dynamic>? data;
+
+      if (response['success'] == true) {
+        isSuccess = true;
+        data = response['data'];
+      } else if (response['dataResponse']?['returnCode'] == 0) {
+        isSuccess = true;
+        data = response['data'];
+      }
+
+      if (isSuccess && data != null) {
+        isDeliverable = data['isDeliverable'] == true;
+        deliveryMessage =
+            data['message'] ??
+            (isDeliverable!
+                ? "Delivery is available."
+                : "Delivery not available.");
+      } else {
+        isDeliverable = false;
+        deliveryMessage =
+            response['message'] ??
+            response['dataResponse']?['description'] ??
+            "Unable to verify delivery.";
+      }
+    } catch (e) {
+      log("checkDeliveryPincode error: $e");
+      isDeliverable = false;
+      deliveryMessage = "Error verifying delivery pincode.";
+    }
+
+    isCheckingDelivery = false;
+    notifyListeners();
+  }
+
+  void clearDeliveryStatus() {
+    isDeliverable = null;
+    deliveryMessage = null;
     notifyListeners();
   }
 

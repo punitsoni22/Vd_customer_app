@@ -47,15 +47,20 @@ class CheckoutProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> checkDeliveryPincode(String pinCode) async {
+  List<String> _undeliverableProducts = [];
+  List<String> get undeliverableProducts => _undeliverableProducts;
+
+  Future<void> checkDeliveryPincode(String pinCode, int? cartId) async {
     _isCheckingDelivery = true;
     _deliveryMessage = '';
+    _undeliverableProducts = [];
     notifyListeners();
 
     try {
       final response = await Api.post('checkDeliveryPincode', {
         "data": {
-          "pinCode": [pinCode]
+          "pinCode": pinCode,
+          if (cartId != null) "cartId": cartId,
         }
       });
 
@@ -78,6 +83,10 @@ class CheckoutProvider extends ChangeNotifier {
             (_isDeliverable
                 ? "Delivery is available."
                 : "Delivery not available.");
+        
+        if (data['undeliverableProducts'] != null) {
+          _undeliverableProducts = List<String>.from(data['undeliverableProducts']);
+        }
       } else {
         _isDeliverable = false;
         _deliveryMessage = response['message'] ??

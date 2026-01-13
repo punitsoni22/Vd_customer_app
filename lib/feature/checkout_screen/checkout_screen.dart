@@ -45,7 +45,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     }
 
     final pinCode = selectedAddress.postalCode;
-    await provider.checkDeliveryPincode(pinCode);
+    final cartProvider = context.read<CartProvider>();
+    await provider.checkDeliveryPincode(pinCode, cartProvider.cartId);
 
     if (provider.isDeliverable) {
       provider.setStep(2);
