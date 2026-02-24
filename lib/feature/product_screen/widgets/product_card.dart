@@ -26,13 +26,9 @@ class ProductCard extends StatelessWidget {
   }
 
   String _quantityinMl(Product p) {
+    if (p.variants.isEmpty) return '';
     final formatted = formatVolume(p.variants.first.quantityInMl);
     return formatted.toUpperCase();
-  }
-
-  String _price(Product p) {
-    final price = double.tryParse(p.variants.first.price) ?? 0.0;
-    return '₹${price.toInt()}';
   }
 
   @override
@@ -179,24 +175,26 @@ class ProductCard extends StatelessWidget {
                       SizedBox(height: 4.h),
                       Expanded(
                         child: Row(
-                          children: [
-                            CommonPriceDisplay(
-                              price: (double.tryParse(
-                                          product.variants.first.price) ??
-                                      0)
-                                  .toInt()
-                                  .toString(),
-                              originalPrice: product
-                                          .variants.first.originalPrice !=
-                                      null
-                                  ? (double.tryParse(product
-                                              .variants.first.originalPrice!) ??
-                                          0)
-                                      .toInt()
-                                      .toString()
-                                  : null,
-                              priceStyle: TextStyle(
-                                fontSize: 12.sp,
+                            children: [
+                              CommonPriceDisplay(
+                                price: (product.variants.isNotEmpty
+                                        ? (double.tryParse(
+                                                product.variants.first.price) ??
+                                            0)
+                                        : 0)
+                                    .toInt()
+                                    .toString(),
+                                originalPrice: (product.variants.isNotEmpty &&
+                                        product.variants.first.originalPrice !=
+                                            null)
+                                    ? (double.tryParse(product
+                                                .variants.first.originalPrice!) ??
+                                            0)
+                                        .toInt()
+                                        .toString()
+                                    : null,
+                                priceStyle: TextStyle(
+                                  fontSize: 12.sp,
                                 letterSpacing: 0.2,
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,

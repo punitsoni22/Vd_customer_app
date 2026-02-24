@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 
 import '../../../core/models/product_model.dart';
@@ -14,7 +12,10 @@ class ProductProvider extends ChangeNotifier {
   bool _hasLoaded = false;
   bool get hasLoaded => _hasLoaded;
 
-  Future<void> getProducts(Map<String, dynamic> requestData, {bool forceRefresh = false}) async {
+  Future<void> getProducts(
+    Map<String, dynamic> requestData, {
+    bool forceRefresh = false,
+  }) async {
     if (_hasLoaded && !forceRefresh) return;
 
     isLoading = true;
