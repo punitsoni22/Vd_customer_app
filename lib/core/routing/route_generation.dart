@@ -64,7 +64,7 @@ GoRouter buildRouter() {
             }
           }
           return BottomBarScreen(
-            key: ValueKey('bottom_bar_$initialIndex'),
+            key: UniqueKey(),
             initialIndex: initialIndex,
           );
         },

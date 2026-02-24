@@ -144,22 +144,64 @@ class SubscriptionProvider extends ChangeNotifier {
 
   // Admin Plans
   bool isLoadingPlans = false;
+  bool isMorePlansLoading = false;
   List<AdminPlanModel> adminPlans = [];
   AdminPlanModel? selectedPlan;
 
-  Future<void> getAllActivePlans(BuildContext context) async {
-    isLoadingPlans = true;
-    notifyListeners();
+  // Pagination state for plans
+  int currentPlanPage = 1;
+  int totalPlanPages = 1;
+  static const int _planPageSize = 10;
+
+  Future<void> getAllActivePlans(
+    BuildContext context, {
+    bool forceRefresh = false,
+  }) async {
+    // If refreshing, reset pagination and clear list
+    if (forceRefresh) {
+      currentPlanPage = 1;
+      adminPlans.clear();
+      isLoadingPlans = true;
+      notifyListeners();
+    } else {
+      // If not refreshing and already loading, do nothing
+      if (isLoadingPlans || isMorePlansLoading) return;
+
+      // If we've reached the end, do nothing
+      if (currentPlanPage > totalPlanPages && totalPlanPages > 0) return;
+
+      if (currentPlanPage == 1) {
+        isLoadingPlans = true;
+      } else {
+        isMorePlansLoading = true;
+      }
+      notifyListeners();
+    }
 
     try {
       final response = await Api.post('getAllActivePlansForUsers', {
-        "data": {"searchText": "", "page": 1, "pageSize": 50},
+        "data": {
+          "searchText": "",
+          "page": currentPlanPage,
+          "pageSize": _planPageSize,
+        },
       });
 
+      log("this is response: $response");
+
       if (response['success'] == true) {
-        final List<dynamic> plans = response['data']?['plans'] ?? [];
-        adminPlans = plans.map((e) => AdminPlanModel.fromJson(e)).toList();
-        for (var plan in adminPlans) {
+        final List<dynamic> plansData = response['data']?['plans'] ?? [];
+        final pagination = response['data']?['pagination'];
+        
+        if (pagination != null) {
+          totalPlanPages = pagination['totalPages'] ?? 1;
+        }
+
+        final newPlans =
+            plansData.map((e) => AdminPlanModel.fromJson(e)).toList();
+
+        // Generate signed URLs for images
+        for (var plan in newPlans) {
           for (var product in plan.products) {
             for (var image in product.images) {
               if (image.imageUrl.isNotEmpty) {
@@ -168,17 +210,34 @@ class SubscriptionProvider extends ChangeNotifier {
             }
           }
         }
+
+        if (forceRefresh || currentPlanPage == 1) {
+          adminPlans = newPlans;
+        } else {
+          adminPlans.addAll(newPlans);
+        }
+
+        // Increment page for next fetch
+        if (newPlans.isNotEmpty) {
+          currentPlanPage++;
+        }
+        
         message = response['message'] ?? 'Plans fetched successfully';
       } else {
-        adminPlans = [];
+        if (currentPlanPage == 1) {
+          adminPlans = [];
+        }
         message = response['message'] ?? 'Failed to fetch plans';
       }
     } catch (e) {
-      adminPlans = [];
+      if (currentPlanPage == 1) {
+        adminPlans = [];
+      }
       message = 'Exception: $e';
     }
 
     isLoadingPlans = false;
+    isMorePlansLoading = false;
     notifyListeners();
   }
 

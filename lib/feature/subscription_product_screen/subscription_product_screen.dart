@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/models/admin_plan_model.dart';
@@ -26,12 +27,21 @@ enum SubscriptionMode { custom, plan }
 class _SubscriptionProductScreenState extends State<SubscriptionProductScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  late ScrollController _plansScrollController;
   final List<Map<String, dynamic>> _selectedProducts = [];
   AdminPlanModel? _selectedPlan;
 
   void _clearSelectedProducts() {
     _selectedProducts.clear();
     setState(() {});
+  }
+
+  void _onPlansScroll() {
+    if (_plansScrollController.position.pixels >=
+        _plansScrollController.position.maxScrollExtent - 50) {
+      final subscriptionProvider = context.read<SubscriptionProvider>();
+      subscriptionProvider.getAllActivePlans(context);
+    }
   }
 
   void _onProductSelected(Map<String, dynamic> selection) {
@@ -82,7 +92,7 @@ class _SubscriptionProductScreenState extends State<SubscriptionProductScreen>
         "page": 1,
         "pageSize": 10,
       }, forceRefresh: true),
-      subscriptionProvider.getAllActivePlans(context),
+      subscriptionProvider.getAllActivePlans(context, forceRefresh: true),
     ]);
   }
 
@@ -90,6 +100,8 @@ class _SubscriptionProductScreenState extends State<SubscriptionProductScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _plansScrollController = ScrollController();
+    _plansScrollController.addListener(_onPlansScroll);
 
     if (widget.preSelectedProducts != null) {
       _selectedProducts.addAll(widget.preSelectedProducts!);
@@ -108,13 +120,14 @@ class _SubscriptionProductScreenState extends State<SubscriptionProductScreen>
         "pageSize": 10,
       });
 
-      subscriptionProvider.getAllActivePlans(context);
+      subscriptionProvider.getAllActivePlans(context, forceRefresh: true);
     });
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _plansScrollController.dispose();
     super.dispose();
   }
 
@@ -201,6 +214,7 @@ class _SubscriptionProductScreenState extends State<SubscriptionProductScreen>
       onRefresh: _refreshData,
       color: AllColors.olivegreenColor,
       child: SingleChildScrollView(
+        controller: _plansScrollController,
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -322,17 +336,32 @@ class _SubscriptionProductScreenState extends State<SubscriptionProductScreen>
               ),
             ),
             SizedBox(height: 10.h),
-            provider.isLoadingPlans
-                ? const Center(child: CircularProgressIndicator())
-                : (provider.adminPlans.isEmpty)
-                ? const Center(child: Text("No plans available"))
-                : ListView.builder(
+            if (provider.isLoadingPlans)
+              const Center(child: CircularProgressIndicator())
+            else if (provider.adminPlans.isEmpty)
+              const Center(child: Text("No plans available"))
+            else ...[
+              ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: provider.adminPlans.length,
                     itemBuilder: (context, index) {
                       final plan = provider.adminPlans[index];
                       final isSelected = _selectedPlan?.id == plan.id;
+                      String? planImageUrl;
+                      for (var product in plan.products) {
+                        for (var image in product.images) {
+                          if (image.signedUrl != null &&
+                              image.signedUrl!.isNotEmpty) {
+                            planImageUrl = image.signedUrl;
+                            break;
+                          } else if (image.imageUrl.isNotEmpty) {
+                            planImageUrl = image.imageUrl;
+                            break;
+                          }
+                        }
+                        if (planImageUrl != null) break;
+                      }
 
                       return GestureDetector(
                         onTap: () {
@@ -357,76 +386,111 @@ class _SubscriptionProductScreenState extends State<SubscriptionProductScreen>
                               width: isSelected ? 2.w : 1.w,
                             ),
                           ),
-                          child: Column(
+                          child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      plan.planName,
-                                      style: TextStyle(
-                                        fontSize: 16.sp,
-                                        fontWeight: FontWeight.bold,
-                                        color: AllColors.olivegreenColor,
+                              if (planImageUrl != null)
+                                Container(
+                                  width: 80.w,
+                                  height: 80.w,
+                                  margin: EdgeInsets.only(right: 12.w),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8.r),
+                                    color: Colors.grey.shade100,
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8.r),
+                                    child: CachedNetworkImage(
+                                      imageUrl: planImageUrl,
+                                      fit: BoxFit.cover,
+                                      placeholder: (context, url) =>
+                                          const Center(
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 2),
+                                      ),
+                                      errorWidget: (context, url, error) =>
+                                          Image.asset(
+                                        'assets/images/Bigbottle.png',
+                                        fit: BoxFit.cover,
                                       ),
                                     ),
                                   ),
-                                  if (isSelected)
-                                    Icon(
-                                      Icons.check_circle,
-                                      color: AllColors.olivegreenColor,
-                                      size: 24.sp,
-                                    ),
-                                ],
-                              ),
-                              SizedBox(height: 6.h),
-                              Text(
-                                plan.planDescription,
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  color: Colors.grey.shade700,
                                 ),
-                              ),
-                              SizedBox(height: 8.h),
-                              Row(
-                                children: [
-                                  Text(
-                                    '₹${plan.finalPrice}',
-                                    style: TextStyle(
-                                      fontSize: 18.sp,
-                                      fontWeight: FontWeight.bold,
-                                      color: AllColors.olivegreenColor,
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            plan.planName,
+                                            style: TextStyle(
+                                              fontSize: 16.sp,
+                                              fontWeight: FontWeight.bold,
+                                              color: AllColors.olivegreenColor,
+                                            ),
+                                          ),
+                                        ),
+                                        if (isSelected)
+                                          Icon(
+                                            Icons.check_circle,
+                                            color: AllColors.olivegreenColor,
+                                            size: 24.sp,
+                                          ),
+                                      ],
                                     ),
-                                  ),
-                                  if (plan.discountPercentage != '0') ...[
-                                    SizedBox(width: 8.w),
+                                    SizedBox(height: 6.h),
                                     Text(
-                                      '₹${plan.totalPrice}',
-                                      style: TextStyle(
-                                        fontSize: 14.sp,
-                                        color: Colors.grey,
-                                        decoration: TextDecoration.lineThrough,
-                                      ),
-                                    ),
-                                    SizedBox(width: 4.w),
-                                    Text(
-                                      '${plan.discountPercentage}% OFF',
+                                      plan.planDescription,
                                       style: TextStyle(
                                         fontSize: 12.sp,
-                                        color: Colors.green,
-                                        fontWeight: FontWeight.bold,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8.h),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          '₹${plan.finalPrice}',
+                                          style: TextStyle(
+                                            fontSize: 18.sp,
+                                            fontWeight: FontWeight.bold,
+                                            color: AllColors.olivegreenColor,
+                                          ),
+                                        ),
+                                        if (plan.discountPercentage != '0') ...[
+                                          SizedBox(width: 8.w),
+                                          Text(
+                                            '₹${plan.totalPrice}',
+                                            style: TextStyle(
+                                              fontSize: 14.sp,
+                                              color: Colors.grey,
+                                              decoration:
+                                                  TextDecoration.lineThrough,
+                                            ),
+                                          ),
+                                          SizedBox(width: 4.w),
+                                          Text(
+                                            '${plan.discountPercentage}% OFF',
+                                            style: TextStyle(
+                                              fontSize: 12.sp,
+                                              color: Colors.green,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                    SizedBox(height: 8.h),
+                                    Text(
+                                      '${plan.products.length} Product${plan.products.length > 1 ? 's' : ''} • ${plan.subscriptionType.replaceAll('_', ' ')} • ${plan.deliveryFrequencyType}',
+                                      style: TextStyle(
+                                        fontSize: 11.sp,
+                                        color: Colors.grey.shade600,
                                       ),
                                     ),
                                   ],
-                                ],
-                              ),
-                              SizedBox(height: 8.h),
-                              Text(
-                                '${plan.products.length} Product${plan.products.length > 1 ? 's' : ''} • ${plan.subscriptionType.replaceAll('_', ' ')} • ${plan.deliveryFrequencyType}',
-                                style: TextStyle(
-                                  fontSize: 11.sp,
-                                  color: Colors.grey.shade600,
                                 ),
                               ),
                             ],
@@ -435,6 +499,12 @@ class _SubscriptionProductScreenState extends State<SubscriptionProductScreen>
                       );
                     },
                   ),
+              if (provider.isMorePlansLoading)
+                Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16.h),
+                  child: const Center(child: CircularProgressIndicator()),
+                ),
+            ],
           ],
         ),
       ),

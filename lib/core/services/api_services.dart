@@ -21,6 +21,7 @@ class Api {
     };
 
     http.Response response;
+    log("this is url: $uri, header: $headers, body: ${jsonEncode(data)}");
     try {
       if (method == 'POST') {
         response = await http.post(
