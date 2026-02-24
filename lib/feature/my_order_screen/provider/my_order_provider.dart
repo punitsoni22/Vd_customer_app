@@ -139,7 +139,6 @@ class MyOrderProvider extends ChangeNotifier {
       final response = await Api.post("getAllSubscription", {
         "data": {"page": page, "pageSize": 10, "searchText": ""},
       });
-      log("this is $response");
       if (rid != _subscriptionsRequestId) return;
 
       if (response["success"] == true) {

@@ -4,9 +4,11 @@ import 'package:vd_customer_app/core/models/subscription_detail_model.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/core/services/signedurl.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
-import 'package:vd_customer_app/core/utils/formatters.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_appbar.dart';
+import 'package:vd_customer_app/core/utils/validators/date_validator.dart';
 import 'package:vd_customer_app/widget/snack_bar.dart';
+
+import '../../../core/utils/formatters.dart';
 
 class SubscriptionDetailScreen extends StatefulWidget {
   final int subscriptionId;
@@ -232,8 +234,8 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
                     SizedBox(height: 16.h),
 
                     // Customer Info Card
-                    // _buildCustomerInfoCard(),
-                    // SizedBox(height: 16.h),
+                    _buildCustomerInfoCard(),
+                    SizedBox(height: 16.h),
 
                     // Delivery Schedule Card
                     _buildDeliveryScheduleCard(),
@@ -324,13 +326,13 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
           _buildInfoRow(
             Icons.calendar_today_outlined,
             'Start Date',
-            _formatDate(_subscriptionDetail!.startDate),
+            DateValidator.formatDate(_subscriptionDetail!.startDate.toString()),
           ),
           SizedBox(height: 12.h),
           _buildInfoRow(
             Icons.event_outlined,
             'End Date',
-            _formatDate(_subscriptionDetail!.endDate),
+            DateValidator.formatDate(_subscriptionDetail!.endDate.toString()),
           ),
         ],
       ),
@@ -576,10 +578,6 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
         ),
       ],
     );
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
   }
 
   String _formatFrequency(String frequency) {

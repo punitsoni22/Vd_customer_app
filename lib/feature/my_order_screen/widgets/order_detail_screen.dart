@@ -5,6 +5,7 @@ import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/core/services/signedurl.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_appbar.dart';
+import 'package:vd_customer_app/core/utils/validators/date_validator.dart';
 
 class OrderDetailScreen extends StatefulWidget {
   final int orderId;
@@ -528,11 +529,6 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   String _formatDate(String dateString) {
-    try {
-      final date = DateTime.parse(dateString);
-      return '${date.day}/${date.month}/${date.year}';
-    } catch (e) {
-      return dateString.split('T').first;
-    }
+    return DateValidator.formatDate(dateString);
   }
 }

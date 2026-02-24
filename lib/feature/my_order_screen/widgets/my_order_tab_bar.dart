@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
+import 'package:vd_customer_app/core/utils/validators/date_validator.dart';
 import 'package:vd_customer_app/feature/my_order_screen/widgets/my_order_card.dart';
 import 'package:vd_customer_app/feature/my_order_screen/provider/my_order_provider.dart';
 import 'package:vd_customer_app/feature/my_order_screen/widgets/invoice_viewer_screen.dart';
@@ -180,7 +181,7 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                               child: MyOrderCard(
                                 id: 'Subscription ID: ${sub.id}',
                                 date:
-                                    "Starts:${sub.startDate.toString().split(' ').first}",
+                                    "Starts:${DateValidator.formatDate(sub.startDate.toString())}",
                                 productName:
                                     product?.productName ??
                                     "Subscription Product",
@@ -192,7 +193,7 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                                     "Frequency: ${sub.deliveryFrequencyType}",
                                 icon2: Icons.calendar_month,
                                 paymentMethod:
-                                    "Next Delivery : ${sub.startDate.toString().split(' ').first}",
+                                    "Next Delivery : ${DateValidator.formatDate(sub.startDate.toString())}",
                                 invoiceUrl: sub.invoice?.signedUrl,
                                 invoiceNumber: sub.invoice?.invoiceNumber,
                                 currentStatus: sub.status,
@@ -285,7 +286,7 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                               padding: EdgeInsets.only(bottom: 16.h),
                               child: MyOrderCard(
                                 id: 'Order ID: ${order.orderId}',
-                                date: order.orderConfirmedDate.split('T').first,
+                                date: DateValidator.formatDate(order.orderConfirmedDate),
                                 status: order.status,
                                 productName:
                                     cartDetail?.productName ?? 'Alkaline Water',
