@@ -28,7 +28,6 @@ class _CartScreenState extends State<CartScreen> {
       backgroundColor: Colors.grey[50],
       appBar: CommonAppBar(
         title: 'My Cart',
-        showBack: true,
         titleAlignment: BarTitleAlignment.center,
       ),
       body: SafeArea(
