@@ -274,7 +274,7 @@ class _LoginStepState extends State<_LoginStep> {
                       vertical: 6.h,
                       horizontal: 10.w,
                     ),
-                    child: const Text('Email'),
+                    child: const Text('Phone Number'),
                   ),
                 ),
                 Tab(
@@ -283,7 +283,7 @@ class _LoginStepState extends State<_LoginStep> {
                       vertical: 6.h,
                       horizontal: 10.w,
                     ),
-                    child: const Text('Phone Number'),
+                    child: const Text('Email'),
                   ),
                 ),
               ],
@@ -293,6 +293,70 @@ class _LoginStepState extends State<_LoginStep> {
               height: 320.h,
               child: TabBarView(
                 children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      CommonTextField(
+                        controller: widget.phoneCtrl,
+                        label: "Phone Number",
+                        keyboardType: TextInputType.phone,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        onChanged: widget.provider.setNumber,
+                        validator: (v) {
+                          final s = v?.trim() ?? '';
+                          if (s.isEmpty) return "Phone number is required";
+                          if (!RegExp(r'^\d{10}$').hasMatch(s)) {
+                            return "Enter a valid 10-digit phone number";
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 10.h),
+                      _buildPrivacyCheckbox(context),
+                      SizedBox(height: 14.h),
+                      CommonButton(
+                        buttonValue: 'Login via OTP',
+                        isFullWidth: true,
+                        isLoading: widget.provider.isLoading,
+                        onTap: () async {
+                          if (!(widget.formKey.currentState?.validate() ??
+                              false)) {
+                            return;
+                          }
+                          if (!widget.provider.isPrivacyPolicyAccepted) {
+                            MySnackBar.showSnackBar(
+                              context,
+                              "Please accept the Privacy Policy",
+                            );
+                            return;
+                          }
+                          await widget.provider.loginViaOtp(context);
+                          if (!context.mounted) return;
+                          widget.onOtpRequested();
+                        },
+                      ),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: Size(50.w, 30.h),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          alignment: Alignment.center,
+                        ),
+                        onPressed: () {
+                          context.replaceNamed(AppRoutes.signupScreen);
+                        },
+                        child: Text(
+                          'New user? Create an account',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: AllColors.buttonColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -368,70 +432,6 @@ class _LoginStepState extends State<_LoginStep> {
                           if (msg != null) {
                             MySnackBar.showSnackBar(context, msg);
                           }
-                        },
-                      ),
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size(50.w, 30.h),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          alignment: Alignment.center,
-                        ),
-                        onPressed: () {
-                          context.replaceNamed(AppRoutes.signupScreen);
-                        },
-                        child: Text(
-                          'New user? Create an account',
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            color: AllColors.buttonColor,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      CommonTextField(
-                        controller: widget.phoneCtrl,
-                        label: "Phone Number",
-                        keyboardType: TextInputType.phone,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                        ],
-                        onChanged: widget.provider.setNumber,
-                        validator: (v) {
-                          final s = v?.trim() ?? '';
-                          if (s.isEmpty) return "Phone number is required";
-                          if (!RegExp(r'^\d{10}$').hasMatch(s)) {
-                            return "Enter a valid 10-digit phone number";
-                          }
-                          return null;
-                        },
-                      ),
-                      SizedBox(height: 10.h),
-                      _buildPrivacyCheckbox(context),
-                      SizedBox(height: 14.h),
-                      CommonButton(
-                        buttonValue: 'Login via OTP',
-                        isFullWidth: true,
-                        isLoading: widget.provider.isLoading,
-                        onTap: () async {
-                          if (!(widget.formKey.currentState?.validate() ??
-                              false)) {
-                            return;
-                          }
-                          if (!widget.provider.isPrivacyPolicyAccepted) {
-                            MySnackBar.showSnackBar(
-                              context,
-                              "Please accept the Privacy Policy",
-                            );
-                            return;
-                          }
-                          await widget.provider.loginViaOtp(context);
-                          if (!context.mounted) return;
-                          widget.onOtpRequested();
                         },
                       ),
                       TextButton(
