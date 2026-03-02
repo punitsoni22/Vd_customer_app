@@ -1,18 +1,39 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:vd_customer_app/core/models/address.model.dart';
 import 'package:vd_customer_app/core/models/admin_plan_model.dart';
+import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/helpers/auth_helper.dart';
+import 'package:vd_customer_app/widget/snack_bar.dart';
 
 import '../../../core/services/signedurl.dart';
 
 class SubscriptionProvider extends ChangeNotifier {
+  late Razorpay _razorpay;
+  int? _pendingOrderId;
+  String? _pendingOrderNo;
+  BuildContext? _pendingContext;
+
+  SubscriptionProvider() {
+    _razorpay = Razorpay();
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+  }
+
+  @override
+  void dispose() {
+    _razorpay.clear();
+    super.dispose();
+  }
+
   bool _subscriptionCreatedSuccessfully = false;
   bool get subscriptionCreatedSuccessfully => _subscriptionCreatedSuccessfully;
 
-  // Pincode Validation State
   bool _isCheckingDelivery = false;
   bool get isCheckingDelivery => _isCheckingDelivery;
 
@@ -95,13 +116,148 @@ class SubscriptionProvider extends ChangeNotifier {
 
     try {
       final response = await Api.post('addEditSubscription', payload);
-      if (response["success"] == true) {
-        _subscriptionCreatedSuccessfully = true;
-        notifyListeners();
+      log("this is addEditSubscription api response: $response");
+      final isSuccess =
+          response['dataResponse']?['returnCode'] == 0 ||
+          response['success'] == true;
+
+      if (isSuccess) {
+        final orderData = response['data'] as Map<String, dynamic>? ?? {};
+        final respPaymentMode = orderData['paymentMode']?.toString() ?? '';
+        Map<String, dynamic>? paymentData =
+            orderData['payment'] as Map<String, dynamic>?;
+
+        if (paymentData == null && orderData.containsKey('razorpayOrderId')) {
+          paymentData = orderData;
+        }
+
+        if (respPaymentMode.toUpperCase() == 'ONLINE' && paymentData != null) {
+          _openRazorpay(paymentData, orderData, context);
+          return {'success': true, 'message': 'Proceeding to payment...'};
+        } else {
+          _subscriptionCreatedSuccessfully = true;
+          notifyListeners();
+          return response;
+        }
+      } else {
+        return {
+          "success": false,
+          "message":
+              response['message'] ??
+              response['dataResponse']?['description'] ??
+              "Failed to create subscription",
+        };
       }
-      return response;
     } catch (e) {
       return {"success": false, "message": "Exception: $e"};
+    }
+  }
+
+  void _openRazorpay(
+    Map<String, dynamic> paymentData,
+    Map<String, dynamic> orderData,
+    BuildContext context,
+  ) {
+    _pendingOrderId = orderData['id'] is int
+        ? orderData['id']
+        : (int.tryParse(orderData['id']?.toString() ?? ''));
+    _pendingOrderNo = orderData['orderNo']?.toString();
+    _pendingContext = context;
+
+    final key =
+        paymentData['keyId']?.toString() ?? paymentData['key']?.toString();
+    double amountDouble = 0;
+    try {
+      amountDouble = paymentData['amount'] is String
+          ? double.tryParse(paymentData['amount']) ?? 0
+          : (paymentData['amount'] is num
+                ? (paymentData['amount'] as num).toDouble()
+                : 0);
+    } catch (_) {}
+
+    final options = {
+      'key': key,
+      'amount': (amountDouble * 100).toInt(),
+      'name': paymentData['name'] ?? 'Store',
+      'description': paymentData['description'] ?? 'Subscription Payment',
+      'order_id': paymentData['razorpayOrderId'] ?? paymentData['orderId'],
+      'currency': paymentData['currency'] ?? 'INR',
+      'prefill': paymentData['prefill'] ?? {},
+    };
+
+    try {
+      _razorpay.open(options);
+    } catch (e) {
+      MySnackBar.showSnackBar(
+        context,
+        'Payment gateway error. Please try again.',
+      );
+      _pendingOrderId = null;
+      _pendingOrderNo = null;
+      _pendingContext = null;
+      notifyListeners();
+    }
+  }
+
+  Future<void> _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    notifyListeners();
+
+    try {
+      final payload = {
+        'data': {
+          'orderId': _pendingOrderId,
+          'orderNo': _pendingOrderNo,
+          'paymentId': response.paymentId,
+          'razorpayOrderId': response.orderId,
+          'razorpaySignature': response.signature,
+        },
+      };
+
+      await Api.post('generateInvoice', payload);
+
+      if (_pendingContext != null) {
+        _subscriptionCreatedSuccessfully = true;
+        notifyListeners();
+        MySnackBar.showSnackBar(
+          _pendingContext!,
+          'Subscription created successfully!',
+        );
+        _pendingContext!.pushReplacement(AppRoutes.myOrderScreen);
+      }
+    } catch (e) {
+      if (_pendingContext != null) {
+        MySnackBar.showSnackBar(
+          _pendingContext!,
+          'Payment succeeded but finalizing failed.',
+        );
+      }
+    } finally {
+      _pendingOrderId = null;
+      _pendingOrderNo = null;
+      _pendingContext = null;
+      notifyListeners();
+    }
+  }
+
+  void _handlePaymentError(PaymentFailureResponse response) {
+    notifyListeners();
+    if (_pendingContext != null) {
+      MySnackBar.showSnackBar(
+        _pendingContext!,
+        'Payment failed: ${response.message ?? 'Please try again'}',
+      );
+    }
+    _pendingOrderId = null;
+    _pendingOrderNo = null;
+    _pendingContext = null;
+  }
+
+  void _handleExternalWallet(ExternalWalletResponse response) {
+    if (_pendingContext != null) {
+      MySnackBar.showSnackBar(
+        _pendingContext!,
+        'External wallet selected: ${response.walletName}',
+      );
     }
   }
 
@@ -142,13 +298,11 @@ class SubscriptionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Admin Plans
   bool isLoadingPlans = false;
   bool isMorePlansLoading = false;
   List<AdminPlanModel> adminPlans = [];
   AdminPlanModel? selectedPlan;
 
-  // Pagination state for plans
   int currentPlanPage = 1;
   int totalPlanPages = 1;
   static const int _planPageSize = 10;
@@ -157,19 +311,14 @@ class SubscriptionProvider extends ChangeNotifier {
     BuildContext context, {
     bool forceRefresh = false,
   }) async {
-    // If refreshing, reset pagination and clear list
     if (forceRefresh) {
       currentPlanPage = 1;
       adminPlans.clear();
       isLoadingPlans = true;
       notifyListeners();
     } else {
-      // If not refreshing and already loading, do nothing
       if (isLoadingPlans || isMorePlansLoading) return;
-
-      // If we've reached the end, do nothing
       if (currentPlanPage > totalPlanPages && totalPlanPages > 0) return;
-
       if (currentPlanPage == 1) {
         isLoadingPlans = true;
       } else {
@@ -192,15 +341,15 @@ class SubscriptionProvider extends ChangeNotifier {
       if (response['success'] == true) {
         final List<dynamic> plansData = response['data']?['plans'] ?? [];
         final pagination = response['data']?['pagination'];
-        
+
         if (pagination != null) {
           totalPlanPages = pagination['totalPages'] ?? 1;
         }
 
-        final newPlans =
-            plansData.map((e) => AdminPlanModel.fromJson(e)).toList();
+        final newPlans = plansData
+            .map((e) => AdminPlanModel.fromJson(e))
+            .toList();
 
-        // Generate signed URLs for images
         for (var plan in newPlans) {
           for (var product in plan.products) {
             for (var image in product.images) {
@@ -217,11 +366,10 @@ class SubscriptionProvider extends ChangeNotifier {
           adminPlans.addAll(newPlans);
         }
 
-        // Increment page for next fetch
         if (newPlans.isNotEmpty) {
           currentPlanPage++;
         }
-        
+
         message = response['message'] ?? 'Plans fetched successfully';
       } else {
         if (currentPlanPage == 1) {
@@ -252,8 +400,6 @@ class SubscriptionProvider extends ChangeNotifier {
       final response = await Api.post('getSpecificAdminPlan', {
         "data": {"id": planId},
       });
-
-      log("thgis is $response");
 
       if (response['success'] == true) {
         final planData = response['data'];

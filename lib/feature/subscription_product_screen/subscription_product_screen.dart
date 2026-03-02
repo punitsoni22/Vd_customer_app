@@ -53,7 +53,7 @@ class _SubscriptionProductScreenState extends State<SubscriptionProductScreen>
     if (idx == -1) {
       _selectedProducts.add(selection);
     } else {
-      _selectedProducts[idx]['quantity'] = selection['quantity'];
+      _selectedProducts[idx] = selection;
     }
     setState(() {});
   }

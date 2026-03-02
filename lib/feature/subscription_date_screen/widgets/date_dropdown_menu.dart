@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:vd_customer_app/core/routing/routes.dart';
-import 'package:vd_customer_app/core/theme/colors.dart';
-import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
-import 'package:vd_customer_app/core/utils/common_widgets/common_calendar.dart';
-import 'package:vd_customer_app/feature/profile_screen/provider/profileProvider.dart';
-import 'package:vd_customer_app/widget/snack_bar.dart';
-
 import '../../../core/models/address.model.dart';
+import '../../../core/theme/colors.dart';
+import '../../../core/utils/common_widgets/common_button.dart';
+import '../../../core/utils/common_widgets/common_calendar.dart';
+import '../../../widget/snack_bar.dart';
+import '../../profile_screen/provider/profileProvider.dart';
 import '../provider/subscription_provider.dart';
+import '../subscription_payment_screen.dart';
 import 'address_bottom_sheet.dart';
 
 class SubscriptionDateDropdown extends StatefulWidget {
@@ -55,7 +53,6 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      // Ensure profile is loaded so we can use the customer's full name
       final profileProvider = Provider.of<ProfileProvider>(
         context,
         listen: false,
@@ -123,13 +120,19 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(8.r),
-                  border: Border.all(color: primary.withValues(alpha: 0.3), width: 1),
+                  border: Border.all(
+                    color: primary.withValues(alpha: 0.3),
+                    width: 1,
+                  ),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<String>(
                     value: selectedValue,
                     isExpanded: true,
-                    icon: Icon(Icons.keyboard_arrow_down_rounded, color: primary),
+                    icon: Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: primary,
+                    ),
                     style: TextStyle(
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w500,
@@ -173,12 +176,18 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                                   fontWeight: isSelected
                                       ? FontWeight.w600
                                       : FontWeight.w500,
-                                  color: isSelected ? primary : Colors.grey.shade700,
+                                  color: isSelected
+                                      ? primary
+                                      : Colors.grey.shade700,
                                 ),
                               ),
                             ),
                             if (isSelected)
-                              Icon(Icons.check_rounded, size: 18.sp, color: primary),
+                              Icon(
+                                Icons.check_rounded,
+                                size: 18.sp,
+                                color: primary,
+                              ),
                           ],
                         ),
                       );
@@ -191,7 +200,7 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
             ],
           ),
         ),
-        
+
         SizedBox(height: 12.h),
 
         Consumer<SubscriptionProvider>(
@@ -202,30 +211,48 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                 _buildSectionTitle('Delivery Address'),
                 SizedBox(height: 6.h),
                 _buildCard(child: _buildAddressSelection(subProvider, primary)),
-                
+
                 SizedBox(height: 12.h),
-                
+
                 _buildSectionTitle('Subscription Dates'),
                 SizedBox(height: 6.h),
                 _buildCard(
                   child: Column(
                     children: [
-                      _dateField('Start Date', startDate, context, isStart: true),
+                      _dateField(
+                        'Start Date',
+                        startDate,
+                        context,
+                        isStart: true,
+                      ),
                       SizedBox(height: 12.h),
                       _dateField('End Date', endDate, context, isStart: false),
                       if (startDate != null && endDate != null) ...[
                         SizedBox(height: 12.h),
                         Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12.w,
+                            vertical: 8.h,
+                          ),
                           decoration: BoxDecoration(
-                            color: AllColors.olivegreenColor.withValues(alpha: 0.1),
+                            color: AllColors.olivegreenColor.withValues(
+                              alpha: 0.1,
+                            ),
                             borderRadius: BorderRadius.circular(8.r),
-                            border: Border.all(color: AllColors.olivegreenColor.withValues(alpha: 0.3)),
+                            border: Border.all(
+                              color: AllColors.olivegreenColor.withValues(
+                                alpha: 0.3,
+                              ),
+                            ),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.date_range, size: 16.sp, color: AllColors.olivegreenColor),
+                              Icon(
+                                Icons.date_range,
+                                size: 16.sp,
+                                color: AllColors.olivegreenColor,
+                              ),
                               SizedBox(width: 8.w),
                               Text(
                                 "Total Duration: ${endDate!.difference(startDate!).inDays + 1} Days",
@@ -256,7 +283,7 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                 _buildCard(child: _buildRemarksField(primary)),
 
                 SizedBox(height: 40.h),
-                
+
                 CommonButton(
                   backgroundColor: AllColors.tabBarline,
                   onTap: isLoading
@@ -275,7 +302,6 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                             isLoading = true;
                           });
 
-                          // Pincode Validation
                           final subProvider = Provider.of<SubscriptionProvider>(
                             context,
                             listen: false,
@@ -369,33 +395,25 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                                 .map((date) => _formatApiDate(date))
                                 .toList();
                           }
-                          final apiPayload = {"data": payload};
-                          final response =
-                              await Provider.of<SubscriptionProvider>(
-                                context,
-                                listen: false,
-                              ).createOrEditSubscription(context, apiPayload);
+
                           setState(() {
                             isLoading = false;
                           });
-                          if (response["success"] == true) {
-                            if (mounted) {
-                              MySnackBar.showSnackBar(
-                                context,
-                                'Subscription created successfully for $selectedValue delivery starting ${_formatDate(startDate!)}',
-                              );
-                              context.pop();
-                              context.pushNamed(AppRoutes.myOrderScreen);
-                            }
-                          } else {
-                            MySnackBar.showSnackBar(
-                              context,
-                              response["message"] ??
-                                  'Failed to create subscription.',
-                            );
-                          }
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SubscriptionPaymentScreen(
+                                payload: payload,
+                                selectedProducts: widget.selectedProducts ?? [],
+                                frequency: freq,
+                                startDate: startDate!,
+                                endDate: endDate!,
+                              ),
+                            ),
+                          );
                         },
-                  buttonValue: 'Create Subscription',
+                  buttonValue: 'Proceed to Payment',
                   isLoading: isLoading,
                 ),
                 SizedBox(height: 20.h),
@@ -436,7 +454,6 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
               initialDate = value ?? tomorrow;
               firstDate = tomorrow;
             } else {
-              // For end date
               if (startDate != null) {
                 firstDate = startDate!.add(const Duration(days: 1));
               } else {
@@ -668,7 +685,6 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
   }
 
   Widget _buildAddressSelection(SubscriptionProvider provider, Color primary) {
-    // Auto-select default address if none selected
     if (selectedAddressId == null && provider.addresses.isNotEmpty) {
       final defaultAddress = provider.addresses.firstWhere(
         (addr) => addr.isDefault,
@@ -708,7 +724,11 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
               color: AllColors.olivegreenColor.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: Icon(Icons.location_on, color: AllColors.olivegreenColor, size: 18.sp),
+            child: Icon(
+              Icons.location_on,
+              color: AllColors.olivegreenColor,
+              size: 18.sp,
+            ),
           ),
           SizedBox(width: 14.w),
           Expanded(
@@ -780,10 +800,7 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
             }
           },
           items: timings.map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value),
-            );
+            return DropdownMenuItem<String>(value: value, child: Text(value));
           }).toList(),
         ),
       ),
@@ -807,10 +824,7 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
         maxLines: 3,
         decoration: InputDecoration(
           hintText: 'e.g., Leave at doorstep',
-          hintStyle: TextStyle(
-            fontSize: 14.sp,
-            color: Colors.grey.shade400,
-          ),
+          hintStyle: TextStyle(fontSize: 14.sp, color: Colors.grey.shade400),
           border: InputBorder.none,
           contentPadding: EdgeInsets.symmetric(vertical: 8.h),
           isDense: true,

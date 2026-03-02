@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:vd_customer_app/core/models/product_model.dart';
-import 'package:vd_customer_app/core/theme/colors.dart';
-import 'package:vd_customer_app/feature/subscription_product_screen/widgets/price_drop_down_bar.dart';
+
+import '../../../core/models/product_model.dart';
+import '../../../core/theme/colors.dart';
+import 'price_drop_down_bar.dart';
 
 class SubscriptionProductCard extends StatefulWidget {
   final Product? product;
@@ -217,12 +218,13 @@ class _SubscriptionProductCardState extends State<SubscriptionProductCard> {
         'productId': widget.product!.id,
         'variantId': variant.id,
         'quantity': quantity,
+        'price': variant.price,
+        'productName': widget.product!.productName,
       });
     }
   }
 
   Widget _buildQuantityControls(Color primary, bool isSelected) {
-    // NOT SELECTED → simple filled "Add" button
     if (!isSelected) {
       return Expanded(
         child: SizedBox(
