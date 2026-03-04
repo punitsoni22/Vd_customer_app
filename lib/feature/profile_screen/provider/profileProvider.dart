@@ -112,6 +112,33 @@ class ProfileProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> addContactUs(BuildContext context, Map<String, dynamic> data) async {
+    isLoading = true;
+    notifyListeners();
+
+    try {
+      final response = await Api.post('addContactUs', {'data': data});
+
+      if (response['success'] == true || response['dataResponse']?['returnCode'] == 0) {
+        isLoading = false;
+        notifyListeners();
+        return true;
+      } else {
+        final msg = response['message'] ?? 'Failed to send message';
+        if (context.mounted) MySnackBar.showSnackBar(context, msg);
+        isLoading = false;
+        notifyListeners();
+        return false;
+      }
+    } catch (e) {
+      message = 'Exception: $e';
+      if (context.mounted) MySnackBar.showSnackBar(context, message!);
+      isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   void clearUserData() {
     id = null;
     fullName = null;

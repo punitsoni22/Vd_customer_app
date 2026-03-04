@@ -336,8 +336,6 @@ class SubscriptionProvider extends ChangeNotifier {
         },
       });
 
-      log("this is response: $response");
-
       if (response['success'] == true) {
         final List<dynamic> plansData = response['data']?['plans'] ?? [];
         final pagination = response['data']?['pagination'];

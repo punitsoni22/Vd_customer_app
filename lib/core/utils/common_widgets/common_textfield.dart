@@ -21,6 +21,8 @@ class CommonTextField extends StatelessWidget {
   final Color? color;
   final double? radius;
   final EdgeInsetsGeometry? padding;
+  final int? maxLines;
+  final bool? alignLabelWithHint;
 
   const CommonTextField({
     super.key,
@@ -42,6 +44,8 @@ class CommonTextField extends StatelessWidget {
     this.color,
     this.radius,
     this.padding,
+    this.maxLines = 1,
+    this.alignLabelWithHint,
   });
 
   @override
@@ -83,8 +87,10 @@ class CommonTextField extends StatelessWidget {
         inputFormatters: inputFormatters,
         style: baseTextStyle,
         cursorColor: AllColors.buttonColor,
+        maxLines: maxLines,
         decoration: InputDecoration(
           isDense: true,
+          alignLabelWithHint: alignLabelWithHint,
           contentPadding:
               padding ??
               const EdgeInsets.symmetric(vertical: 12, horizontal: 12),

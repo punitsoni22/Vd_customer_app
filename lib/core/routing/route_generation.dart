@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:vd_customer_app/feature/about_us/about_us_screen.dart';
 import 'package:vd_customer_app/feature/cart_screen/cart_screen.dart';
@@ -6,6 +5,7 @@ import 'package:vd_customer_app/feature/checkout_screen/checkout_screen.dart';
 import 'package:vd_customer_app/feature/my_order_screen/my_order_screen.dart';
 import 'package:vd_customer_app/feature/order_detail_screen.dart/order_detail_screen.dart';
 import 'package:vd_customer_app/feature/product_detail_screen/product_detail_screen.dart';
+import 'package:vd_customer_app/feature/profile_screen/contact_us_screen.dart';
 import 'package:vd_customer_app/feature/profile_screen/profile_screen.dart';
 import 'package:vd_customer_app/feature/subscription_date_screen/subscription_date_screen.dart';
 import 'package:vd_customer_app/feature/subscription_plan_details/plan_details_screen.dart';
@@ -64,7 +64,6 @@ GoRouter buildRouter() {
             }
           }
           return BottomBarScreen(
-            key: UniqueKey(),
             initialIndex: initialIndex,
           );
         },
@@ -140,6 +139,11 @@ GoRouter buildRouter() {
         path: '/profile_screen',
         name: AppRoutes.profileScreen,
         builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: '/contact_us_screen',
+        name: AppRoutes.contactUsScreen,
+        builder: (context, state) => const ContactUsScreen(),
       ),
       GoRoute(
         path: 'homescreen2',

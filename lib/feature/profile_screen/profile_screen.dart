@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:vd_customer_app/widget/snack_bar.dart';
 
 import '../../core/routing/routes.dart';
 import '../../core/theme/colors.dart';
@@ -56,6 +58,65 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       SizedBox(height: 15.h),
                       OrdersCard(),
+                      SizedBox(height: 12.h),
+                      // Contact Us Option
+                      Container(
+                        padding: EdgeInsets.all(16.r),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12.r),
+                          border: Border.all(color: AllColors.outlineColor),
+                        ),
+                        child: GestureDetector(
+                          onTap: () {
+                            context.pushNamed(AppRoutes.contactUsScreen);
+                          },
+                          child: BuildmenuCont(
+                            icon: Icons.support_agent_rounded,
+                            title: 'Contact Us',
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 12.h),
+
+                      // Call Us Option
+                      Container(
+                        padding: EdgeInsets.all(16.r),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12.r),
+                          border: Border.all(color: AllColors.outlineColor),
+                        ),
+                        child: GestureDetector(
+                          onTap: () async {
+                            final Uri launchUri = Uri(
+                              scheme: 'tel',
+                              path: '+919414103794',
+                            );
+                            try {
+                              if (!await launchUrl(launchUri)) {
+                                if (context.mounted) {
+                                  MySnackBar.showSnackBar(
+                                    context,
+                                    'Could not launch dialer',
+                                  );
+                                }
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                MySnackBar.showSnackBar(
+                                  context,
+                                  'Could not launch dialer',
+                                );
+                              }
+                            }
+                          },
+                          child: BuildmenuCont(
+                            icon: Icons.call,
+                            title: 'Call Us',
+                          ),
+                        ),
+                      ),
                       SizedBox(height: 12.h),
                       // Delete account button (themed) - left-aligned label
                       SizedBox(
