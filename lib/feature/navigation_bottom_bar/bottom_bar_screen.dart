@@ -18,7 +18,8 @@ import 'navigation_bottom_bar.dart';
 
 class BottomBarScreen extends StatefulWidget {
   final int initialIndex;
-  const BottomBarScreen({super.key, this.initialIndex = 0});
+  final String? navId;
+  const BottomBarScreen({super.key, this.initialIndex = 0, this.navId});
 
   @override
   State<BottomBarScreen> createState() => _BottomBarScreenState();
@@ -27,6 +28,37 @@ class BottomBarScreen extends StatefulWidget {
 class _BottomBarScreenState extends State<BottomBarScreen> {
   int _index = 0;
   late final List<Widget?> _pages = List<Widget?>.filled(5, null);
+
+  @override
+  void didUpdateWidget(BottomBarScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialIndex != oldWidget.initialIndex ||
+        widget.navId != oldWidget.navId) {
+      final isLoggedIn = context.read<AuthProvider>().isLoggedIn;
+      _index = widget.initialIndex;
+      
+      // Ensure page is instantiated
+      if (_pages[_index] == null) {
+        _pages[_index] = _buildPage(_index, isLoggedIn);
+      }
+
+      // Trigger data fetch if needed
+      if (_index == 3 && isLoggedIn) {
+        context.read<CartProvider>().fetchLatestCart(context);
+      } else if (_index == 1) {
+        context.read<ProductProvider>().getProducts({
+          "filterModel": {},
+          "orderBy": "productName",
+          "orderDir": "ASC",
+          "searchText": "",
+          "page": 1,
+          "pageSize": 10,
+        });
+      }
+      
+      setState(() {});
+    }
+  }
 
   Widget _buildLoginRequiredView(BuildContext context) {
     return Center(

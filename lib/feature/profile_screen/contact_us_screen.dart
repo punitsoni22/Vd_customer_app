@@ -58,7 +58,6 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Only listen to isLoading changes to avoid unnecessary rebuilds
     final isLoading = context.select<ProfileProvider, bool>((p) => p.isLoading);
 
     return Scaffold(

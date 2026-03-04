@@ -197,7 +197,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         if (success) {
                           context.goNamed(
                             AppRoutes.bottomBarScreen,
-                            extra: {'index': 3},
+                            extra: {
+                              'index': 3,
+                              'navId': DateTime.now().millisecondsSinceEpoch.toString(),
+                            },
                           );
                         }
 

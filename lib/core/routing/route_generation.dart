@@ -55,6 +55,7 @@ GoRouter buildRouter() {
         builder: (context, state) {
           final extra = state.extra;
           int initialIndex = 0;
+          String? navId;
           if (extra is Map<String, dynamic>) {
             final idx = extra['index'];
             if (idx is int) {
@@ -62,9 +63,11 @@ GoRouter buildRouter() {
             } else if (idx is String) {
               initialIndex = int.tryParse(idx) ?? 0;
             }
+            navId = extra['navId']?.toString();
           }
           return BottomBarScreen(
             initialIndex: initialIndex,
+            navId: navId,
           );
         },
       ),
