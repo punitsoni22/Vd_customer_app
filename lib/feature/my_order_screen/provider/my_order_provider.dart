@@ -165,20 +165,13 @@ class MyOrderProvider extends ChangeNotifier {
               }
             }
 
-            // Optimize: Only generate signed URL for the first product (as displayed in the list)
             if (sub.products.isNotEmpty) {
               final product = sub.products.first;
               if (product.imageUrl != null && product.imageUrl!.isNotEmpty) {
                 try {
-                  if (kDebugMode) {
-                    log("Generating signed URL for Subscription ${sub.id}, Product ${product.productId}, URL: ${product.imageUrl}");
-                  }
                   product.signedUrl = await generateSignedUrl(
                     product.imageUrl!,
                   );
-                  if (kDebugMode) {
-                    log("Signed URL generated: ${product.signedUrl}");
-                  }
                 } catch (e) {
                   if (kDebugMode) log("Product image S3 URL failed: $e");
                   product.signedUrl = null;

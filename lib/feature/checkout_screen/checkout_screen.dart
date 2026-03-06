@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:vd_customer_app/feature/subscription_date_screen/provider/subscription_provider.dart'
-    as subscription;
 
 import '../../core/theme/colors.dart';
 import '../../core/utils/common_widgets/common_appbar.dart';
@@ -11,6 +9,7 @@ import '../../core/utils/common_widgets/common_summary_rowtext.dart';
 import '../../core/utils/common_widgets/common_textfield.dart';
 import '../../widget/snack_bar.dart';
 import '../cart_screen/provider/cart_provider.dart';
+import '../subscription_date_screen/provider/subscription_provider.dart' as subscription;
 import '../subscription_date_screen/widgets/address_bottom_sheet.dart';
 import 'provider/checkout_provider.dart';
 import 'widgets/payment_cards.dart';
@@ -519,13 +518,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 badge: "Easy",
                 selected: _selectedPaymentIndex == 1,
                 onTap: () => setState(() => _selectedPaymentIndex = 1),
-              ),
-              PaymentOptionCard(
-                icon: Icons.qr_code_2_rounded,
-                title: "QR Code",
-                badge: "Scan",
-                selected: _selectedPaymentIndex == 2,
-                onTap: () => setState(() => _selectedPaymentIndex = 2),
               ),
             ],
           ),

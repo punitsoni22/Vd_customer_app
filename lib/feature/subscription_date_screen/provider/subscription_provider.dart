@@ -42,16 +42,26 @@ class SubscriptionProvider extends ChangeNotifier {
 
   String _deliveryMessage = '';
   String get deliveryMessage => _deliveryMessage;
+  List<String> _undeliverableProducts = [];
+  List<String> get undeliverableProducts => _undeliverableProducts;
+  List<String> _deliverableProducts = [];
+  List<String> get deliverableProducts => _deliverableProducts;
 
-  Future<void> checkDeliveryPincode(String pinCode) async {
+  Future<void> checkDeliveryPincode(
+    String pinCode,
+    List<int> productIds,
+  ) async {
     _isCheckingDelivery = true;
     _deliveryMessage = '';
+    _undeliverableProducts = [];
+    _deliverableProducts = [];
     notifyListeners();
 
     try {
       final response = await Api.post('checkDeliveryPincode', {
         "data": {
-          "pinCode": [pinCode],
+          "pinCode": pinCode,
+          "productId": productIds,
         },
       });
 
@@ -75,6 +85,13 @@ class SubscriptionProvider extends ChangeNotifier {
             (_isDeliverable
                 ? "Delivery is available."
                 : "Delivery not available.");
+        if (data['undeliverableProducts'] != null) {
+          _undeliverableProducts =
+              List<String>.from(data['undeliverableProducts']);
+        }
+        if (data['deliverableProducts'] != null) {
+          _deliverableProducts = List<String>.from(data['deliverableProducts']);
+        }
       } else {
         _isDeliverable = false;
         _deliveryMessage =

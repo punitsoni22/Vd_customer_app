@@ -316,8 +316,21 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                           } catch (_) {}
 
                           if (selectedAddrObj != null) {
+                            final productIds =
+                                (widget.selectedProducts ?? [])
+                                    .map((p) => p['productId'])
+                                    .where((id) => id != null)
+                                    .map(
+                                      (id) => id is int
+                                          ? id
+                                          : int.tryParse(id.toString()),
+                                    )
+                                    .whereType<int>()
+                                    .toSet()
+                                    .toList();
                             await subProvider.checkDeliveryPincode(
                               selectedAddrObj.postalCode,
+                              productIds,
                             );
 
                             if (!subProvider.isDeliverable) {
@@ -325,12 +338,16 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
                                 isLoading = false;
                               });
                               if (mounted) {
-                                MySnackBar.showSnackBar(
-                                  context,
-                                  subProvider.deliveryMessage.isNotEmpty
-                                      ? subProvider.deliveryMessage
-                                      : "Sorry, we cannot deliver to this address",
-                                );
+                                final hasUndeliverables = subProvider
+                                    .undeliverableProducts.isNotEmpty;
+                                final baseMsg = subProvider
+                                        .deliveryMessage.isNotEmpty
+                                    ? subProvider.deliveryMessage
+                                    : "Sorry, we cannot deliver to this address";
+                                final fullMsg = hasUndeliverables
+                                    ? "$baseMsg (${subProvider.undeliverableProducts.join(', ')})"
+                                    : baseMsg;
+                                MySnackBar.showSnackBar(context, fullMsg);
                               }
                               return;
                             }

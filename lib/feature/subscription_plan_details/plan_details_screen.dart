@@ -6,6 +6,7 @@ import 'package:vd_customer_app/core/models/admin_plan_model.dart';
 import 'package:vd_customer_app/core/theme/colors.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_appbar.dart';
 import 'package:vd_customer_app/core/utils/common_widgets/common_button.dart';
+import 'package:vd_customer_app/feature/profile_screen/provider/profileProvider.dart';
 import 'package:vd_customer_app/feature/subscription_date_screen/provider/subscription_provider.dart';
 import 'package:vd_customer_app/feature/subscription_date_screen/widgets/address_bottom_sheet.dart';
 import 'package:vd_customer_app/feature/subscription_plan_details/utils/subscription_date_helper.dart';
@@ -102,14 +103,19 @@ class _PlanDetailsScreenState extends State<PlanDetailsScreen> {
       isLoading = true;
     });
 
+    final profileProvider = context.read<ProfileProvider>();
+    final customerNameStr = profileProvider.fullName ?? '';
+
     final payload = {
       "data": {
         "admin_plan_id": widget.planId,
+        "customerName": customerNameStr,
         "addressId": int.parse(selectedAddressId!),
         "start_date": _formatApiDate(startDate!),
         "end_date": endDate != null ? _formatApiDate(endDate!) : null,
         "preferredTiming": preferredTiming,
         "remarks": remarks.isEmpty ? null : remarks,
+        "paymentMode": "ONLINE",
       },
     };
 
@@ -125,12 +131,13 @@ class _PlanDetailsScreenState extends State<PlanDetailsScreen> {
     if (!mounted) return;
 
     if (response['success'] == true) {
-      MySnackBar.showSnackBar(
-        context,
-        response['message'] ?? 'Subscription created successfully',
-      );
-      context.pop();
-      context.pop(); // Go back to subscription product screen
+      final message =
+          response['message'] ?? 'Subscription created successfully';
+      MySnackBar.showSnackBar(context, message);
+      if (message != 'Proceeding to payment...') {
+        context.pop();
+        context.pop();
+      }
     } else {
       MySnackBar.showSnackBar(
         context,
