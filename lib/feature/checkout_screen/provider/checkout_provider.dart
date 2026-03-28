@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:vd_customer_app/core/models/address.model.dart';
 import 'package:vd_customer_app/core/routing/routes.dart';
 import 'package:vd_customer_app/core/services/api_services.dart';
 import 'package:vd_customer_app/feature/cart_screen/provider/cart_provider.dart';
+import 'package:vd_customer_app/feature/my_order_screen/provider/my_order_provider.dart';
 import 'package:vd_customer_app/widget/snack_bar.dart';
 
 class CheckoutProvider extends ChangeNotifier {
@@ -13,6 +15,12 @@ class CheckoutProvider extends ChangeNotifier {
   String? _pendingOrderNo;
   CartProvider? _pendingCartProvider;
   BuildContext? _pendingContext;
+  bool _postPaymentDialogShown = false;
+  double? _lastOrderTotalAmount;
+  double? _lastOrderDiscountAmount;
+
+  double? get lastOrderTotalAmount => _lastOrderTotalAmount;
+  double? get lastOrderDiscountAmount => _lastOrderDiscountAmount;
 
   CheckoutProvider() {
     _razorpay = Razorpay();
@@ -58,10 +66,7 @@ class CheckoutProvider extends ChangeNotifier {
 
     try {
       final response = await Api.post('checkDeliveryPincode', {
-        "data": {
-          "pinCode": pinCode,
-          if (cartId != null) "cartId": cartId,
-        }
+        "data": {"pinCode": pinCode, if (cartId != null) "cartId": cartId},
       });
 
       print("checkDeliveryPincode Response: $response");
@@ -79,17 +84,21 @@ class CheckoutProvider extends ChangeNotifier {
 
       if (isSuccess && data != null) {
         _isDeliverable = data['isDeliverable'] == true;
-        _deliveryMessage = data['message'] ??
+        _deliveryMessage =
+            data['message'] ??
             (_isDeliverable
                 ? "Delivery is available."
                 : "Delivery not available.");
-        
+
         if (data['undeliverableProducts'] != null) {
-          _undeliverableProducts = List<String>.from(data['undeliverableProducts']);
+          _undeliverableProducts = List<String>.from(
+            data['undeliverableProducts'],
+          );
         }
       } else {
         _isDeliverable = false;
-        _deliveryMessage = response['message'] ??
+        _deliveryMessage =
+            response['message'] ??
             response['dataResponse']?['description'] ??
             "Unable to verify delivery.";
       }
@@ -108,7 +117,6 @@ class CheckoutProvider extends ChangeNotifier {
     _deliveryMessage = '';
     notifyListeners();
   }
-
 
   List<Map<String, dynamic>> _coupons = [];
   List<Map<String, dynamic>> get coupons => _coupons;
@@ -235,7 +243,7 @@ class CheckoutProvider extends ChangeNotifier {
     final options = {
       'key': key,
       'amount': (amountDouble * 100).toInt(),
-      'name': paymentData['name'] ?? 'Store',
+      'name': paymentData['name'] ?? 'Veedasip',
       'description': paymentData['description'] ?? 'Order Payment',
       'order_id': paymentData['razorpayOrderId'] ?? paymentData['orderId'],
       'currency': paymentData['currency'] ?? 'INR',
@@ -258,41 +266,89 @@ class CheckoutProvider extends ChangeNotifier {
     }
   }
 
+  void startOnlinePayment({
+    required Map<String, dynamic> paymentData,
+    required Map<String, dynamic> orderData,
+    required CartProvider cartProvider,
+    required BuildContext context,
+  }) {
+    _isLoading = true;
+    notifyListeners();
+    _openRazorpay(paymentData, orderData, cartProvider, context);
+  }
+
+  Future<void> _clearCartBackendFast(CartProvider cartProvider) async {
+    final currentCartId = cartProvider.cartId;
+    cartProvider.clearCart();
+    if (currentCartId == null) return;
+    try {
+      await Api.post('addEditCart', {
+        "data": {"id": currentCartId, "products": []},
+      });
+    } catch (_) {}
+  }
+
+  Future<void> _showPostPaymentChoiceDialog(BuildContext context) async {
+    if (!context.mounted) return;
+    context.goNamed(AppRoutes.myOrderScreen, extra: {'initialTabIndex': 1});
+  }
+
   Future<void> _handlePaymentSuccess(PaymentSuccessResponse response) async {
     _isLoading = false;
     notifyListeners();
 
+    final ctx = _pendingContext;
+    final payload = {
+      'data': {
+        'orderId': _pendingOrderId,
+        'razorpayOrderId': response.orderId,
+        'razorpayPaymentId': response.paymentId,
+        'razorpaySignature': response.signature,
+      },
+    };
+
     try {
-      final payload = {
-        'data': {
-          'orderId': _pendingOrderId,
-          'orderNo': _pendingOrderNo,
-          'paymentId': response.paymentId,
-          'razorpayOrderId': response.orderId,
-          'razorpaySignature': response.signature,
-        },
-      };
+      if (_pendingOrderId != null) {
+        final verifyResponse = await Api.post('verifyPayment', payload);
+        final verified =
+            verifyResponse['success'] == true ||
+            verifyResponse['dataResponse']?['returnCode'] == 0;
+        if (!verified) {
+          throw Exception(
+            verifyResponse['message'] ??
+                verifyResponse['dataResponse']?['description'] ??
+                'Payment verification failed.',
+          );
+        }
+      } else {
+        throw Exception('Missing order id for payment verification.');
+      }
 
-      await Api.post('generateInvoice', payload);
-
-      // finalize order locally
-      if (_pendingCartProvider != null) _pendingCartProvider!.clearCart();
+      final cp = _pendingCartProvider;
+      if (cp != null) {
+        _clearCartBackendFast(cp);
+      }
       clearCoupon();
-      if (_pendingContext != null) {
-        MySnackBar.showSnackBar(_pendingContext!, 'Order placed successfully!');
-        _pendingContext!.pushReplacement(AppRoutes.myOrderScreen);
+
+      if (ctx != null) {
+        try {
+          ctx.read<MyOrderProvider>().fetchOrders();
+        } catch (_) {}
+        await _showPostPaymentChoiceDialog(ctx);
       }
     } catch (e) {
-      if (_pendingContext != null)
+      if (ctx != null) {
         MySnackBar.showSnackBar(
-          _pendingContext!,
+          ctx,
           'Payment succeeded but finalizing failed.',
         );
+      }
     } finally {
       _pendingOrderId = null;
       _pendingOrderNo = null;
       _pendingCartProvider = null;
       _pendingContext = null;
+      _postPaymentDialogShown = false;
       _isLoading = false;
       notifyListeners();
     }
@@ -383,15 +439,16 @@ class CheckoutProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final payload = {
-        "data": {
-          "id": 0,
-          "cartId": cartProvider.cartId!,
-          "addressId": _selectedAddress!.id,
-          "couponCode": couponCode,
-          "paymentMode": paymentMode,
-        },
+      final data = <String, dynamic>{
+        "cartId": cartProvider.cartId!,
+        "addressId": _selectedAddress!.id,
+        "paymentMode": paymentMode,
       };
+      final cleanedCoupon = couponCode.trim();
+      if (cleanedCoupon.isNotEmpty) {
+        data["couponCode"] = cleanedCoupon;
+      }
+      final payload = {"data": data};
 
       final response = await Api.post("addEditOrder", payload);
 
@@ -401,6 +458,11 @@ class CheckoutProvider extends ChangeNotifier {
 
       if (isSuccess) {
         final orderData = response['data'] as Map<String, dynamic>? ?? {};
+        _lastOrderTotalAmount =
+            double.tryParse((orderData['totalAmount'] ?? '0').toString());
+        _lastOrderDiscountAmount =
+            double.tryParse((orderData['discountAmount'] ?? '0').toString());
+        notifyListeners();
 
         // If QR payment created by backend, return orderData so UI can show QR
         if ((paymentMode.toUpperCase() == 'QR' ||
@@ -415,19 +477,27 @@ class CheckoutProvider extends ChangeNotifier {
         final paymentData = orderData['payment'] as Map<String, dynamic>?;
 
         if (respPaymentMode.toUpperCase() == 'ONLINE' && paymentData != null) {
-          // Open Razorpay checkout using stored payment details
-          _isLoading = true;
+          _isLoading = false;
           notifyListeners();
-          _openRazorpay(paymentData, orderData, cartProvider, context);
           return orderData;
         } else {
           // For POD/COD
           _isLoading = false;
           notifyListeners();
-          cartProvider.clearCart();
+          await cartProvider.clearCartOnBackend(context);
           clearCoupon();
+          _lastOrderTotalAmount = null;
+          _lastOrderDiscountAmount = null;
+          try {
+            await context.read<MyOrderProvider>().fetchOrders();
+          } catch (_) {}
           MySnackBar.showSnackBar(context, "Order placed successfully!");
-          context.pushReplacement(AppRoutes.myOrderScreen);
+          if (context.mounted) {
+            context.goNamed(
+              AppRoutes.myOrderScreen,
+              extra: {'initialTabIndex': 1},
+            );
+          }
           return orderData;
         }
       } else {
@@ -456,27 +526,42 @@ class CheckoutProvider extends ChangeNotifier {
     BuildContext context,
   ) async {
     try {
-      // Try to generate invoice
-      final invoicePayload = {
-        'data': {'orderId': order['id'], 'orderNo': order['orderNo']},
-      };
+      final razorpayOrderId = order['razorpayOrderId'];
+      final razorpayPaymentId = order['razorpayPaymentId'];
+      final razorpaySignature = order['razorpaySignature'];
 
-      await Api.post('generateInvoice', invoicePayload);
+      if (order['id'] != null &&
+          razorpayOrderId != null &&
+          razorpayPaymentId != null &&
+          razorpaySignature != null) {
+        await Api.post('verifyPayment', {
+          'data': {
+            'orderId': order['id'],
+            'razorpayOrderId': razorpayOrderId,
+            'razorpayPaymentId': razorpayPaymentId,
+            'razorpaySignature': razorpaySignature,
+          },
+        });
+      }
 
       // Clear cart and coupon
-      cartProvider.clearCart();
+      _clearCartBackendFast(cartProvider);
       clearCoupon();
 
       // Show success and navigate
-      MySnackBar.showSnackBar(context, 'Payment successful! Order confirmed.');
-      context.pushReplacement(AppRoutes.myOrderScreen);
+      try {
+        context.read<MyOrderProvider>().fetchOrders();
+      } catch (_) {}
+      await _showPostPaymentChoiceDialog(context);
     } catch (e) {
       debugPrint('Invoice generation error: $e');
       // Even if invoice fails, order was successful
-      cartProvider.clearCart();
+      _clearCartBackendFast(cartProvider);
       clearCoupon();
-      MySnackBar.showSnackBar(context, 'Payment successful! Order confirmed.');
-      context.pushReplacement(AppRoutes.myOrderScreen);
+      try {
+        context.read<MyOrderProvider>().fetchOrders();
+      } catch (_) {}
+      await _showPostPaymentChoiceDialog(context);
     }
   }
 }

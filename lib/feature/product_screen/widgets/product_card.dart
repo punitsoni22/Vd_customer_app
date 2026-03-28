@@ -34,7 +34,7 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String? imgUrl = (product.images.isNotEmpty)
-        ? product.images.first.signedUrl
+        ? (product.images.first.signedUrl ?? product.images.first.rawImageUrl)
         : null;
     return InkWell(
       onTap: () {

@@ -471,6 +471,13 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
               initialDate = value ?? tomorrow;
               firstDate = tomorrow;
             } else {
+              if (startDate == null) {
+                MySnackBar.showSnackBar(
+                  context,
+                  'Please select start date first',
+                );
+                return;
+              }
               if (startDate != null) {
                 firstDate = startDate!.add(const Duration(days: 1));
               } else {
@@ -718,7 +725,7 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
 
     return GestureDetector(
       onTap: () async {
-        await showModalBottomSheet(
+        final changed = await showModalBottomSheet(
           context: context,
           isScrollControlled: true,
           builder: (_) => AddressBottomSheet(
@@ -731,6 +738,9 @@ class _SubscriptionDateDropdownState extends State<SubscriptionDateDropdown> {
             },
           ),
         );
+        if (changed == true && context.mounted) {
+          await provider.getAllAddresses(context);
+        }
       },
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,

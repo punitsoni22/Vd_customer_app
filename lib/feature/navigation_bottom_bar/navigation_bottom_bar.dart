@@ -6,12 +6,14 @@ class NavigationBottomBar extends StatelessWidget {
   final int currentIndex;
   final int? visibleItemCount;
   final ValueChanged<int> onTap;
+  final int cartCount;
 
   const NavigationBottomBar({
     super.key,
     required this.currentIndex,
     required this.onTap,
     this.visibleItemCount,
+    this.cartCount = 0,
   });
 
   static const _allItems = <_BottomItem>[
@@ -87,6 +89,7 @@ class NavigationBottomBar extends StatelessWidget {
                                   color: selected
                                       ? selectedColor
                                       : unselectedColor,
+                                  cartCount: cartCount,
                                 ),
                                 SizedBox(height: 4.h),
                                 DefaultTextStyle.merge(
@@ -123,8 +126,13 @@ class NavigationBottomBar extends StatelessWidget {
 class _IconWithExtras extends StatelessWidget {
   final _BottomItem item;
   final Color color;
+  final int cartCount;
 
-  const _IconWithExtras({required this.item, required this.color});
+  const _IconWithExtras({
+    required this.item,
+    required this.color,
+    required this.cartCount,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -143,7 +151,38 @@ class _IconWithExtras extends StatelessWidget {
       );
     }
 
-    return Icon(item.icon, size: iconSize, color: color);
+    final icon = Icon(item.icon, size: iconSize, color: color);
+    if (item.label != 'Cart' || cartCount <= 0) return icon;
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        icon,
+        Positioned(
+          right: -8,
+          top: -6,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFF3B30),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.white, width: 1),
+            ),
+            constraints: const BoxConstraints(minWidth: 16, minHeight: 16),
+            child: Text(
+              cartCount > 99 ? '99+' : cartCount.toString(),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 10.sp,
+                fontWeight: FontWeight.w700,
+                height: 1,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 

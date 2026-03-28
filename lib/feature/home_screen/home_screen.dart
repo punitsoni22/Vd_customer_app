@@ -122,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           ),
                                         ),
                                         TextSpan(
-                                          text: "Vedasip",
+                                          text: "Veedasip",
                                           style: TextStyle(
                                             fontSize: 26.sp,
                                             color: AllColors.iconBackgColor,

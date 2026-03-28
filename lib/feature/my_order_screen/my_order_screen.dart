@@ -5,7 +5,8 @@ import 'package:vd_customer_app/core/utils/common_widgets/common_appbar.dart';
 import 'package:vd_customer_app/feature/my_order_screen/widgets/my_order_tab_bar.dart';
 
 class MyOrderScreen extends StatelessWidget {
-  const MyOrderScreen({super.key});
+  final int initialTabIndex;
+  const MyOrderScreen({super.key, this.initialTabIndex = 0});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +23,7 @@ class MyOrderScreen extends StatelessWidget {
           }
         },
       ),
-      body: const MyOrderTabBar(),
+      body: MyOrderTabBar(initialTabIndex: initialTabIndex),
     );
   }
 }

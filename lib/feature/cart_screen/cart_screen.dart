@@ -29,6 +29,16 @@ class _CartScreenState extends State<CartScreen> {
       appBar: CommonAppBar(
         title: 'My Cart',
         titleAlignment: BarTitleAlignment.center,
+        showBack: true,
+        onBack: () {
+          context.goNamed(
+            AppRoutes.bottomBarScreen,
+            extra: {
+              'index': 0,
+              'navId': DateTime.now().microsecondsSinceEpoch.toString(),
+            },
+          );
+        },
       ),
       body: SafeArea(
         child: Column(

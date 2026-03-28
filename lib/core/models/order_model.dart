@@ -2,6 +2,8 @@ class Order {
   final int orderId;
   final String status;
   final String orderConfirmedDate;
+  final double totalAmount;
+  final double discountAmount;
   final Cart cart;
   final Invoice? invoice;
 
@@ -9,6 +11,8 @@ class Order {
     required this.orderId,
     required this.status,
     required this.orderConfirmedDate,
+    required this.totalAmount,
+    required this.discountAmount,
     required this.cart,
     this.invoice,
   });
@@ -22,6 +26,10 @@ class Order {
                 json['createdAt'] ??
                 '')
             as String;
+    final totalAmount =
+        double.tryParse((json['totalAmount'] ?? '0').toString()) ?? 0.0;
+    final discountAmount =
+        double.tryParse((json['discountAmount'] ?? '0').toString()) ?? 0.0;
 
     final Map<String, dynamic> cartJson =
         (json['cart'] as Map<String, dynamic>?) ?? {};
@@ -33,6 +41,8 @@ class Order {
       orderId: id,
       status: status,
       orderConfirmedDate: created,
+      totalAmount: totalAmount,
+      discountAmount: discountAmount,
       cart: Cart.fromJson(cartJson),
       invoice: invoiceJson != null ? Invoice.fromJson(invoiceJson) : null,
     );
@@ -42,6 +52,8 @@ class Order {
     "orderId": orderId,
     "status": status,
     "orderConfirmedDate": orderConfirmedDate,
+    "totalAmount": totalAmount,
+    "discountAmount": discountAmount,
     "cart": cart.toJson(),
     "invoice": invoice?.toJson(),
   };
@@ -49,18 +61,22 @@ class Order {
 
 class Cart {
   final int cartId;
+  final double totalPrice;
   final List<CartDetail> cartDetails;
 
-  Cart({required this.cartId, required this.cartDetails});
+  Cart({required this.cartId, required this.totalPrice, required this.cartDetails});
 
   factory Cart.fromJson(Map<String, dynamic> json) {
     final int id = (json['id'] ?? json['cartId'] ?? 0) as int;
+    final totalPrice =
+        double.tryParse((json['totalPrice'] ?? '0').toString()) ?? 0.0;
 
     final List<dynamic> detailsList =
         (json['cartDetails'] as List<dynamic>?) ?? [];
 
     return Cart(
       cartId: id,
+      totalPrice: totalPrice,
       cartDetails: detailsList
           .map((e) => CartDetail.fromJson((e as Map<String, dynamic>)))
           .toList(),
@@ -69,6 +85,7 @@ class Cart {
 
   Map<String, dynamic> toJson() => {
     "cartId": cartId,
+    "totalPrice": totalPrice,
     "cartDetails": cartDetails.map((e) => e.toJson()).toList(),
   };
 }

@@ -19,4 +19,5 @@ class AppRoutes {
   static const String aboutUsScreen = '/about_us_screen';
   static const String contactUsScreen = '/contact_us_screen';
   static const String splashScreen = '/splash_screen';
+  static const String addressBookScreen = '/address_book_screen';
 }

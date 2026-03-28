@@ -21,6 +21,8 @@ class MyOrderCard extends StatelessWidget {
   final String? invoiceNumber;
   final VoidCallback? onInvoiceTap;
   final VoidCallback? onViewTap;
+  final VoidCallback? onCancelTap;
+  final String? footerNote;
   final Function(int)? onStatusChange;
   final int? currentStatus;
 
@@ -43,6 +45,8 @@ class MyOrderCard extends StatelessWidget {
     this.invoiceNumber,
     this.onInvoiceTap,
     this.onViewTap,
+    this.onCancelTap,
+    this.footerNote,
     this.onStatusChange,
     this.currentStatus,
   });
@@ -142,20 +146,26 @@ class MyOrderCard extends StatelessWidget {
                 ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(12.r),
-                  child: Image.network(
-                    imageUrl.isNotEmpty && imageUrl.startsWith('http')
-                        ? imageUrl
-                        : 'assets/images/image.png',
-                    height: 80.h,
-                    width: 80.w,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Image.asset(
-                      'assets/images/image.png',
-                      height: 80.h,
-                      width: 80.w,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                  child: (imageUrl.isNotEmpty && imageUrl.startsWith('http'))
+                      ? Image.network(
+                          imageUrl,
+                          height: 80.h,
+                          width: 80.w,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Image.asset(
+                                'assets/images/image.png',
+                                height: 80.h,
+                                width: 80.w,
+                                fit: BoxFit.cover,
+                              ),
+                        )
+                      : Image.asset(
+                          'assets/images/image.png',
+                          height: 80.h,
+                          width: 80.w,
+                          fit: BoxFit.cover,
+                        ),
                 ),
               ),
 
@@ -174,17 +184,19 @@ class MyOrderCard extends StatelessWidget {
                         color: Colors.black87,
                       ),
                     ),
-                    SizedBox(height: 6.h),
-                    Text(
-                      detail,
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 13.sp,
-                        fontWeight: FontWeight.w500,
-                        height: 1.3,
+                    if (detail.trim().isNotEmpty) ...[
+                      SizedBox(height: 6.h),
+                      Text(
+                        detail,
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w500,
+                          height: 1.3,
+                        ),
                       ),
-                    ),
-                    SizedBox(height: 8.h),
+                      SizedBox(height: 8.h),
+                    ],
                     if (paymentMethod != '')
                       Row(
                         children: [
@@ -226,7 +238,7 @@ class MyOrderCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              if (onStatusChange != null)
+              if (onStatusChange != null) ...[
                 Expanded(
                   child: PopupMenuButton<int>(
                     onSelected: (val) => onStatusChange!(val),
@@ -302,10 +314,27 @@ class MyOrderCard extends StatelessWidget {
                       return items;
                     },
                   ),
-                )
-              else
-                SizedBox(width: 10.w),
-              SizedBox(width: 12.w),
+                ),
+                SizedBox(width: 12.w),
+              ] else if (onCancelTap != null) ...[
+                Expanded(
+                  child: CommonButton(
+                    buttonValue: button1 ?? 'Cancel',
+                    onTap: onCancelTap ?? () {},
+                    variant: ButtonVariant.outlined,
+                    borderColor: Colors.red.shade300,
+                    foregroundColor: Colors.red.shade700,
+                    selfconstraints: BoxConstraints(minHeight: 40.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 10.w,
+                      vertical: 8.h,
+                    ),
+                    fontSize: 13.sp,
+                    radius: 8.r,
+                  ),
+                ),
+                SizedBox(width: 12.w),
+              ],
               Expanded(
                 child: CommonButton(
                   buttonValue: button2 ?? "View",
@@ -342,6 +371,18 @@ class MyOrderCard extends StatelessWidget {
               ),
             ],
           ),
+          if (footerNote != null && footerNote!.trim().isNotEmpty) ...[
+            SizedBox(height: 10.h),
+            Text(
+              footerNote!.trim(),
+              style: TextStyle(
+                fontSize: 11.sp,
+                color: Colors.grey.shade700,
+                fontWeight: FontWeight.w500,
+                height: 1.25,
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -368,6 +409,7 @@ Color getStatusColor(String status) {
     case 'Resumed':
       return Colors.green.shade100;
     case 'Cancelled':
+    case 'CANCELLED':
       return Colors.red.shade100;
     case 'DELIVERED':
       return Colors.blue.shade50;
@@ -390,6 +432,7 @@ Color statusFontColor(String status) {
     case 'Resumed':
       return Colors.green.shade700;
     case 'Cancelled':
+    case 'CANCELLED':
       return Colors.red.shade700;
     case 'DELIVERED':
       return Colors.blue;

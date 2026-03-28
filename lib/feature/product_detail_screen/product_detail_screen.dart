@@ -184,6 +184,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           cartDetail,
                           context: context,
                         );
+                        if (!context.mounted) return;
                         setState(() {
                           isAddingToCart = false;
                         });
@@ -199,7 +200,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             AppRoutes.bottomBarScreen,
                             extra: {
                               'index': 3,
-                              'navId': DateTime.now().millisecondsSinceEpoch.toString(),
+                              'navId': DateTime.now().millisecondsSinceEpoch
+                                  .toString(),
                             },
                           );
                         }
@@ -250,39 +252,44 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         if (product.variants.isNotEmpty)
-                          Builder(builder: (context) {
-                            final variant =
-                                selectedVariant ?? product.variants.first;
-                            final price = double.tryParse(variant.price) ?? 0;
-                            final originalPriceVal =
-                                double.tryParse(variant.originalPrice ?? '0') ??
-                                    0;
+                          Builder(
+                            builder: (context) {
+                              final variant =
+                                  selectedVariant ?? product.variants.first;
+                              final price = double.tryParse(variant.price) ?? 0;
+                              final originalPriceVal =
+                                  double.tryParse(
+                                    variant.originalPrice ?? '0',
+                                  ) ??
+                                  0;
 
-                            final showOriginalPrice = originalPriceVal > 0 &&
-                                variant.originalPrice != null &&
-                                variant.originalPrice!.isNotEmpty;
+                              final showOriginalPrice =
+                                  originalPriceVal > 0 &&
+                                  variant.originalPrice != null &&
+                                  variant.originalPrice!.isNotEmpty;
 
-                            return CommonPriceDisplay(
-                              price: price % 1 == 0
-                                  ? price.toInt().toString()
-                                  : price.toString(),
-                              originalPrice: showOriginalPrice
-                                  ? (originalPriceVal % 1 == 0
-                                      ? originalPriceVal.toInt().toString()
-                                      : originalPriceVal.toString())
-                                  : null,
-                              priceStyle: TextStyle(
-                                fontSize: 18.sp,
-                                fontWeight: FontWeight.w700,
-                                color: AllColors.buttonColor,
-                              ),
-                              originalPriceStyle: TextStyle(
-                                fontSize: 14.sp,
-                                decoration: TextDecoration.lineThrough,
-                                color: Colors.grey,
-                              ),
-                            );
-                          })
+                              return CommonPriceDisplay(
+                                price: price % 1 == 0
+                                    ? price.toInt().toString()
+                                    : price.toString(),
+                                originalPrice: showOriginalPrice
+                                    ? (originalPriceVal % 1 == 0
+                                          ? originalPriceVal.toInt().toString()
+                                          : originalPriceVal.toString())
+                                    : null,
+                                priceStyle: TextStyle(
+                                  fontSize: 18.sp,
+                                  fontWeight: FontWeight.w700,
+                                  color: AllColors.buttonColor,
+                                ),
+                                originalPriceStyle: TextStyle(
+                                  fontSize: 14.sp,
+                                  decoration: TextDecoration.lineThrough,
+                                  color: Colors.grey,
+                                ),
+                              );
+                            },
+                          )
                         else
                           Text(
                             'N/A',
@@ -312,6 +319,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             variant.quantityInMl,
                           );
                           final isSelected = selectedVariant?.id == variant.id;
+                          final price = double.tryParse(variant.price) ?? 0;
+                          final priceText = price % 1 == 0
+                              ? price.toInt().toString()
+                              : price.toString();
 
                           return Padding(
                             padding: EdgeInsets.only(right: 8.w),
@@ -329,20 +340,45 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                   vertical: 6.h,
                                 ),
                                 buttonValue: displayQuantity,
-                                textStyle: TextStyle(
-                                  fontSize: 12.sp,
-                                  color: isSelected
-                                      ? Colors.white
-                                      : AllColors.buttonColor,
-                                  fontWeight: FontWeight.w600,
-                                ),
                                 borderColor: AllColors.buttonColor,
                                 backgroundColor: isSelected
                                     ? AllColors.lightgreenColor
                                     : const Color(0xFFF8FDFF),
                                 selfconstraints: BoxConstraints(
-                                  minHeight: 34.h,
-                                  minWidth: 70.w,
+                                  minHeight: 46.h,
+                                  minWidth: 86.w,
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      displayQuantity,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 12.sp,
+                                        color: isSelected
+                                            ? Colors.white
+                                            : AllColors.buttonColor,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    SizedBox(height: 2.h),
+                                    Text(
+                                      '₹$priceText',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 11.sp,
+                                        color: isSelected
+                                            ? Colors.white.withValues(
+                                                alpha: 0.95,
+                                              )
+                                            : Colors.grey.shade700,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -382,7 +418,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ],
                     ),
                     SizedBox(height: 22.h),
-                    
+
                     // Pincode Check Section
                     Text(
                       'Check Delivery',

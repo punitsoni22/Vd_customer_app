@@ -68,18 +68,33 @@ class _QRPaymentModalState extends State<QRPaymentModal> {
 
     try {
       final resp = await Api.post('getAllOrders', {
-        "data": {"page": 1, "pageSize": 20},
+        "data": {"page": 1, "pageSize": 20, "searchText": ""},
       });
 
       bool isSuccess =
           resp['success'] == true || resp['dataResponse']?['returnCode'] == 0;
 
       if (isSuccess) {
-        final items = resp['data']?['items'] as List? ?? [];
-        final order = items.cast<Map<String, dynamic>>().firstWhere(
-          (o) => o['id'] == widget.orderId,
-          orElse: () => {},
-        );
+        final data = resp['data'];
+        List<dynamic> items = [];
+        if (data is Map<String, dynamic>) {
+          final raw = data['items'] ?? data['rows'] ?? data['orders'] ?? data['list'];
+          if (raw is List) items = raw;
+        } else if (data is List) {
+          items = data;
+        }
+
+        Map<String, dynamic> order = {};
+        for (final i in items) {
+          if (i is! Map) continue;
+          final m = Map<String, dynamic>.from(i as Map);
+          final id = m['id'];
+          final idInt = id is int ? id : int.tryParse(id?.toString() ?? '');
+          if (idInt == widget.orderId) {
+            order = m;
+            break;
+          }
+        }
 
         if (order.isNotEmpty) {
           final paymentStatus =

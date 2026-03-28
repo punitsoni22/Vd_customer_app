@@ -1,5 +1,6 @@
 import java.util.Properties
 import java.io.FileInputStream
+import java.io.File
 
 plugins {
     id("com.android.application")
@@ -18,6 +19,19 @@ val localProperties = Properties()
 val localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
     localProperties.load(FileInputStream(localPropertiesFile))
+}
+
+fun readDotEnvValue(file: File, key: String): String? {
+    if (!file.exists()) return null
+    val prefix = "$key="
+    for (rawLine in file.readLines()) {
+        val line = rawLine.trim()
+        if (line.isEmpty() || line.startsWith("#")) continue
+        if (!line.startsWith(prefix)) continue
+        val value = line.removePrefix(prefix).trim()
+        return value.trim().trim('"').trim('\'')
+    }
+    return null
 }
 
 android {
@@ -41,11 +55,13 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 
-        // Prefer local.properties -> project properties -> environment variable
-        val googleMapsApiKey = (localProperties.getProperty("GOOGLE_MAPS_API_KEY")
-            ?: (project.findProperty("GOOGLE_MAPS_API_KEY") as String?)
-            ?: System.getenv("GOOGLE_MAPS_API_KEY")
-            ?: "")
+        val dotEnvApiKey = readDotEnvValue(rootProject.file("../.env"), "GOOGLE_MAPS_API_KEY")
+        val localApiKey = localProperties.getProperty("GOOGLE_MAPS_API_KEY")?.trim().orEmpty()
+        val projectApiKey = (project.findProperty("GOOGLE_MAPS_API_KEY") as String?)?.trim().orEmpty()
+        val envApiKey = (System.getenv("GOOGLE_MAPS_API_KEY") ?: "").trim()
+        val googleMapsApiKey = listOf(localApiKey, projectApiKey, envApiKey, dotEnvApiKey ?: "")
+            .firstOrNull { it.isNotBlank() }
+            ?: ""
 
         manifestPlaceholders["googleMapsApiKey"] = googleMapsApiKey
     }

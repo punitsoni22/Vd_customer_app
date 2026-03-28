@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class Product {
   final int id;
   final String skuCode;
@@ -47,15 +49,27 @@ class Product {
   });
 
   factory Product.fromJson(Map<String, dynamic> json, {String? signedUrl}) {
+    final rawCities = json['availaibleCities'];
+    List<int> cityIds = [];
+    if (rawCities is String && rawCities.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(rawCities);
+        if (decoded is List) {
+          cityIds =
+              decoded.map((e) => int.tryParse(e.toString()) ?? 0).toList();
+        }
+      } catch (_) {}
+    } else if (rawCities is List) {
+      cityIds = rawCities.map((e) => int.tryParse(e.toString()) ?? 0).toList();
+    }
+
     return Product(
       id: json['id'] ?? 0,
       skuCode: json['skuCode'] ?? '',
       productName: json['productName'] ?? '',
       description: json['description'] ?? '',
 
-      availaibleCities: (json['availaibleCitiesName'] as List? ?? const [])
-          .map((e) => int.tryParse(e.toString()) ?? 0)
-          .toList(),
+      availaibleCities: cityIds,
 
       isApproved: json['isApproved'] ?? 0,
       createdOn: json['createdon']?.toString(),

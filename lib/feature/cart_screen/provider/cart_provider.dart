@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:vd_customer_app/core/models/cart_model.dart';
@@ -17,13 +19,22 @@ class CartProvider extends ChangeNotifier {
 
   List<CartDetail> get cartItems => _cart?.cartDetails ?? [];
 
+  int get totalItemsCount {
+    int sum = 0;
+    for (final item in cartItems) {
+      sum += item.quantity;
+    }
+    return sum;
+  }
+
   int? get cartId => _cart?.id;
 
   bool get isEmpty => cartItems.isEmpty;
 
   // Track removing items by ID to isolate state
   final Set<int> _removingItemIds = {};
-  bool isItemBeingRemoved(int cartDetailId) => _removingItemIds.contains(cartDetailId);
+  bool isItemBeingRemoved(int cartDetailId) =>
+      _removingItemIds.contains(cartDetailId);
 
   bool _isUpdatingQuantity = false;
   bool get isUpdatingQuantity => _isUpdatingQuantity;
@@ -33,6 +44,8 @@ class CartProvider extends ChangeNotifier {
   Map<int, int> get pendingQuantityChanges => _pendingQuantityChanges;
 
   bool get hasPendingChanges => _pendingQuantityChanges.isNotEmpty;
+
+  Timer? _autoSaveTimer;
 
   int getDisplayQuantity(CartDetail item) {
     return _pendingQuantityChanges[item.id] ?? item.quantity;
@@ -45,6 +58,7 @@ class CartProvider extends ChangeNotifier {
 
   Future<void> saveQuantityChanges(BuildContext context) async {
     if (!hasPendingChanges) return;
+    if (_isUpdatingQuantity) return;
 
     try {
       _isUpdatingQuantity = true;
@@ -259,6 +273,8 @@ class CartProvider extends ChangeNotifier {
     try {
       final cartDetailId = item.id;
 
+      _pendingQuantityChanges.remove(cartDetailId);
+      _autoSaveTimer?.cancel();
       _removingItemIds.add(cartDetailId);
       notifyListeners();
 
@@ -301,22 +317,46 @@ class CartProvider extends ChangeNotifier {
       }
     } finally {
       _removingItemIds.remove(item.id);
+      if (context.mounted && hasPendingChanges && !_isUpdatingQuantity) {
+        _scheduleAutoSave(context);
+      }
       notifyListeners();
     }
   }
 
-  void increaseQuantity(CartDetail item) {
+  void _scheduleAutoSave(BuildContext context) {
+    _autoSaveTimer?.cancel();
+    _autoSaveTimer = Timer(const Duration(milliseconds: 500), () async {
+      if (!context.mounted) return;
+      await saveQuantityChanges(context);
+    });
+  }
+
+  void increaseQuantity(CartDetail item, {BuildContext? context}) {
     final currentQuantity = _pendingQuantityChanges[item.id] ?? item.quantity;
     _pendingQuantityChanges[item.id] = currentQuantity + 1;
     notifyListeners();
+    if (context != null) _scheduleAutoSave(context);
   }
 
-  void decreaseQuantity(CartDetail item) {
+  void decreaseQuantity(CartDetail item, {BuildContext? context}) {
+    if (_removingItemIds.contains(item.id)) return;
+
     final currentQuantity = _pendingQuantityChanges[item.id] ?? item.quantity;
 
     if (currentQuantity > 1) {
       _pendingQuantityChanges[item.id] = currentQuantity - 1;
       notifyListeners();
+      if (context != null) _scheduleAutoSave(context);
+      return;
+    }
+
+    _pendingQuantityChanges.remove(item.id);
+    _autoSaveTimer?.cancel();
+    notifyListeners();
+
+    if (context != null) {
+      removeItem(context, item);
     }
   }
 
@@ -353,12 +393,49 @@ class CartProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> clearCartOnBackend(BuildContext context) async {
+    final currentCartId = cartId;
+    final currentItems = List<CartDetail>.from(cartItems);
+
+    clearCart();
+
+    if (currentCartId == null) return;
+
+    try {
+      final response = await Api.post('addEditCart', {
+        "data": {"id": currentCartId, "products": []},
+      });
+
+      if (response['success'] == true) {
+        await fetchLatestCart(context);
+        return;
+      }
+    } catch (_) {}
+
+    for (final item in currentItems) {
+      try {
+        await Api.post("deleteCartItem", {
+          "data": {"cartDetailId": item.id},
+        });
+      } catch (_) {}
+    }
+
+    await fetchLatestCart(context);
+    clearCart();
+  }
+
   void clearCart() {
     _cart?.cartDetails.clear();
 
     _cart = null;
 
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _autoSaveTimer?.cancel();
+    super.dispose();
   }
 
   double get subtotal => cartItems.fold<double>(

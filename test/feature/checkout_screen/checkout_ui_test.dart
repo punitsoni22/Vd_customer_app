@@ -25,6 +25,12 @@ class MockCheckoutProvider extends ChangeNotifier implements CheckoutProvider {
   double get couponDiscount => 0.0;
 
   @override
+  double? get lastOrderTotalAmount => null;
+
+  @override
+  double? get lastOrderDiscountAmount => null;
+
+  @override
   bool get isCheckingDelivery => false;
 
   @override
@@ -38,6 +44,14 @@ class MockCheckoutProvider extends ChangeNotifier implements CheckoutProvider {
 
   @override
   void setStep(int step) {}
+
+  @override
+  void startOnlinePayment({
+    required Map<String, dynamic> paymentData,
+    required Map<String, dynamic> orderData,
+    required CartProvider cartProvider,
+    required BuildContext context,
+  }) {}
   
   // Add other required overrides with dummy implementations
   @override

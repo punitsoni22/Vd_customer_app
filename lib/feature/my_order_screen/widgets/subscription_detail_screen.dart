@@ -22,13 +22,21 @@ class SubscriptionDetailScreen extends StatefulWidget {
 
 class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
   bool _isLoading = true;
+  bool _isUpdatingStatus = false;
   SubscriptionDetailModel? _subscriptionDetail;
   String? _errorMessage;
+  final TextEditingController _reasonController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _fetchSubscriptionDetail();
+  }
+
+  @override
+  void dispose() {
+    _reasonController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchSubscriptionDetail() async {
@@ -94,17 +102,33 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
     if (_subscriptionDetail == null) return;
 
     setState(() {
-      _isLoading = true;
+      _isUpdatingStatus = true;
       _errorMessage = null;
     });
 
     try {
+      final reason = _reasonController.text.trim();
+      if ((statusValue == 0 || statusValue == 2) && reason.isEmpty) {
+        if (mounted) {
+          MySnackBar.showSnackBar(
+            context,
+            'Please enter reason for status change',
+          );
+        }
+        return;
+      }
+
       final response = await Api.post('updateSubscriptionStatus', {
-        'data': {'id': _subscriptionDetail!.id, 'status': statusValue},
+        'data': {
+          'id': _subscriptionDetail!.id,
+          'status': statusValue,
+          if (reason.isNotEmpty) 'reasonForStatus': reason,
+        },
       });
 
       if (response['success'] == true) {
         MySnackBar.showSnackBar(context, 'Subscription updated');
+        _reasonController.clear();
         await _fetchSubscriptionDetail();
       } else {
         MySnackBar.showSnackBar(
@@ -117,9 +141,24 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
     } finally {
       if (mounted) {
         setState(() {
-          _isLoading = false;
+          _isUpdatingStatus = false;
         });
       }
+    }
+  }
+
+  String _statusLabel(int status) {
+    switch (status) {
+      case 1:
+        return 'ACTIVE';
+      case 0:
+        return 'PAUSED';
+      case 2:
+        return 'CANCELLED';
+      case 3:
+        return 'EXPIRED';
+      default:
+        return 'UNKNOWN';
     }
   }
 
@@ -130,69 +169,6 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
         title: 'Subscription Details',
         showBack: true,
         titleAlignment: BarTitleAlignment.center,
-        actions: [
-          if (_subscriptionDetail != null)
-            PopupMenuButton<int>(
-              icon: Icon(Icons.more_vert, color: AllColors.olivegreenColor),
-              color: AllColors.olivegreenColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              elevation: 4,
-              onSelected: (value) async {
-                await _updateSubscriptionStatus(value);
-              },
-              itemBuilder: (context) => [
-                PopupMenuItem<int>(
-                  value: 0,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.pause_circle_filled,
-                        color: Colors.white,
-                        size: 18.sp,
-                      ),
-                      SizedBox(width: 8.w),
-                      Text(
-                        'Pause Subscription',
-                        style: TextStyle(color: Colors.white, fontSize: 14.sp),
-                      ),
-                    ],
-                  ),
-                ),
-                PopupMenuItem<int>(
-                  value: 1,
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.play_circle_fill,
-                        color: Colors.white,
-                        size: 18.sp,
-                      ),
-                      SizedBox(width: 8.w),
-                      Text(
-                        'Resume Subscription',
-                        style: TextStyle(color: Colors.white, fontSize: 14.sp),
-                      ),
-                    ],
-                  ),
-                ),
-                PopupMenuItem<int>(
-                  value: 2,
-                  child: Row(
-                    children: [
-                      Icon(Icons.cancel, color: Colors.white, size: 18.sp),
-                      SizedBox(width: 8.w),
-                      Text(
-                        'Cancel Subscription',
-                        style: TextStyle(color: Colors.white, fontSize: 14.sp),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-        ],
       ),
       body: _isLoading
           ? Center(
@@ -229,24 +205,182 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Subscription Info Card
                     _buildSubscriptionInfoCard(),
                     SizedBox(height: 16.h),
 
-                    // Customer Info Card
+                    _buildSubscriptionActionsCard(),
+                    SizedBox(height: 16.h),
+
                     _buildCustomerInfoCard(),
                     SizedBox(height: 16.h),
 
-                    // Delivery Schedule Card
                     _buildDeliveryScheduleCard(),
                     SizedBox(height: 16.h),
 
-                    // Products List
                     _buildProductsList(),
                   ],
                 ),
               ),
             ),
+    );
+  }
+
+  Widget _buildSubscriptionActionsCard() {
+    final sub = _subscriptionDetail;
+    if (sub == null) return const SizedBox();
+
+    final canPause = sub.status == 1;
+    final canResume = sub.status == 0;
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(12.r),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Manage Subscription',
+            style: TextStyle(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w700,
+              color: Colors.black87,
+            ),
+          ),
+          SizedBox(height: 10.h),
+          TextField(
+            controller: _reasonController,
+            maxLines: 3,
+            decoration: InputDecoration(
+              hintText: 'Note / reason for status change',
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 12.w,
+                vertical: 12.h,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.r),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.r),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12.r),
+                borderSide: BorderSide(color: AllColors.olivegreenColor),
+              ),
+            ),
+          ),
+          SizedBox(height: 12.h),
+          Row(
+            children: [
+              Expanded(
+                child: InkWell(
+                  onTap: (!canPause || _isUpdatingStatus)
+                      ? null
+                      : () => _updateSubscriptionStatus(0),
+                  borderRadius: BorderRadius.circular(12.r),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12.r),
+                      border: Border.all(
+                        color: canPause
+                            ? AllColors.olivegreenColor
+                            : Colors.grey.shade300,
+                      ),
+                      color: canPause
+                          ? AllColors.olivegreenColor.withValues(alpha: 0.08)
+                          : Colors.grey.shade100,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.pause_circle_filled,
+                          size: 18.sp,
+                          color: canPause
+                              ? AllColors.olivegreenColor
+                              : Colors.grey.shade500,
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          _isUpdatingStatus && canPause ? 'Pausing...' : 'Pause',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w700,
+                            color: canPause
+                                ? AllColors.olivegreenColor
+                                : Colors.grey.shade500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: InkWell(
+                  onTap: (!canResume || _isUpdatingStatus)
+                      ? null
+                      : () => _updateSubscriptionStatus(1),
+                  borderRadius: BorderRadius.circular(12.r),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 12.h),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12.r),
+                      border: Border.all(
+                        color: canResume
+                            ? AllColors.olivegreenColor
+                            : Colors.grey.shade300,
+                      ),
+                      color: canResume
+                          ? AllColors.olivegreenColor.withValues(alpha: 0.08)
+                          : Colors.grey.shade100,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.play_circle_fill,
+                          size: 18.sp,
+                          color: canResume
+                              ? AllColors.olivegreenColor
+                              : Colors.grey.shade500,
+                        ),
+                        SizedBox(width: 8.w),
+                        Text(
+                          _isUpdatingStatus && canResume
+                              ? 'Resuming...'
+                              : 'Resume',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w700,
+                            color: canResume
+                                ? AllColors.olivegreenColor
+                                : Colors.grey.shade500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -298,20 +432,26 @@ class _SubscriptionDetailScreenState extends State<SubscriptionDetailScreen> {
                 decoration: BoxDecoration(
                   color: _subscriptionDetail!.status == 1
                       ? Colors.green.shade50
-                      : Colors.grey.shade100,
+                      : _subscriptionDetail!.status == 0
+                      ? Colors.orange.shade50
+                      : Colors.red.shade50,
                   borderRadius: BorderRadius.circular(30.r),
                   border: Border.all(
                     color: _subscriptionDetail!.status == 1
                         ? Colors.green.shade200
-                        : Colors.grey.shade300,
+                        : _subscriptionDetail!.status == 0
+                        ? Colors.orange.shade200
+                        : Colors.red.shade200,
                   ),
                 ),
                 child: Text(
-                  _subscriptionDetail!.status == 1 ? 'ACTIVE' : 'INACTIVE',
+                  _statusLabel(_subscriptionDetail!.status),
                   style: TextStyle(
                     color: _subscriptionDetail!.status == 1
                         ? Colors.green.shade700
-                        : Colors.grey.shade600,
+                        : _subscriptionDetail!.status == 0
+                        ? Colors.orange.shade800
+                        : Colors.red.shade700,
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,

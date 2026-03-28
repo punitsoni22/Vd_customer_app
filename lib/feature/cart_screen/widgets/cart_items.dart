@@ -31,7 +31,9 @@ class CartItem extends StatelessWidget {
               color: hasChanges ? Colors.orange : AllColors.greyborderColor,
               width: hasChanges ? 1.5 : 0.5,
             ),
-            color: hasChanges ? Colors.orange.withValues(alpha: 0.02) : Colors.white,
+            color: hasChanges
+                ? Colors.orange.withValues(alpha: 0.02)
+                : Colors.white,
             borderRadius: BorderRadius.circular(16.r),
             boxShadow: [
               BoxShadow(
@@ -112,7 +114,9 @@ class CartItem extends StatelessWidget {
                         SizedBox(width: 8.w),
                         Consumer<CartProvider>(
                           builder: (context, provider, __) {
-                            final bool isRemoving = provider.isItemBeingRemoved(item.id);
+                            final bool isRemoving = provider.isItemBeingRemoved(
+                              item.id,
+                            );
 
                             return Material(
                               color: Colors.transparent,
@@ -133,7 +137,10 @@ class CartItem extends StatelessWidget {
                                           height: 16.sp,
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2,
-                                            valueColor: const AlwaysStoppedAnimation<Color>(Colors.red),
+                                            valueColor:
+                                                const AlwaysStoppedAnimation<
+                                                  Color
+                                                >(Colors.red),
                                           ),
                                         )
                                       : Icon(
@@ -182,9 +189,7 @@ class CartItem extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 borderRadius: BorderRadius.circular(24.r),
-                                border: Border.all(
-                                  color: Colors.grey.shade200,
-                                ),
+                                border: Border.all(color: Colors.grey.shade200),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.black.withValues(alpha: 0.03),
@@ -195,8 +200,14 @@ class CartItem extends StatelessWidget {
                               ),
                               child: AddSubtButton(
                                 quantity: provider.getDisplayQuantity(item),
-                                onAdd: () => provider.increaseQuantity(item),
-                                onSubtract: () => provider.decreaseQuantity(item),
+                                onAdd: () => provider.increaseQuantity(
+                                  item,
+                                  context: context,
+                                ),
+                                onSubtract: () => provider.decreaseQuantity(
+                                  item,
+                                  context: context,
+                                ),
                               ),
                             );
                           },

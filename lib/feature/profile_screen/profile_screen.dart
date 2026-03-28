@@ -59,35 +59,59 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       SizedBox(height: 15.h),
                       OrdersCard(),
                       SizedBox(height: 12.h),
-                      // Contact Us Option
-                      Container(
-                        padding: EdgeInsets.all(16.r),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
+                      Material(
+                        color: Colors.white,
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.r),
-                          border: Border.all(color: AllColors.outlineColor),
+                          side: BorderSide(color: AllColors.outlineColor),
                         ),
-                        child: GestureDetector(
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12.r),
+                          onTap: () {
+                            context.pushNamed(AppRoutes.addressBookScreen);
+                          },
+                          child: Padding(
+                            padding: EdgeInsets.all(16.r),
+                            child: BuildmenuCont(
+                              icon: Icons.location_on_outlined,
+                              title: 'Address Book',
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 12.h),
+                      // Contact Us Option
+                      Material(
+                        color: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                          side: BorderSide(color: AllColors.outlineColor),
+                        ),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12.r),
                           onTap: () {
                             context.pushNamed(AppRoutes.contactUsScreen);
                           },
-                          child: BuildmenuCont(
-                            icon: Icons.support_agent_rounded,
-                            title: 'Contact Us',
+                          child: Padding(
+                            padding: EdgeInsets.all(16.r),
+                            child: BuildmenuCont(
+                              icon: Icons.support_agent_rounded,
+                              title: 'Contact Us',
+                            ),
                           ),
                         ),
                       ),
                       SizedBox(height: 12.h),
 
                       // Call Us Option
-                      Container(
-                        padding: EdgeInsets.all(16.r),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
+                      Material(
+                        color: Colors.white,
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12.r),
-                          border: Border.all(color: AllColors.outlineColor),
+                          side: BorderSide(color: AllColors.outlineColor),
                         ),
-                        child: GestureDetector(
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(12.r),
                           onTap: () async {
                             final Uri launchUri = Uri(
                               scheme: 'tel',
@@ -111,9 +135,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               }
                             }
                           },
-                          child: BuildmenuCont(
-                            icon: Icons.call,
-                            title: 'Call Us',
+                          child: Padding(
+                            padding: EdgeInsets.all(16.r),
+                            child: BuildmenuCont(
+                              icon: Icons.call,
+                              title: 'Call Us',
+                            ),
                           ),
                         ),
                       ),

@@ -18,12 +18,14 @@ class AddressBottomSheet extends StatefulWidget {
   final List<AddressModel>? addresses;
   final String? selectedId;
   final Function(String)? onSelected;
+  final AddressModel? editAddress;
 
   const AddressBottomSheet({
     super.key,
     this.addresses,
     this.selectedId,
     this.onSelected,
+    this.editAddress,
   });
 
   @override
@@ -39,13 +41,40 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
   final TextEditingController _country = TextEditingController();
   final TextEditingController _postalCode = TextEditingController();
 
-  final bool _isDefault = false;
+  AddressModel? _editingAddress;
+  bool _isDefault = false;
   LatLng? _pickedLatLng;
   bool _isSubmitting = false;
   bool _hasPickedLocation = false;
   bool _showAddForm = false;
 
   String get _googleApiKey => dotenv.env['GOOGLE_MAPS_API_KEY'] ?? '';
+
+  @override
+  void initState() {
+    super.initState();
+
+    final initial = widget.editAddress;
+    if (initial != null) {
+      final lat = initial.latitudeDouble;
+      final lng = initial.longitudeDouble;
+      _editingAddress = initial;
+      _showAddForm = true;
+      _fullAddress.text = initial.fullAddress;
+      _city.text = initial.city;
+      _state.text = initial.state;
+      _country.text = initial.country;
+      _postalCode.text = initial.postalCode;
+      _isDefault = initial.isDefault;
+      if (lat != null && lng != null) {
+        _pickedLatLng = LatLng(lat, lng);
+        _hasPickedLocation = true;
+      } else {
+        _pickedLatLng = null;
+        _hasPickedLocation = false;
+      }
+    }
+  }
 
   @override
   void dispose() {
@@ -134,7 +163,7 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
 
     final payload = {
       "data": {
-        "id": 0,
+        "id": _editingAddress?.id ?? 0,
         "fullAddress": _fullAddress.text.trim(),
         "city": _city.text.trim(),
         "state": _state.text.trim(),
@@ -153,8 +182,12 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
       if (mounted) {
         MySnackBar.showSnackBar(context, resp['message'] ?? 'Address added');
 
-        if (widget.onSelected != null && resp['data']?['id'] != null) {
-          widget.onSelected!(resp['data']['id'].toString());
+        final returnedId = resp['data']?['id'];
+        final effectiveId = returnedId != null
+            ? returnedId.toString()
+            : _editingAddress?.id.toString();
+        if (widget.onSelected != null && effectiveId != null) {
+          widget.onSelected!(effectiveId);
         }
         Navigator.of(context).pop(true);
       }
@@ -309,9 +342,44 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
                           color: Colors.grey.shade600,
                         ),
                       ),
-                      trailing: isSelected
-                          ? Icon(Icons.check_circle, color: primary)
-                          : null,
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (isSelected)
+                            Padding(
+                              padding: EdgeInsets.only(right: 4.w),
+                              child: Icon(Icons.check_circle, color: primary),
+                            ),
+                          IconButton(
+                            onPressed: () {
+                              final lat = address.latitudeDouble;
+                              final lng = address.longitudeDouble;
+                              setState(() {
+                                _editingAddress = address;
+                                _showAddForm = true;
+                                _fullAddress.text = address.fullAddress;
+                                _city.text = address.city;
+                                _state.text = address.state;
+                                _country.text = address.country;
+                                _postalCode.text = address.postalCode;
+                                _isDefault = address.isDefault;
+                                if (lat != null && lng != null) {
+                                  _pickedLatLng = LatLng(lat, lng);
+                                  _hasPickedLocation = true;
+                                } else {
+                                  _pickedLatLng = null;
+                                  _hasPickedLocation = false;
+                                }
+                              });
+                            },
+                            icon: Icon(
+                              Icons.edit_outlined,
+                              size: 18.sp,
+                              color: Colors.grey.shade700,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
@@ -337,7 +405,16 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
           CommonButton(
             onTap: () {
               setState(() {
+                _editingAddress = null;
                 _showAddForm = true;
+                _isDefault = false;
+                _pickedLatLng = null;
+                _hasPickedLocation = false;
+                _fullAddress.clear();
+                _city.clear();
+                _state.clear();
+                _country.clear();
+                _postalCode.clear();
               });
             },
             buttonValue: '+ Add New Address',
@@ -349,6 +426,8 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
   }
 
   Widget _buildAddAddressForm(Color primary) {
+    final openedForEditOnly =
+        widget.editAddress != null && widget.addresses == null;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
       child: SingleChildScrollView(
@@ -374,7 +453,12 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
                 children: [
                   IconButton(
                     onPressed: () {
+                      if (openedForEditOnly) {
+                        Navigator.of(context).pop(false);
+                        return;
+                      }
                       setState(() {
+                        _editingAddress = null;
                         _showAddForm = false;
                       });
                     },
@@ -386,7 +470,9 @@ class _AddressBottomSheetState extends State<AddressBottomSheet> {
                   ),
                   Expanded(
                     child: Text(
-                      'Add New Address',
+                      _editingAddress == null
+                          ? 'Add New Address'
+                          : 'Edit Address',
                       style: TextStyle(
                         fontSize: 18.sp,
                         fontWeight: FontWeight.w700,

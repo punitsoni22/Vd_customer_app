@@ -1,0 +1,1 @@
+ /Users/apple/Desktop/Software/Vd_customer_app/.dart_tool/flutter_build/b0ecc9c09fba8c58ce8188104f30947c/native_assets.json: 

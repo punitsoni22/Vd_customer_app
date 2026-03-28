@@ -9,7 +9,8 @@ import '../../core/utils/common_widgets/common_summary_rowtext.dart';
 import '../../core/utils/common_widgets/common_textfield.dart';
 import '../../widget/snack_bar.dart';
 import '../cart_screen/provider/cart_provider.dart';
-import '../subscription_date_screen/provider/subscription_provider.dart' as subscription;
+import '../subscription_date_screen/provider/subscription_provider.dart'
+    as subscription;
 import '../subscription_date_screen/widgets/address_bottom_sheet.dart';
 import 'provider/checkout_provider.dart';
 import 'widgets/payment_cards.dart';
@@ -25,6 +26,21 @@ class CheckoutScreen extends StatefulWidget {
 class _CheckoutScreenState extends State<CheckoutScreen> {
   int _selectedPaymentIndex = 0;
   final TextEditingController _couponController = TextEditingController();
+
+  double _round2(num v) => (v * 100).roundToDouble() / 100;
+
+  double _resolveGrandTotal({
+    required double taxable,
+    required double gst,
+    double? backendTotal,
+  }) {
+    final computed = _round2(taxable + gst);
+    if (backendTotal == null) return computed;
+    final b = _round2(backendTotal);
+    if ((b - computed).abs() <= 0.5) return b;
+    if ((b - taxable).abs() <= 0.5 && gst > 0) return computed;
+    return b;
+  }
 
   @override
   void initState() {
@@ -368,6 +384,42 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ],
                   ),
                 ),
+                IconButton(
+                  onPressed: () async {
+                    String? editedId;
+                    final updated = await showModalBottomSheet<bool>(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (_) => AddressBottomSheet(
+                        editAddress: address,
+                        onSelected: (id) => editedId = id,
+                      ),
+                    );
+
+                    if (updated == true) {
+                      if (!context.mounted) return;
+                      await Provider.of<subscription.SubscriptionProvider>(
+                        context,
+                        listen: false,
+                      ).getAllAddresses(context);
+                      await provider.fetchAddresses();
+
+                      if (editedId != null) {
+                        for (final a in provider.addresses) {
+                          if (a.id.toString() == editedId) {
+                            provider.selectAddress(a);
+                            break;
+                          }
+                        }
+                      }
+                    }
+                  },
+                  icon: Icon(
+                    Icons.edit_outlined,
+                    size: 20.sp,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
               ],
             ),
           ),
@@ -381,9 +433,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     CheckoutProvider checkoutProvider,
     CartProvider cartProvider,
   ) {
-    final discount = checkoutProvider.couponDiscount;
-    final subtotal = cartProvider.subtotal;
-    final totalAmount = subtotal - discount;
+    final cartTotal = _round2(cartProvider.subtotal);
+    final discountAmount = _round2(
+      checkoutProvider.lastOrderDiscountAmount ??
+          checkoutProvider.couponDiscount,
+    );
+    final taxable = _round2(
+      (cartTotal - discountAmount) > 0 ? (cartTotal - discountAmount) : 0,
+    );
+    final gst = _round2(taxable * 0.18);
+    final grandTotal = _resolveGrandTotal(
+      taxable: taxable,
+      gst: gst,
+      backendTotal: checkoutProvider.lastOrderTotalAmount,
+    );
     final selectedAddress = checkoutProvider.selectedAddress;
 
     return SingleChildScrollView(
@@ -507,7 +570,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
             children: [
               PaymentOptionCard(
                 icon: Icons.qr_code_scanner_rounded,
-                title: "UPI",
+                title: "UPI/Card",
                 badge: "Instant",
                 selected: _selectedPaymentIndex == 0,
                 onTap: () => setState(() => _selectedPaymentIndex = 0),
@@ -809,14 +872,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   child: Column(
                     children: [
                       Summary(
-                        label: "Subtotal",
-                        value: "₹${subtotal.toStringAsFixed(2)}",
+                        label: "Subtotal (cart total)",
+                        value: "₹${cartTotal.toStringAsFixed(2)}",
                       ),
                       SizedBox(height: 8.h),
                       Summary(
                         label: "Discount",
-                        value: "-₹${discount.toStringAsFixed(2)}",
+                        value: "-₹${discountAmount.toStringAsFixed(2)}",
                         color: Colors.green,
+                      ),
+                      SizedBox(height: 8.h),
+                      Summary(
+                        label: "GST (18%)",
+                        value: "₹${gst.toStringAsFixed(2)}",
                       ),
                     ],
                   ),
@@ -825,8 +893,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 const Divider(),
                 SizedBox(height: 8.h),
                 Summary(
-                  label: "Total Amount",
-                  value: "₹${totalAmount.toStringAsFixed(2)}",
+                  label: "Grand Total",
+                  value: "₹${grandTotal.toStringAsFixed(2)}",
                   isBold: true,
                   color: AllColors.iconColor,
                   fontSize: 18.sp,
@@ -845,11 +913,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     CheckoutProvider checkoutProvider,
     CartProvider cartProvider,
   ) {
-    final discount = checkoutProvider.couponDiscount;
-    final deliveryCharge = 0.0;
-    final estimatedTax = 0.0;
-    final subtotal = cartProvider.subtotal;
-    final totalAmount = subtotal - discount + deliveryCharge - estimatedTax;
+    final cartTotal = _round2(cartProvider.subtotal);
+    final discountAmount = _round2(
+      checkoutProvider.lastOrderDiscountAmount ??
+          checkoutProvider.couponDiscount,
+    );
+    final taxable = _round2(
+      (cartTotal - discountAmount) > 0 ? (cartTotal - discountAmount) : 0,
+    );
+    final gst = _round2(taxable * 0.18);
+    final payable = _resolveGrandTotal(
+      taxable: taxable,
+      gst: gst,
+      backendTotal: checkoutProvider.lastOrderTotalAmount,
+    );
 
     return Container(
       width: double.infinity,
@@ -882,7 +959,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                 ),
                 SizedBox(height: 4.h),
                 Text(
-                  "₹${totalAmount.toStringAsFixed(2)}",
+                  "₹${payable.toStringAsFixed(2)}",
                   style: TextStyle(
                     fontSize: 20.sp,
                     fontWeight: FontWeight.w700,
@@ -911,7 +988,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   await _handleNextStep(checkoutProvider);
                 } else {
                   String paymentMode = 'ONLINE';
-                  if (_selectedPaymentIndex == 1) paymentMode = 'POD';
+                  if (_selectedPaymentIndex == 1) paymentMode = 'COD';
                   if (_selectedPaymentIndex == 2) paymentMode = 'QR';
 
                   final orderData = await checkoutProvider.placeOrder(
@@ -922,6 +999,129 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   );
 
                   if (orderData != null && context.mounted) {
+                    final respPaymentMode =
+                        orderData['paymentMode']?.toString().toUpperCase() ??
+                        '';
+                    final paymentData =
+                        orderData['payment'] as Map<String, dynamic>?;
+                    if (respPaymentMode == 'ONLINE' && paymentData != null) {
+                      final cartTotal = _round2(cartProvider.subtotal);
+                      final discountAmount = _round2(
+                        double.tryParse(
+                              (orderData['discountAmount'] ?? '0').toString(),
+                            ) ??
+                            checkoutProvider.couponDiscount,
+                      );
+                      final taxable = _round2(
+                        (cartTotal - discountAmount) > 0
+                            ? (cartTotal - discountAmount)
+                            : 0,
+                      );
+                      final orderTotal = _round2(
+                        double.tryParse(
+                              (orderData['totalAmount'] ?? '0').toString(),
+                            ) ??
+                            0,
+                      );
+                      final gst = _round2(taxable * 0.18);
+                      final paymentAmount = _round2(
+                        paymentData['amount'] is String
+                            ? (double.tryParse(paymentData['amount']) ?? 0)
+                            : (paymentData['amount'] is num
+                                  ? (paymentData['amount'] as num).toDouble()
+                                  : 0),
+                      );
+                      final displayTotal = _resolveGrandTotal(
+                        taxable: taxable,
+                        gst: gst,
+                        backendTotal: paymentAmount > 0
+                            ? paymentAmount
+                            : orderTotal,
+                      );
+
+                      await showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.vertical(
+                            top: Radius.circular(20.r),
+                          ),
+                        ),
+                        builder: (_) {
+                          return Padding(
+                            padding: EdgeInsets.only(
+                              left: 16.w,
+                              right: 16.w,
+                              top: 16.h,
+                              bottom:
+                                  16.h + MediaQuery.of(context).padding.bottom,
+                            ),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Price Breakdown',
+                                  style: TextStyle(
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                SizedBox(height: 12.h),
+                                Summary(
+                                  label: 'Subtotal (cart total)',
+                                  value: '₹${cartTotal.toStringAsFixed(2)}',
+                                ),
+                                SizedBox(height: 8.h),
+                                Summary(
+                                  label: 'Discount',
+                                  value:
+                                      '-₹${discountAmount.toStringAsFixed(2)}',
+                                  color: Colors.green,
+                                ),
+                                SizedBox(height: 8.h),
+                                Summary(
+                                  label: 'GST (18%)',
+                                  value: '₹${gst.toStringAsFixed(2)}',
+                                ),
+                                SizedBox(height: 12.h),
+                                const Divider(),
+                                SizedBox(height: 8.h),
+                                Summary(
+                                  label: 'Grand Total',
+                                  value: '₹${displayTotal.toStringAsFixed(2)}',
+                                  isBold: true,
+                                  color: AllColors.iconColor,
+                                  fontSize: 18.sp,
+                                ),
+                                SizedBox(height: 16.h),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: CommonButton(
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: 14.h,
+                                    ),
+                                    buttonValue: 'Pay Now',
+                                    backgroundColor: AllColors.iconColor,
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                      checkoutProvider.startOnlinePayment(
+                                        paymentData: paymentData,
+                                        orderData: orderData,
+                                        cartProvider: cartProvider,
+                                        context: context,
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                      return;
+                    }
                     final qrCode = orderData['qrCode']['qrCodeUrl'];
                     if ((paymentMode == 'QR' ||
                         (qrCode != null && qrCode.isNotEmpty))) {

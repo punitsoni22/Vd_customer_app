@@ -11,7 +11,8 @@ import 'package:vd_customer_app/feature/my_order_screen/widgets/subscription_det
 import 'package:vd_customer_app/widget/snack_bar.dart';
 
 class MyOrderTabBar extends StatefulWidget {
-  const MyOrderTabBar({super.key});
+  final int initialTabIndex;
+  const MyOrderTabBar({super.key, this.initialTabIndex = 0});
 
   @override
   State<MyOrderTabBar> createState() => _MyOrderTabBarState();
@@ -23,20 +24,40 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
   final ScrollController _subscriptionScrollController = ScrollController();
   final ScrollController _orderScrollController = ScrollController();
 
+  double _round2(num v) => (v * 100).roundToDouble() / 100;
+
+  String? _pickFirstNonEmptyString(List<String?> candidates) {
+    for (final c in candidates) {
+      final v = c?.trim();
+      if (v != null && v.isNotEmpty) return v;
+    }
+    return null;
+  }
+
+  String _pickFirstNonEmptyUrl(List<String?> candidates) {
+    for (final c in candidates) {
+      final v = c?.trim();
+      if (v != null && v.isNotEmpty) return v;
+    }
+    return 'assets/images/image.png';
+  }
+
   @override
   void initState() {
     super.initState();
 
-    _tabController = TabController(length: 2, vsync: this);
+    final idx = widget.initialTabIndex.clamp(0, 1);
+    _tabController = TabController(length: 2, vsync: this, initialIndex: idx);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final p = context.read<MyOrderProvider>();
-      if (!p.subscriptionsLoaded) p.fetchSubscriptions();
+      p.fetchSubscriptions();
+      p.fetchOrders();
     });
 
     _subscriptionScrollController.addListener(() {
       if (_subscriptionScrollController.position.pixels >=
-          _subscriptionScrollController.position.maxScrollExtent) {
+          _subscriptionScrollController.position.maxScrollExtent - 200) {
         final provider = context.read<MyOrderProvider>();
         if (!provider.isMoreSubscriptionsLoading &&
             provider.currentSubscriptionPage <
@@ -50,7 +71,7 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
 
     _orderScrollController.addListener(() {
       if (_orderScrollController.position.pixels >=
-          _orderScrollController.position.maxScrollExtent) {
+          _orderScrollController.position.maxScrollExtent - 200) {
         final provider = context.read<MyOrderProvider>();
         if (!provider.isMoreOrdersLoading &&
             provider.currentOrderPage < provider.totalOrderPages) {
@@ -70,6 +91,17 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
         if (!p.ordersLoaded) p.fetchOrders();
       }
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant MyOrderTabBar oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.initialTabIndex != oldWidget.initialTabIndex) {
+      final idx = widget.initialTabIndex.clamp(0, 1);
+      if (_tabController.index != idx) {
+        _tabController.index = idx;
+      }
+    }
   }
 
   @override
@@ -158,7 +190,9 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                       : ListView.builder(
                           controller: _subscriptionScrollController,
                           padding: EdgeInsets.symmetric(
-                              horizontal: 12.w, vertical: 10.h),
+                            horizontal: 12.w,
+                            vertical: 10.h,
+                          ),
                           itemCount:
                               provider.subscriptions.length +
                               (provider.isMoreSubscriptionsLoading ? 1 : 0),
@@ -175,27 +209,48 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                             final product = sub.products.isNotEmpty
                                 ? sub.products[0]
                                 : null;
+                            final resolvedInvoiceUrl = _pickFirstNonEmptyString(
+                              [sub.invoice?.signedUrl, sub.invoice?.invoiceUrl],
+                            );
+                            final invoiceNumber = sub.invoice?.invoiceNumber
+                                .trim();
+                            final displayInvoiceNumber =
+                                (invoiceNumber != null &&
+                                    invoiceNumber.isNotEmpty)
+                                ? invoiceNumber
+                                : 'SUB-${sub.id}';
+                            final canOpenInvoice =
+                                resolvedInvoiceUrl != null &&
+                                resolvedInvoiceUrl.trim().isNotEmpty &&
+                                resolvedInvoiceUrl.startsWith('http');
+                            final createdDateText = sub.createdOn != null &&
+                                    sub.createdOn!.trim().isNotEmpty
+                                ? DateValidator.formatDate(sub.createdOn!)
+                                : DateValidator.formatDate(
+                                    sub.startDate.toString(),
+                                  );
+                            final totalAmount = _round2(sub.totalAmount);
 
                             return Padding(
                               padding: EdgeInsets.only(bottom: 16.h),
                               child: MyOrderCard(
                                 id: 'Subscription ID: ${sub.id}',
-                                date:
-                                    "Starts:${DateValidator.formatDate(sub.startDate.toString())}",
+                                date: "Created: $createdDateText",
                                 productName:
+                                    sub.subscriptionName ??
                                     product?.productName ??
                                     "Subscription Product",
-                                imageUrl:
-                                    product?.signedUrl ??
-                                    product?.imageUrl ??
-                                    'assets/images/image.png',
+                                imageUrl: _pickFirstNonEmptyUrl([
+                                  product?.signedUrl,
+                                  product?.imageUrl,
+                                ]),
                                 detail:
-                                    "Frequency: ${sub.deliveryFrequencyType}",
+                                    "Total: ₹${totalAmount.toStringAsFixed(2)}",
                                 icon2: Icons.calendar_month,
                                 paymentMethod:
                                     "Next Delivery : ${DateValidator.formatDate(sub.startDate.toString())}",
-                                invoiceUrl: sub.invoice?.signedUrl,
-                                invoiceNumber: sub.invoice?.invoiceNumber,
+                                invoiceUrl: resolvedInvoiceUrl,
+                                invoiceNumber: displayInvoiceNumber,
                                 currentStatus: sub.status,
                                 onViewTap: () {
                                   Navigator.push(
@@ -208,9 +263,7 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                                     ),
                                   );
                                 },
-                                onInvoiceTap:
-                                    (sub.invoice?.signedUrl != null &&
-                                        sub.invoice?.invoiceNumber != null)
+                                onInvoiceTap: canOpenInvoice
                                     ? () {
                                         Navigator.push(
                                           context,
@@ -218,10 +271,9 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                                             builder: (context) =>
                                                 InvoiceViewerScreen(
                                                   invoiceUrl:
-                                                      sub.invoice!.signedUrl!,
-                                                  invoiceNumber: sub
-                                                      .invoice!
-                                                      .invoiceNumber,
+                                                      resolvedInvoiceUrl,
+                                                  invoiceNumber:
+                                                      displayInvoiceNumber,
                                                 ),
                                           ),
                                         );
@@ -264,7 +316,9 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                       : ListView.builder(
                           controller: _orderScrollController,
                           padding: EdgeInsets.symmetric(
-                              horizontal: 16.w, vertical: 16.h),
+                            horizontal: 16.w,
+                            vertical: 16.h,
+                          ),
                           itemCount:
                               provider.orders.length +
                               (provider.isMoreOrdersLoading ? 1 : 0),
@@ -281,24 +335,88 @@ class _MyOrderTabBarState extends State<MyOrderTabBar>
                             final cartDetail = order.cart.cartDetails.isNotEmpty
                                 ? order.cart.cartDetails[0]
                                 : null;
+                            final total = _round2(order.totalAmount);
+                            final qty = (cartDetail?.quantity ?? 0) > 0
+                                ? cartDetail!.quantity
+                                : 1;
+                            final statusUpper = order.status
+                                .trim()
+                                .toUpperCase();
+                            final canCancel = ![
+                              'CANCELLED',
+                              'DELIVERED',
+                              'COMPLETED',
+                            ].contains(statusUpper);
 
                             return Padding(
                               padding: EdgeInsets.only(bottom: 16.h),
                               child: MyOrderCard(
                                 id: 'Order ID: ${order.orderId}',
-                                date: DateValidator.formatDate(order.orderConfirmedDate),
+                                date: DateValidator.formatDate(
+                                  order.orderConfirmedDate,
+                                ),
                                 status: order.status,
                                 productName:
                                     cartDetail?.productName ?? 'Alkaline Water',
-                                imageUrl:
-                                    cartDetail?.productImages.signedUrl ??
-                                    cartDetail?.productImages.imageUrl ??
-                                    'assets/images/image.png',
+                                imageUrl: _pickFirstNonEmptyUrl([
+                                  cartDetail?.productImages.signedUrl,
+                                  cartDetail?.productImages.imageUrl,
+                                ]),
                                 detail:
-                                    'Quantity: ${cartDetail?.quantity ?? 1}',
+                                    "Quantity: $qty\nSubtotal: ₹${total.toStringAsFixed(2)}",
                                 paymentMethod: '',
                                 invoiceUrl: order.invoice?.signedUrl,
                                 invoiceNumber: order.invoice?.invoiceNumber,
+                                onCancelTap: canCancel
+                                    ? () async {
+                                        final confirmed = await showDialog<bool>(
+                                          context: context,
+                                          builder: (ctx) => AlertDialog(
+                                            title: const Text('Cancel order?'),
+                                            content: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                const Text(
+                                                  'This will cancel your order.',
+                                                ),
+                                                SizedBox(height: 10.h),
+                                                Text(
+                                                  'Note: Order cancellation is available only next day before 8 PM.',
+                                                  style: TextStyle(
+                                                    fontSize: 12.sp,
+                                                    color: Colors.grey.shade700,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () =>
+                                                    Navigator.pop(ctx, false),
+                                                child: const Text('No'),
+                                              ),
+                                              TextButton(
+                                                onPressed: () =>
+                                                    Navigator.pop(ctx, true),
+                                                child: const Text('Yes'),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                        if (confirmed != true) return;
+                                        if (!mounted) return;
+                                        await this.context
+                                            .read<MyOrderProvider>()
+                                            .cancelOrder(
+                                              this.context,
+                                              orderId: order.orderId,
+                                            );
+                                      }
+                                    : null,
+                                footerNote:
+                                    'Order cancellation is available only next day before 8 PM.',
                                 onViewTap: () {
                                   Navigator.push(
                                     context,

@@ -5,6 +5,7 @@ import 'package:vd_customer_app/feature/checkout_screen/checkout_screen.dart';
 import 'package:vd_customer_app/feature/my_order_screen/my_order_screen.dart';
 import 'package:vd_customer_app/feature/order_detail_screen.dart/order_detail_screen.dart';
 import 'package:vd_customer_app/feature/product_detail_screen/product_detail_screen.dart';
+import 'package:vd_customer_app/feature/profile_screen/address_book_screen.dart';
 import 'package:vd_customer_app/feature/profile_screen/contact_us_screen.dart';
 import 'package:vd_customer_app/feature/profile_screen/profile_screen.dart';
 import 'package:vd_customer_app/feature/subscription_date_screen/subscription_date_screen.dart';
@@ -130,7 +131,19 @@ GoRouter buildRouter() {
       GoRoute(
         path: '/my_order_screen',
         name: AppRoutes.myOrderScreen,
-        builder: (context, state) => const MyOrderScreen(),
+        builder: (context, state) {
+          final extra = state.extra;
+          int initialTabIndex = 0;
+          if (extra is Map<String, dynamic>) {
+            final idx = extra['initialTabIndex'];
+            if (idx is int) {
+              initialTabIndex = idx;
+            } else if (idx is String) {
+              initialTabIndex = int.tryParse(idx) ?? 0;
+            }
+          }
+          return MyOrderScreen(initialTabIndex: initialTabIndex);
+        },
       ),
       GoRoute(
         path: '/order_detail_screen',
@@ -142,6 +155,11 @@ GoRouter buildRouter() {
         path: '/profile_screen',
         name: AppRoutes.profileScreen,
         builder: (context, state) => const ProfileScreen(),
+      ),
+      GoRoute(
+        path: '/address_book_screen',
+        name: AppRoutes.addressBookScreen,
+        builder: (context, state) => const AddressBookScreen(),
       ),
       GoRoute(
         path: '/contact_us_screen',

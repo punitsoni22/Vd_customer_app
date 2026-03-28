@@ -9,47 +9,24 @@ class OrdersCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16.r),
-      decoration: BoxDecoration(
-        color: Colors.white,
+    return Material(
+      color: Colors.white,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(color: AllColors.outlineColor),
+        side: BorderSide(color: AllColors.outlineColor),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Orders",
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.bold,
-              color: AllColors.buttonColor,
-            ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12.r),
+        onTap: () {
+          GoRouter.of(context).push(AppRoutes.myOrderScreen);
+        },
+        child: Padding(
+          padding: EdgeInsets.all(16.r),
+          child: BuildmenuCont(
+            icon: Icons.inventory_2_outlined,
+            title: 'Orders',
           ),
-          SizedBox(height: 12.h),
-          GestureDetector(
-            onTap: () {
-              GoRouter.of(context).push(AppRoutes.myOrderScreen);
-            },
-            child: BuildmenuCont(
-              icon: Icons.inventory_2_outlined,
-              title: 'All Order’s',
-            ),
-          ),
-          // BuildmenuCont(
-          //   icon: Icons.calendar_today_outlined,
-          //   title: 'Order Calendar',
-          // ),
-          // BuildmenuCont(
-          //   icon: Icons.location_on_outlined,
-          //   title: 'Address Book',
-          // ),
-          // BuildmenuCont(
-          //   icon: Icons.local_drink_outlined,
-          //   title: 'Return Empty Bottle',
-          // ),
-        ],
+        ),
       ),
     );
   }

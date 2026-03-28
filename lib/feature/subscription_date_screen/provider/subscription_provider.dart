@@ -16,6 +16,8 @@ class SubscriptionProvider extends ChangeNotifier {
   late Razorpay _razorpay;
   int? _pendingOrderId;
   String? _pendingOrderNo;
+  int? _pendingSubscriptionId;
+  String? _pendingRazorpayOrderId;
   BuildContext? _pendingContext;
 
   SubscriptionProvider() {
@@ -59,10 +61,7 @@ class SubscriptionProvider extends ChangeNotifier {
 
     try {
       final response = await Api.post('checkDeliveryPincode', {
-        "data": {
-          "pinCode": pinCode,
-          "productId": productIds,
-        },
+        "data": {"pinCode": pinCode, "productId": productIds},
       });
 
       log("checkDeliveryPincode Response: $response");
@@ -86,8 +85,9 @@ class SubscriptionProvider extends ChangeNotifier {
                 ? "Delivery is available."
                 : "Delivery not available.");
         if (data['undeliverableProducts'] != null) {
-          _undeliverableProducts =
-              List<String>.from(data['undeliverableProducts']);
+          _undeliverableProducts = List<String>.from(
+            data['undeliverableProducts'],
+          );
         }
         if (data['deliverableProducts'] != null) {
           _deliverableProducts = List<String>.from(data['deliverableProducts']);
@@ -175,10 +175,26 @@ class SubscriptionProvider extends ChangeNotifier {
     Map<String, dynamic> orderData,
     BuildContext context,
   ) {
-    _pendingOrderId = orderData['id'] is int
-        ? orderData['id']
-        : (int.tryParse(orderData['id']?.toString() ?? ''));
+    int? toInt(dynamic v) {
+      if (v == null) return null;
+      if (v is int) return v;
+      return int.tryParse(v.toString());
+    }
+
+    _pendingOrderId =
+        toInt(orderData['orderId']) ??
+        toInt(orderData['id']) ??
+        toInt(paymentData['orderId']) ??
+        toInt(paymentData['id']);
     _pendingOrderNo = orderData['orderNo']?.toString();
+    _pendingSubscriptionId =
+        toInt(orderData['subscriptionId']) ??
+        toInt(paymentData['subscriptionId']) ??
+        toInt(orderData['id']) ??
+        toInt(paymentData['id']);
+    _pendingRazorpayOrderId =
+        paymentData['razorpayOrderId']?.toString() ??
+        paymentData['orderId']?.toString();
     _pendingContext = context;
 
     final key =
@@ -195,7 +211,7 @@ class SubscriptionProvider extends ChangeNotifier {
     final options = {
       'key': key,
       'amount': (amountDouble * 100).toInt(),
-      'name': paymentData['name'] ?? 'Store',
+      'name': paymentData['name'] ?? 'Veedasip',
       'description': paymentData['description'] ?? 'Subscription Payment',
       'order_id': paymentData['razorpayOrderId'] ?? paymentData['orderId'],
       'currency': paymentData['currency'] ?? 'INR',
@@ -220,37 +236,78 @@ class SubscriptionProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final payload = {
-        'data': {
-          'orderId': _pendingOrderId,
-          'orderNo': _pendingOrderNo,
-          'paymentId': response.paymentId,
-          'razorpayOrderId': response.orderId,
-          'razorpaySignature': response.signature,
-        },
-      };
-
-      await Api.post('generateInvoice', payload);
+      if (_pendingSubscriptionId != null) {
+        final verifyResponse = await Api.post('verifySubscriptionPayment', {
+          'data': {
+            'subscriptionId': _pendingSubscriptionId,
+            'razorpayOrderId': response.orderId ?? _pendingRazorpayOrderId,
+            'razorpayPaymentId': response.paymentId,
+            'razorpaySignature': response.signature,
+          },
+        });
+        final verified =
+            verifyResponse['success'] == true ||
+            verifyResponse['dataResponse']?['returnCode'] == 0;
+        if (!verified) {
+          throw Exception(
+            verifyResponse['message'] ??
+                verifyResponse['dataResponse']?['description'] ??
+                'Payment verification failed.',
+          );
+        }
+      } else if (_pendingOrderId != null) {
+        final verifyResponse = await Api.post('verifyPayment', {
+          'data': {
+            'orderId': _pendingOrderId,
+            'razorpayOrderId': response.orderId ?? _pendingRazorpayOrderId,
+            'razorpayPaymentId': response.paymentId,
+            'razorpaySignature': response.signature,
+          },
+        });
+        final verified =
+            verifyResponse['success'] == true ||
+            verifyResponse['dataResponse']?['returnCode'] == 0;
+        if (!verified) {
+          throw Exception(
+            verifyResponse['message'] ??
+                verifyResponse['dataResponse']?['description'] ??
+                'Payment verification failed.',
+          );
+        }
+      } else {
+        throw Exception('Missing subscription/order id for payment verification.');
+      }
 
       if (_pendingContext != null) {
         _subscriptionCreatedSuccessfully = true;
         notifyListeners();
         MySnackBar.showSnackBar(
           _pendingContext!,
-          'Subscription created successfully!',
+          'Subscription activated successfully!',
         );
-        _pendingContext!.pushReplacement(AppRoutes.myOrderScreen);
+        _pendingContext!.pushReplacement(
+          AppRoutes.myOrderScreen,
+          extra: {'initialTabIndex': 0},
+        );
       }
     } catch (e) {
       if (_pendingContext != null) {
+        _subscriptionCreatedSuccessfully = true;
+        notifyListeners();
         MySnackBar.showSnackBar(
           _pendingContext!,
-          'Payment succeeded but finalizing failed.',
+          'Payment successful. Your subscription will be updated shortly.',
+        );
+        _pendingContext!.pushReplacement(
+          AppRoutes.myOrderScreen,
+          extra: {'initialTabIndex': 0},
         );
       }
     } finally {
       _pendingOrderId = null;
       _pendingOrderNo = null;
+      _pendingSubscriptionId = null;
+      _pendingRazorpayOrderId = null;
       _pendingContext = null;
       notifyListeners();
     }
@@ -266,6 +323,8 @@ class SubscriptionProvider extends ChangeNotifier {
     }
     _pendingOrderId = null;
     _pendingOrderNo = null;
+    _pendingSubscriptionId = null;
+    _pendingRazorpayOrderId = null;
     _pendingContext = null;
   }
 

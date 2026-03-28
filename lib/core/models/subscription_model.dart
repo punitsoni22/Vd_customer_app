@@ -5,6 +5,9 @@ class SubscriptionModel {
   final String subscriptionType;
   final DateTime startDate;
   final DateTime endDate;
+  final double totalAmount;
+  final String? subscriptionName;
+  final String? createdOn;
   final List<SubscriptionProduct> products;
   final SubscriptionInvoice? invoice;
   final int? status;
@@ -16,6 +19,9 @@ class SubscriptionModel {
     required this.subscriptionType,
     required this.startDate,
     required this.endDate,
+    required this.totalAmount,
+    this.subscriptionName,
+    this.createdOn,
     required this.products,
     this.invoice,
     this.status,
@@ -23,7 +29,24 @@ class SubscriptionModel {
 
   factory SubscriptionModel.fromJson(Map<String, dynamic> json) {
     final Map<String, dynamic>? invoiceJson =
-        (json['invoice'] as Map<String, dynamic>?);
+        (json['invoice'] as Map<String, dynamic>?) ??
+        (((json['invoiceNumber'] ?? json['invoiceUrl'] ?? json['filePath']) !=
+                    null ||
+                (json['invoice_number'] ??
+                        json['invoice_url'] ??
+                        json['file_path']) !=
+                    null)
+            ? {
+                'invoiceNumber':
+                    json['invoiceNumber'] ?? json['invoice_number'] ?? '',
+                'invoiceUrl':
+                    json['invoiceUrl'] ??
+                    json['invoice_url'] ??
+                    json['filePath'] ??
+                    json['file_path'] ??
+                    '',
+              }
+            : null);
 
     return SubscriptionModel(
       id: json['id'],
@@ -32,6 +55,14 @@ class SubscriptionModel {
       subscriptionType: json['subscriptionType'] ?? '',
       startDate: DateTime.parse(json['startDate']),
       endDate: DateTime.parse(json['endDate']),
+      totalAmount:
+          double.tryParse((json['totalAmount'] ?? '0').toString()) ?? 0.0,
+      subscriptionName: (json['subscriptionName'] ?? json['subscription_name'])
+          ?.toString()
+          .trim(),
+      createdOn: (json['createdOn'] ?? json['createdon'] ?? json['created_on'])
+          ?.toString()
+          .trim(),
       products: (json['products'] as List<dynamic>)
           .map((e) => SubscriptionProduct.fromJson(e))
           .toList(),
@@ -44,6 +75,7 @@ class SubscriptionModel {
     );
   }
 }
+
 enum eSubscriptionStatus { PAUSED, RESUMED, CANCELLED }
 
 class SubscriptionProduct {
@@ -107,8 +139,13 @@ class SubscriptionInvoice {
 
   factory SubscriptionInvoice.fromJson(Map<String, dynamic> json) {
     return SubscriptionInvoice(
-      invoiceNumber: json['invoiceNumber'] ?? '',
-      invoiceUrl: json['invoiceUrl'] ?? '',
+      invoiceNumber: json['invoiceNumber'] ?? json['invoice_number'] ?? '',
+      invoiceUrl:
+          json['invoiceUrl'] ??
+          json['filePath'] ??
+          json['file_path'] ??
+          json['invoice_url'] ??
+          '',
     );
   }
 }

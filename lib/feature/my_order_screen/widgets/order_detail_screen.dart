@@ -21,6 +21,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   OrderDetailModel? _orderDetail;
   String? _errorMessage;
 
+  double _round2(num v) => (v * 100).roundToDouble() / 100;
+
   @override
   void initState() {
     super.initState();
@@ -337,7 +339,8 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
         color: Colors.grey.shade50,
         borderRadius: BorderRadius.circular(12.r),
         border: Border.all(color: Colors.grey.shade200),
-      ),      child: Row(
+      ),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
@@ -419,9 +422,17 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
   }
 
   Widget _buildPriceSummary() {
-    final subtotal = double.tryParse(_orderDetail!.totalAmount) ?? 0.0;
-    final discount = double.tryParse(_orderDetail!.discountAmount) ?? 0.0;
-    final total = subtotal - discount;
+    final cartTotal =
+        double.tryParse(_orderDetail!.cart.totalPrice.toString()) ?? 0.0;
+    final discount =
+        double.tryParse(_orderDetail!.discountAmount.toString()) ?? 0.0;
+    final taxable = _round2(
+      (cartTotal - discount) > 0 ? (cartTotal - discount) : 0,
+    );
+    final orderTotal = _round2(
+      double.tryParse(_orderDetail!.totalAmount.toString()) ?? 0.0,
+    );
+    final gst = _round2(taxable * 0.18);
 
     return Container(
       width: double.infinity,
@@ -445,7 +456,10 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
             style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w600),
           ),
           SizedBox(height: 16.h),
-          _buildPriceRow('Subtotal', '₹${subtotal.toStringAsFixed(2)}'),
+          _buildPriceRow(
+            'Subtotal (cart total)',
+            '₹${_round2(cartTotal).toStringAsFixed(2)}',
+          ),
           if (discount > 0) ...[
             SizedBox(height: 12.h),
             _buildPriceRow(
@@ -454,10 +468,12 @@ class _OrderDetailScreenState extends State<OrderDetailScreen> {
               isDiscount: true,
             ),
           ],
+          SizedBox(height: 12.h),
+          _buildPriceRow('GST (18%)', '₹${gst.toStringAsFixed(2)}'),
           Divider(color: Colors.grey[400]),
           _buildPriceRow(
-            'Total Amount',
-            '₹${total.toStringAsFixed(2)}',
+            'Grand Total',
+            '₹${orderTotal.toStringAsFixed(2)}',
             isTotal: true,
           ),
         ],

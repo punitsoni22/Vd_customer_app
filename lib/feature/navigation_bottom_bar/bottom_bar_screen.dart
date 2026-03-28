@@ -36,7 +36,7 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
         widget.navId != oldWidget.navId) {
       final isLoggedIn = context.read<AuthProvider>().isLoggedIn;
       _index = widget.initialIndex;
-      
+
       // Ensure page is instantiated
       if (_pages[_index] == null) {
         _pages[_index] = _buildPage(_index, isLoggedIn);
@@ -55,7 +55,7 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
           "pageSize": 10,
         });
       }
-      
+
       setState(() {});
     }
   }
@@ -85,10 +85,7 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
             SizedBox(height: 12.h),
             Text(
               'Sign in to view your cart items and checkout',
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: Colors.grey.shade600,
-              ),
+              style: TextStyle(fontSize: 14.sp, color: Colors.grey.shade600),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 32.h),
@@ -113,7 +110,9 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
       case 2:
         return const SubscriptionProductScreen();
       case 3:
-        return isLoggedIn ? const CartScreen() : _buildLoginRequiredView(context);
+        return isLoggedIn
+            ? const CartScreen()
+            : _buildLoginRequiredView(context);
       case 4:
         return const ProfileScreen();
       default:
@@ -136,6 +135,8 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
 
       if (_index == 3 && isLoggedIn) {
         context.read<CartProvider>().fetchLatestCart(context);
+      } else if (isLoggedIn) {
+        context.read<CartProvider>().fetchLatestCart(context);
       } else if (_index == 1) {
         context.read<ProductProvider>().getProducts({
           "filterModel": {},
@@ -154,20 +155,22 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
   @override
   Widget build(BuildContext context) {
     final isLoggedIn = context.watch<AuthProvider>().isLoggedIn;
+    final cartCount = isLoggedIn
+        ? context.watch<CartProvider>().totalItemsCount
+        : 0;
 
     if (_lastLoggedInState != null && _lastLoggedInState != isLoggedIn) {
       // Login state changed, invalidate pages that depend on it
       _pages[3] = null; // Cart
-      
+
       // If we are currently on the cart page, rebuild it immediately
       if (_index == 3) {
         _pages[3] = _buildPage(3, isLoggedIn);
-        if (isLoggedIn) {
-          // Fetch cart data if we just logged in
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-             if (mounted) context.read<CartProvider>().fetchLatestCart(context);
-          });
-        }
+      }
+      if (isLoggedIn) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) context.read<CartProvider>().fetchLatestCart(context);
+        });
       }
     }
     _lastLoggedInState = isLoggedIn;
@@ -175,6 +178,7 @@ class _BottomBarScreenState extends State<BottomBarScreen> {
       bottomNavigationBar: NavigationBottomBar(
         currentIndex: _index,
         visibleItemCount: 5,
+        cartCount: cartCount,
         onTap: (i) {
           final wasCreated = _pages[i] != null;
           setState(() {

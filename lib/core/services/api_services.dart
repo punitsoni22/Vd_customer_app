@@ -1,12 +1,26 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import '../utils/prefs/prefs.dart';
 import 'api_return_codes.dart';
 
 class Api {
-  static const String baseUrl = 'https://api.veedasip.wikdup.in/';
+  static String get baseUrl {
+    final envUrl = dotenv.env['BASE_URL'] ?? dotenv.env['BACKEND_URL'];
+    final url = (envUrl != null && envUrl.trim().isNotEmpty)
+        ? envUrl.trim()
+        : 'https://api.veedasip.wikdup.in';
+    return url.replaceAll(RegExp(r'/+$'), '');
+  }
+
+  static Uri _buildUri(String endpoint) {
+    final cleanedEndpoint = endpoint.startsWith('/')
+        ? endpoint.substring(1)
+        : endpoint;
+    return Uri.parse('$baseUrl/$cleanedEndpoint');
+  }
 
   static Future<Map<String, dynamic>> _makeRequest(
     String method,
@@ -14,14 +28,14 @@ class Api {
     Map<String, dynamic>? data,
   }) async {
     final token = await Prefs.getString(Prefs.keyAuthToken);
-    final uri = Uri.parse('$baseUrl/$endpoint');
+    final uri = _buildUri(endpoint);
     final headers = {
       'Content-Type': 'application/json; charset=UTF-8',
       if (token != null) 'Authorization': 'Bearer $token',
     };
 
     http.Response response;
-    log("this is url: $uri, header: $headers, body: ${jsonEncode(data)}");
+    log("API $method $uri body: ${jsonEncode(data)}");
     try {
       if (method == 'POST') {
         response = await http.post(
@@ -43,9 +57,20 @@ class Api {
 
         if (returnCode == ReturnCodes.R_SUCCESS.value ||
             returnCode == ReturnCodes.R_CREATED.value) {
-          return {"success": true, "message": description, "data": data};
+          return {
+            "success": true,
+            "message": description,
+            "data": data,
+            "dataResponse": dataResponse,
+          };
         } else {
-          return {"success": false, "message": description, "code": returnCode};
+          return {
+            "success": false,
+            "message": description,
+            "code": returnCode,
+            "data": data,
+            "dataResponse": dataResponse,
+          };
         }
       } else {
         return {

@@ -16,6 +16,7 @@ class MapPickerPage extends StatefulWidget {
 class _MapPickerPageState extends State<MapPickerPage> {
   late LatLng _picked;
   bool _isLoadingLocation = true;
+  bool _hasLocationPermission = false;
   GoogleMapController? _mapController;
 
   @override
@@ -47,7 +48,10 @@ class _MapPickerPageState extends State<MapPickerPage> {
               context,
               'Location permission denied. Using default location.',
             );
-            setState(() => _isLoadingLocation = false);
+            setState(() {
+              _hasLocationPermission = false;
+              _isLoadingLocation = false;
+            });
           }
           return;
         }
@@ -60,9 +64,18 @@ class _MapPickerPageState extends State<MapPickerPage> {
             context,
             'Location permission permanently denied. Using default location.',
           );
-          setState(() => _isLoadingLocation = false);
+          setState(() {
+            _hasLocationPermission = false;
+            _isLoadingLocation = false;
+          });
         }
         return;
+      }
+
+      if (mounted) {
+        setState(() {
+          _hasLocationPermission = true;
+        });
       }
 
       // Permission granted, get current location
@@ -70,7 +83,10 @@ class _MapPickerPageState extends State<MapPickerPage> {
     } catch (e) {
       debugPrint('Location permission error: $e');
       if (mounted) {
-        setState(() => _isLoadingLocation = false);
+        setState(() {
+          _hasLocationPermission = false;
+          _isLoadingLocation = false;
+        });
       }
     }
   }
@@ -152,8 +168,8 @@ class _MapPickerPageState extends State<MapPickerPage> {
                 infoWindow: const InfoWindow(title: 'Selected Location'),
               ),
             },
-            myLocationEnabled: true,
-            myLocationButtonEnabled: false,
+            myLocationEnabled: _hasLocationPermission,
+            myLocationButtonEnabled: _hasLocationPermission,
             zoomControlsEnabled: false,
             mapToolbarEnabled: false,
             compassEnabled: true,
