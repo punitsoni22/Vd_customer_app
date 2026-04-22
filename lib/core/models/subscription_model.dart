@@ -49,12 +49,12 @@ class SubscriptionModel {
             : null);
 
     return SubscriptionModel(
-      id: json['id'],
+      id: json['id'] ?? 0,
       customerName: json['customerName'] ?? '',
       deliveryFrequencyType: json['deliveryFrequencyType'] ?? '',
       subscriptionType: json['subscriptionType'] ?? '',
-      startDate: DateTime.parse(json['startDate']),
-      endDate: DateTime.parse(json['endDate']),
+      startDate: DateTime.parse((json['startDate'] ?? '').toString()),
+      endDate: DateTime.parse((json['endDate'] ?? '').toString()),
       totalAmount:
           double.tryParse((json['totalAmount'] ?? '0').toString()) ?? 0.0,
       subscriptionName: (json['subscriptionName'] ?? json['subscription_name'])
@@ -63,8 +63,12 @@ class SubscriptionModel {
       createdOn: (json['createdOn'] ?? json['createdon'] ?? json['created_on'])
           ?.toString()
           .trim(),
-      products: (json['products'] as List<dynamic>)
-          .map((e) => SubscriptionProduct.fromJson(e))
+      products: (json['products'] as List<dynamic>? ?? const [])
+          .map(
+            (e) => SubscriptionProduct.fromJson(
+              Map<String, dynamic>.from(e as Map),
+            ),
+          )
           .toList(),
       invoice: invoiceJson != null
           ? SubscriptionInvoice.fromJson(invoiceJson)
@@ -95,24 +99,25 @@ class SubscriptionProduct {
   });
 
   factory SubscriptionProduct.fromJson(Map<String, dynamic> json) {
-    // Extract image URL from the images array
     String? imgUrl;
     if (json['images'] != null && json['images'] is List) {
       final images = json['images'] as List;
       if (images.isNotEmpty) {
-        imgUrl = images[0]['imageUrl'] as String?;
+        final first = images[0];
+        if (first is Map && first['imageUrl'] != null) {
+          imgUrl = first['imageUrl'] as String?;
+        }
       }
     }
 
-    // Fallback: check productImages map (similar to CartDetail)
     if (imgUrl == null &&
         json['productImages'] != null &&
         json['productImages'] is Map) {
-      final productImages = json['productImages'] as Map<String, dynamic>;
-      imgUrl = productImages['imageUrl'] as String?;
+      final productImages = json['productImages'] as Map;
+      final v = productImages['imageUrl'];
+      if (v != null) imgUrl = v.toString();
     }
 
-    // Fallback: check direct imageUrl
     if (imgUrl == null && json['imageUrl'] != null) {
       imgUrl = json['imageUrl'] as String?;
     }
